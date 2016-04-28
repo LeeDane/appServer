@@ -1,0 +1,67 @@
+body{
+	background-color: #999999;
+}
+
+#admin{
+	width: 1024px;
+	margin: 0 auto;
+	
+}
+#main{
+	width: 1024px;
+	background-color: #FFFFFF;
+}
+
+#left{
+	width: 220px;
+	float: left;
+	border:1px solid black;
+	background-color: #FFFFFF;
+	border-radius:3px;
+}
+
+.release_title{
+	width: 220px;
+	margin: 0 auto;
+	height: 40px;
+	line-height: 40px;
+	background-color: #666666;
+}
+
+.release_main{
+	background-color: #ffffff;
+}
+
+#release_main ul{
+	list-style: none;
+	width: 220px;
+	
+}
+
+#release_main ul li{}
+
+.release_style{
+	cursor: pointer;
+	height: 30px;
+	line-height: 30px;
+	text-indent: 70px;
+	width: 220px;
+}
+
+.admin_msg{
+	color:red;
+	font-family: "黑体";
+	font-size: 15px;
+	font-style: italic;
+}
+
+#right{
+	width: 800px;
+	min-height:600px;
+	float: left;
+	border:1px solid #666666;
+	background-color: #FFFFFF;
+	border-radius:3px;
+}
+
+

@@ -1,0 +1,113 @@
+package com.cn.leedane.service;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import net.sf.json.JSONObject;
+
+import com.cn.leedane.bean.FriendBean;
+import com.cn.leedane.bean.UserBean;
+
+/**
+ * 好友关系service接口类
+ * @author LeeDane
+ * 2015年9月15日 下午2:41:39
+ * Version 1.0
+ */
+public interface FriendService <T extends Serializable> extends BaseService<FriendBean>{
+	
+	/**
+	 * 添加朋友的关系(单方面添加，需要等待对方确认)
+	 * @param jo
+	 * @param user
+	 * @param request
+	 * @return
+	 */
+	public Map<String, Object> addFriend(JSONObject jo, UserBean user, HttpServletRequest request);
+	
+	/**
+	 * 同意对方的好友申请
+	 * @param jo
+	 * @param user
+	 * @param request
+	 * @return
+	 */
+	public Map<String, Object> addAgree(JSONObject jo, UserBean user, HttpServletRequest request);
+	
+	/**
+	 * 获取我的全部的好友ID和备注
+	 * @param uid
+	 * @return
+	 */
+	public List<Map<String, Object>> getFromToFriends(int uid);
+	
+	/**
+	 * 获取全部的好友对我的ID和备注
+	 * @param uid
+	 * @return
+	 */
+	public List<Map<String, Object>> getToFromFriends(int uid);
+	
+	/**
+	 * 根据用户id删除指定好友信息
+	 * @param uid
+	 * @param friends
+	 * @return
+	 */
+	public boolean deleteFriends(int uid, int ... friends);
+	
+	/**
+	 * 判断两人是否是朋友的关系（判断两人的正式好友记录）
+	 * @param id  当前用户的id
+	 * @param to_user_id  对方用户的id
+	 * @return
+	 */
+	public boolean isFriend(int id, int to_user_id);
+	
+	/**
+	 * 判断两人是否是朋友的关系（包括一方申请还没有同意）
+	 * @param id  当前用户的id
+	 * @param to_user_id  对方用户的id
+	 * @return
+	 */
+	public boolean isFriendRecord(int id, int to_user_id);
+
+	/**
+	 * 获取已经跟我成为好友关系的分页列表
+	 * @param jo
+	 * @param user
+	 * @param request
+	 * @return
+	 */
+	public Map<String, Object> friendsPaging(JSONObject jo, UserBean user, HttpServletRequest request);
+	
+	/**
+	 * 获取我发送的好友请求列表(我加别人的)
+	 * @param jo
+	 * @param user
+	 * @param request
+	 * @return
+	 */
+	public Map<String, Object> requestPaging(JSONObject jo, UserBean user, HttpServletRequest request);
+	
+	/**
+	 * 获取等待我同意的好友关系列表(别人加我的)
+	 * @param jo
+	 * @param user
+	 * @param request
+	 * @return
+	 */
+	public Map<String, Object> responsePaging(JSONObject jo, UserBean user, HttpServletRequest request);
+
+	/**
+	 * 用户本地联系人跟服务器上的好友进行匹配后返回
+	 * @param jo
+	 * @param user
+	 * @param request
+	 * @return
+	 */
+	public Map<String, Object> matchContact(JSONObject jo, UserBean user, HttpServletRequest request);
+}

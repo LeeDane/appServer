@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>   
+<web-app id="WebApp_ID" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">      
+    <display-name>LeeDane 个人技术网站</display-name>  
+    <welcome-file-list>   
+        <welcome-file>/welcome.jsp</welcome-file>   
+    </welcome-file-list>  
+    <!-- <error-page>  
+		<error-code>404</error-code>  
+		<location>/404.jsp</location>  
+	</error-page> --> 
+	
+	<!-- 关键是这部分servlet配置要放在下面的filter配置之前，否则就会找默认的action去处理了-->      
+    <servlet>  
+        <servlet-name>Kaptcha</servlet-name>  
+        <servlet-class>com.google.code.kaptcha.servlet.KaptchaServlet</servlet-class>  
+          
+        <init-param>  
+            <param-name>kaptcha.image.width</param-name>  
+            <param-value>100</param-value>  
+        </init-param>  
+        <init-param>  
+            <param-name>kaptcha.image.height</param-name>  
+            <param-value>30</param-value>  
+        </init-param>  
+        <init-param>  
+            <param-name>kaptcha.textproducer.font.size</param-name>  
+            <param-value>30</param-value>  
+        </init-param>  
+        <init-param>  
+            <param-name>kaptcha.textproducer.char.length</param-name>  
+            <param-value>4</param-value>  
+        </init-param>  
+        <init-param>  
+            <param-name>kaptcha.border</param-name>  
+            <param-value>no</param-value>  
+        </init-param>  
+  
+        <init-param>  
+            <param-name>kaptcha.textproducer.font.color</param-name>  
+            <param-value>black</param-value>  
+        </init-param>  
+  
+        <init-param>  
+            <param-name>kaptcha.textproducer.char.space</param-name>  
+            <param-value>2</param-value>  
+        </init-param>  
+    </servlet>  
+		<servlet-mapping>  
+        <servlet-name>Kaptcha</servlet-name>  
+        <url-pattern>/Kaptcha.jpg</url-pattern>  
+    </servlet-mapping>  
+	
+	
+    <context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+			classpath*:applicationContext.xml,
+			classpath*:spring-beans.xml,
+			classpath*:spring-lucene.xml ,
+			<!-- classpath*:spring-activemq.xml,  -->
+			classpath*:spring-quartz.xml
+		</param-value>
+	</context-param>
+
+	<listener>
+        <listener-class>com.cn.leedane.listener.CacheContextLoaderListener</listener-class>
+    </listener>
+    
+    <!-- 注册Spring的request作用域 --> 
+	 <listener> 
+  		<listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+  	</listener> 
+  	
+  	<servlet>
+		<servlet-name>AxisServlet</servlet-name>
+		<servlet-class>org.apache.axis.transport.http.AxisServlet
+		</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AxisServlet</servlet-name>
+		<url-pattern>/services/*</url-pattern>
+	</servlet-mapping>
+  	
+	<!-- <filter>  
+	    <filter-name>fileUploadFilter</filter-name>  
+	    <filter-class>com.cn.leedane.filter.FileUploadFilter</filter-class>  
+	</filter>  
+	<filter-mapping>  
+	    <filter-name>fileUploadFilter</filter-name>  
+	    <url-pattern>/*</url-pattern>  
+	</filter-mapping> -->
+  	
+ 
+    <filter>   
+        <filter-name>struts2.3</filter-name>   
+        <!-- <filter-class>com.cn.leedane.filter.LoginFilter</filter-class>   --> 
+        <filter-class>org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter</filter-class>  
+    </filter>   
+    <filter-mapping>   
+        <filter-name>struts2.3</filter-name>   
+        <url-pattern>*.action</url-pattern>   
+    </filter-mapping>
+    <!-- <filter>
+         <filter-name>struts2</filter-name>
+         <filter-class>org.apache.struts2.dispatcher.FilterDispatcher</filter-class>
+     </filter>
+
+    <filter-mapping>
+         <filter-name>struts2</filter-name>
+         <url-pattern>*.action</url-pattern>
+     </filter-mapping> -->
+    
+    
+   	<!-- 这个是web.xml的2.3版本配置的方式，在2.4版本里配会编译报错
+   	<taglib>
+           <taglib-uri>/struts-tags</taglib-uri>
+           <taglib-location>/WEB-INF/struts-tags.tld</taglib-location>
+    </taglib> -->
+
+	<!-- <jsp-config>
+		 <taglib>
+		 	<taglib-uri>sitemesh-decorator</taglib-uri>
+		 	<taglib-location>/WEB-INF/sitemesh-decorator.tld</taglib-location>
+		 </taglib>
+		 <taglib>
+		 	<taglib-uri>sitemesh-page</taglib-uri>
+		 	<taglib-location>/WEB-INF/sitemesh-page.tld</taglib-location>
+		 </taglib>
+	</jsp-config>  -->	
+	<!-- 这是网上找的另一个版本
+	<jsp-config>
+         <taglib>
+             <taglib-uri>struts2</taglib-uri>
+             <taglib-location>/WEB-INF/tld/struts-tags.tld</taglib-location>
+         </taglib>
+     </jsp-config>	 -->	
+     
+    <error-page>
+		<error-code>404</error-code>
+		<location>/404.jsp</location>
+	</error-page>						
+	
+</web-app>

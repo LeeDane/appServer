@@ -1,0 +1,102 @@
+package com.cn.leedane.handler;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.cn.leedane.Utils.ConstantsUtil;
+import com.cn.leedane.Utils.StringUtil;
+import com.cn.leedane.bean.UserBean;
+
+/**
+ * 公共的处理类
+ * @author LeeDane
+ * 2016年4月6日 下午12:11:43
+ * Version 1.0
+ */
+public class CommonHandler {
+	
+	@Autowired
+	private MoodHandler moodHandler;
+	
+	public void setMoodHandler(MoodHandler moodHandler) {
+		this.moodHandler = moodHandler;
+	}
+	
+	@Autowired
+	private BlogHandler blogHandler;
+	
+	public void setBlogHandler(BlogHandler blogHandler) {
+		this.blogHandler = blogHandler;
+	}
+	
+	@Autowired
+	private FriendHandler friendHandler;
+	
+	public void setFriendHandler(FriendHandler friendHandler) {
+		this.friendHandler = friendHandler;
+	}
+	/**
+	 * 通过表名和表ID获取该资源对象的展示内容
+	 * @param tableName
+	 * @param tableId
+	 * @param user 当前登录的用户
+	 * @param account 当前这个资源的作者的称呼
+	 * @return
+	 */
+	public String getContentByTableNameAndId(String tableName, int tableId, UserBean user){
+		String content = ConstantsUtil.SOURCE_DELETE_TIP;
+		if(StringUtil.isNull(tableName) || tableId < 1){
+			return content;
+		}
+		List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
+		if(tableName.equalsIgnoreCase("t_mood")){
+			list = moodHandler.getMoodDetail(tableId, user, true);
+		}else if(tableName.equalsIgnoreCase("t_blog")){
+			list = blogHandler.getBlogDetail(tableId, user, true);
+		}
+		String account = null;
+		if(list != null && list.size() ==1){
+			content = getContent(list.get(0));
+			account = StringUtil.changeNotNull(list.get(0).get("account"));
+		}
+		//对原始的内容进行35个长度的截取
+		if(StringUtil.isNotNull(content)){
+			int length = content.length() > 35 ? 35 : content.length() ;
+			content = (StringUtil.isNotNull(account) ? (account + ":"): "")+ content.substring(0, length);//展示的源文的前面35个字符
+		}else{
+			content = ConstantsUtil.SOURCE_DELETE_TIP;
+		}
+		
+		System.out.println("tableName:"+tableName+",tableId:"+tableId+",content:"+content);
+		return content;
+	}
+	
+	/**
+	 * 获取资源的内容(先获取标题，没有标题获取摘要，没有摘要获取内容)
+	 * @param details
+	 * @return
+	 */
+	private String getContent(Map<String, Object> details){
+		String content = null;
+		if(details == null || details.isEmpty()){
+			return content;
+		}
+		
+		if(details.containsKey("title")){
+			content = StringUtil.changeNotNull(details.get("title"));
+		}else{
+			if(details.containsKey("digest")){
+				content = StringUtil.changeNotNull(details.get("digest"));
+			}else{
+				if(details.containsKey("content")){
+					content = StringUtil.changeNotNull(details.get("content"));
+				}
+			}
+		}
+		return content;
+	}
+
+}

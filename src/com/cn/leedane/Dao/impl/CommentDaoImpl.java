@@ -2,7 +2,9 @@ package com.cn.leedane.Dao.impl;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+
 import com.cn.leedane.Dao.CommentDao;
+import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.bean.CommentBean;
 /**
  * 评论Dao实现类
@@ -14,6 +16,9 @@ public class CommentDaoImpl extends BaseDaoImpl<CommentBean> implements CommentD
 	Logger logger = Logger.getLogger(getClass());
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
-
-
+	@SuppressWarnings("deprecation")
+	@Override
+	public int getTotalComments(int userId) {
+		return jdbcTemplate.queryForInt("select sum(id) total_comments from t_comment where create_user_id = ? and status=?", userId, ConstantsUtil.STATUS_NORMAL);
+	}
 }

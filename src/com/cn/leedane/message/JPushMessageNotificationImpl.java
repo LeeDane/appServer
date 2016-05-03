@@ -51,13 +51,29 @@ public class JPushMessageNotificationImpl implements MessageNotification {
 
 	@Override
 	public boolean sendToTag(String tag, String content) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean sendToAllUser(String content) {
-		// TODO Auto-generated method stub
+		long timeLive = 7*24*60*60;
+		JPushClient jpushClient = new JPushClient(
+				ConstantsUtil.JPUSH_MASTER_SECRET, ConstantsUtil.JPUSH_APPKEY, false, timeLive);
+		PushPayload payload = buildPushAllUser(content);
+		try {
+			PushResult result = jpushClient.sendPush(payload);
+			System.out.println("Got result - " + result);
+			return result.getResponseCode() == 200;
+
+		} catch (APIConnectionException e) {
+			System.out.println("Connection error, should retry later");
+
+		} catch (APIRequestException e) {
+			System.out.println("Should review the error, and fix the request");
+			System.out.println("HTTP Status: " + e.getStatus());
+			System.out.println("Error Code: " + e.getErrorCode());
+			System.out.println("Error Message: " + e.getErrorMessage());
+		}
 		return false;
 	}
 	
@@ -71,6 +87,19 @@ public class JPushMessageNotificationImpl implements MessageNotification {
         return PushPayload.newBuilder()
                 .setPlatform(Platform.all())
                 .setAudience(Audience.alias(alias))
+                .setNotification(Notification.alert(content))
+                .build();
+    }
+	
+	/**
+	 * 把通知发送给所有的用户
+	 * @param alias
+	 * @param content
+	 * @return
+	 */
+	private static PushPayload buildPushAllUser(String content) {
+        return PushPayload.newBuilder()
+                .setPlatform(Platform.all())
                 .setNotification(Notification.alert(content))
                 .build();
     }

@@ -18,6 +18,13 @@ import com.cn.leedane.bean.UserBean;
 public interface CommentService<T extends Serializable> extends BaseService<CommentBean>{
 
 	/**
+	 * 获取当前用户的总评论数
+	 * @param userId
+	 * @return
+	 */
+	public int getTotalComments(int userId);
+	
+	/**
 	 * 发表评论
 	 * {\"table_name\":\"t_mood\", \"table_id\":123, \"content\":\"我同意\"
 	 * ,\"level\": 1, \"pid\":23, \"cid\":1, \"from\":\"Android客户端\"}

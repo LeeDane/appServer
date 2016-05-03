@@ -55,4 +55,13 @@ public interface TransmitService<T extends Serializable> extends BaseService<Tra
 	 */
 	public List<Map<String, Object>> getLimit(JSONObject jo, UserBean user,
 			HttpServletRequest request);
+
+
+
+	/**
+	 * 获取当前用户的转发总数
+	 * @param userId
+	 * @return
+	 */
+	public int getTotalTransmits(int userId);
 }

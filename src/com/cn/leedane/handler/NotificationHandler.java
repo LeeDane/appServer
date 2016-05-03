@@ -258,10 +258,9 @@ public class NotificationHandler {
 				bean.setTableId(tableId);
 				bean.setTableName(tableName);
 				if(commentService.save(bean)){
-					
 					//更新评论数
 					commentHandler.addComment(tableName, tableId);
-					String notificationContent = robotName +"回复您,点击查看详情";
+					String notificationContent = robotName +"回复您："+robotReply;
 					Set<Integer> ids = new HashSet<Integer>();
 					ids.add(user.getId());
 					sendNotificationByIds(true, user, ids, notificationContent, NotificationType.艾特我, tableName, tableId, objectBean);
@@ -337,7 +336,7 @@ public class NotificationHandler {
 				MessageNotification messageNotification = new JPushMessageNotificationImpl();
 				//System.out.println("NotificationToUserId:"+mNotificationBean.getToUserId());
 				//发送消息不成功
-				if(!messageNotification.sendToAlias("leedane_user_"+mNotificationBean.getToUserId(), JSONObject.fromObject(mNotificationBean).toString())){
+				if(!messageNotification.sendToAlias("leedane_user_"+mNotificationBean.getToUserId(), mNotificationBean.getContent())){
 					mNotificationBean.setPushError(true);
 					return notificationService.update(mNotificationBean);
 				}else{
@@ -349,8 +348,13 @@ public class NotificationHandler {
 		
 	}
 	
-	public static void main(String[] args) {
-		String content = "@jdjjdkkjas @qq kfjf";
-		System.out.println(getContent(content));
+	/**
+	 * 发送广播
+	 * @param broadcast
+	 */
+	public boolean sendBroadcast(String broadcast) {
+		MessageNotification messageNotification = new JPushMessageNotificationImpl();
+		messageNotification.sendToAllUser(broadcast);
+		return true;
 	}
 }

@@ -1,5 +1,6 @@
 package com.cn.leedane.service.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,8 +28,13 @@ import com.cn.leedane.Utils.MD5Util;
 import com.cn.leedane.Utils.StringUtil;
 import com.cn.leedane.bean.FilePathBean;
 import com.cn.leedane.bean.OperateLogBean;
+import com.cn.leedane.bean.ScoreBean;
 import com.cn.leedane.bean.UserBean;
+import com.cn.leedane.cache.SystemCache;
 import com.cn.leedane.enums.NotificationType;
+import com.cn.leedane.handler.CommentHandler;
+import com.cn.leedane.handler.FanHandler;
+import com.cn.leedane.handler.TransmitHandler;
 import com.cn.leedane.log.LogAnnotation;
 import com.cn.leedane.message.ISendNotification;
 import com.cn.leedane.message.SendNotificationImpl;
@@ -36,6 +42,7 @@ import com.cn.leedane.message.notification.Notification;
 import com.cn.leedane.redis.util.RedisUtil;
 import com.cn.leedane.service.FilePathService;
 import com.cn.leedane.service.OperateLogService;
+import com.cn.leedane.service.ScoreService;
 import com.cn.leedane.service.UserService;
 
 /**
@@ -74,6 +81,41 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 	public void setOperateLogService(
 			OperateLogService<OperateLogBean> operateLogService) {
 		this.operateLogService = operateLogService;
+	}
+	
+	@Resource
+	private ScoreService<ScoreBean> scoreService;
+	
+	public void setScoreService(ScoreService<ScoreBean> scoreService) {
+		this.scoreService = scoreService;
+	}
+	
+	@Resource
+	private CommentHandler commentHandler;
+	
+	public void setCommentHandler(CommentHandler commentHandler) {
+		this.commentHandler = commentHandler;
+	}
+	
+	@Resource
+	private TransmitHandler transmitHandler;
+	
+	public void setTransmitHandler(TransmitHandler transmitHandler) {
+		this.transmitHandler = transmitHandler;
+	}
+	
+	@Resource
+	private FanHandler fanHandler;
+	
+	public void setFanHandler(FanHandler fanHandler) {
+		this.fanHandler = fanHandler;
+	}
+	
+	@Resource
+	private SystemCache systemCache;
+	
+	public void setSystemCache(SystemCache systemCache) {
+		this.systemCache = systemCache;
 	}
 	
 	@Override
@@ -120,8 +162,6 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 		return message;
 	}	
 	
-	
-
 	//@Transactional(propagation=Propagation.SUPPORTS, readOnly=true) 
 	@Override
 	public boolean updateCheckRegisterCode(String registerCode) {
@@ -305,7 +345,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 			message.put("responseCode", EnumUtil.ResponseCode.某些参数为空.value);
 			return message;
 		}
-		result = userDao.executeSQL("select count(id) from t_user where account = ?", account).size() >0;
+		result = userDao.executeSQL("select id from t_user where account = ?", account).size() >0;
 		if(result){
 			message.put("isSuccess", result);
 		}else{
@@ -320,13 +360,11 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 			UserBean user) {
 		logger.info("UserServiceImpl-->checkPhone():jo="+jo.toString());
 		String mobilePhone = JsonUtil.getStringValue(jo, "mobilePhone");
-		
-		boolean result = false;
-		
+				
 		if(StringUtil.isNull(mobilePhone)){
-			return result;
+			return false;
 		}
-		return userDao.executeSQL("select count(id) from t_user where mobile_phone = ?", mobilePhone).size() >0;
+		return userDao.executeSQL("select id from t_user where mobile_phone = ?", mobilePhone).size() >0;
 	}
 	
 	@Override
@@ -340,7 +378,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 		if(StringUtil.isNull(email)){
 			return result;
 		}
-		return userDao.executeSQL("select count(id) from t_user where email = ?", email).size() >0;
+		return userDao.executeSQL("select id from t_user where email = ?", email).size() >0;
 	}
 
 	@Override
@@ -588,5 +626,110 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 	public int getUserIdByName(String username) {
 		List<Map<String, Object>> list = this.userDao.executeSQL("select id from t_user where status=? and account=? limit 1", ConstantsUtil.STATUS_NORMAL, username);
 		return list != null && list.size() == 1? StringUtil.changeObjectToInt(list.get(0).get("id")) : 0;
+	}
+
+	@Override
+	public Map<String, Object> getUserInfoData(JSONObject jo, UserBean user,
+			HttpServletRequest request) {
+		logger.info("UserServiceImpl-->getUserInfoData():jo="+jo.toString());
+		Map<String, Object> message = new HashMap<String, Object>();
+		message.put("isSuccess", false);
+		
+		List<Map<String, Object>> rs = new ArrayList<Map<String,Object>>();
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("scores", scoreService.getTotalScore(user.getId()));	
+		map.put("comments", commentHandler.getComments(user.getId()));
+		map.put("transmits", transmitHandler.getTransmits(user.getId()));
+		Set<String> fans = fanHandler.getMyFans(user.getId());
+		if(fans == null)
+			map.put("fans", 0);
+		else
+			map.put("fans", fans.size());
+		rs.add(map);
+		//保存操作日志
+		operateLogService.saveOperateLog(user, request, null, StringUtil.getStringBufferStr(user.getAccount(),"获取自己的基本数据").toString(), "getUserInfoData()", ConstantsUtil.STATUS_NORMAL, 0);
+		message.put("isSuccess", true);
+		message.put("message", rs);
+		return message;
+	}
+
+	@Override
+	public Map<String, Object> registerByPhoneNoValidate(JSONObject jo,
+			HttpServletRequest request) {
+		logger.info("UserServiceImpl-->registerByPhoneNoValidate():jo="+jo.toString());
+		String account = JsonUtil.getStringValue(jo, "account");
+		String password = JsonUtil.getStringValue(jo, "password");
+		String confirmPassword = JsonUtil.getStringValue(jo, "confirmPassword");
+		String phone = JsonUtil.getStringValue(jo, "mobilePhone");
+		Map<String, Object> message = new HashMap<String, Object>();
+		message.put("isSuccess", false);
+		
+		if(StringUtil.isNull(account)){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.用户名不能为空.value));
+			message.put("responseCode", EnumUtil.ResponseCode.用户名不能为空.value);
+			return message;
+		}
+		
+		if(StringUtil.isNull(password) || StringUtil.isNull(confirmPassword)){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.密码不能为空.value));
+			message.put("responseCode", EnumUtil.ResponseCode.密码不能为空.value);
+			return message;
+		}
+		
+		if(!password.equals(confirmPassword)){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.两次密码不匹配.value));
+			message.put("responseCode", EnumUtil.ResponseCode.两次密码不匹配.value);
+			return message;
+		}
+		
+		if(StringUtil.isNull(phone) || phone.length() != 11){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.手机号为空或者不是11位数.value));
+			message.put("responseCode", EnumUtil.ResponseCode.手机号为空或者不是11位数.value);
+			return message;
+		}
+		
+		//检查账号是否被占用
+		if(userDao.executeSQL("select id from t_user where account = ?", account).size() > 0){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.该用户已被占用.value));
+			message.put("responseCode", EnumUtil.ResponseCode.该用户已被占用.value);
+			return message;
+		}
+		
+		//检查手机已经被注册
+		
+		if(checkMobilePhone(jo, request, null)){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.该手机号已被注册.value));
+			message.put("responseCode", EnumUtil.ResponseCode.该手机号已被注册.value);
+			return message;
+		}
+		
+		UserBean user = new UserBean();
+		user.setAccount(account);
+		user.setPassword(MD5Util.compute(password));
+		user.setAdmin(false);
+		user.setAge(0);
+		user.setChinaName(account);
+		user.setStatus(ConstantsUtil.STATUS_NORMAL);
+		user.setMobilePhone(phone);
+		int firstScore = 0;
+		if(systemCache != null){
+			firstScore = StringUtil.changeObjectToInt(systemCache.getCache("first-sign-in"));
+		}
+		
+		user.setScore(firstScore);
+		
+		boolean result = userDao.save(user);
+		if(result){
+			message.put("isSuccess", result);
+			message.put("message", "恭喜您注册成功,请登录");
+		}else{
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.数据库保存失败.value));
+			message.put("responseCode", EnumUtil.ResponseCode.数据库保存失败.value);
+		}
+			
+		//保存操作日志
+		operateLogService.saveOperateLog(user, request, null, StringUtil.getStringBufferStr("注册账号为", account , ",手机号码为：", StringUtil.getSuccessOrNoStr(result)).toString(), "registerByPhoneNoValidate()", ConstantsUtil.STATUS_NORMAL, 0);	
+		
+		return message;
 	}
 }

@@ -274,4 +274,21 @@ public interface UserService <T extends Serializable> extends BaseService<UserBe
 	 * @return
 	 */
 	public int getUserIdByName(String username);
+
+	/**
+	 * 获取用户的基本数据(评论数，转发数，积分)
+	 * @param jo
+	 * @param user
+	 * @param request
+	 * @return
+	 */
+	public Map<String, Object> getUserInfoData(JSONObject jo, UserBean user, HttpServletRequest request);
+
+	/**
+	 * 通过手机号码注册(不需要校验)
+	 * @param jo
+	 * @param request
+	 * @return
+	 */
+	public Map<String, Object> registerByPhoneNoValidate(JSONObject jo, HttpServletRequest request);
 }

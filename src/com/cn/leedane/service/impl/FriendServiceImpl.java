@@ -396,5 +396,28 @@ public class FriendServiceImpl extends BaseServiceImpl<FriendBean> implements Fr
 		message.put("message", null);
 		return message;
 	}
+
+	@Override
+	public Map<String, Object> friends(JSONObject jo, UserBean user,
+			HttpServletRequest request) {
+		logger.info("FriendServiceImpl-->matchContact():jo="+jo.toString());
+		Map<String, Object> message = new HashMap<String, Object>();
+		message.put("isSuccess", false);
+		message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.操作失败.value));
+		
+		List<Map<String, Object>> rs = getFromToFriends(user.getId());
+		if(rs !=null && rs.size() > 0){
+			int fId = 0;
+			//为名字备注赋值
+			for(int i = 0; i < rs.size(); i++){
+				fId = StringUtil.changeObjectToInt(rs.get(i).get("id"));
+				rs.get(i).putAll(userHandler.getBaseUserInfo(fId));
+			}	
+			message.put("isSuccess", true);
+			message.put("message", rs);
+		}
+		
+		return message;
+	}
 	
 }

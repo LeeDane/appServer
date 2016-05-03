@@ -84,6 +84,15 @@ public class CommentHandler {
 	}
 	
 	/**
+	 * 获取该用户的总评论数
+	 * @param userId
+	 * @return
+	 */
+	public int getComments(int userId){
+		return commentService.getTotalComments(userId);
+	}
+	
+	/**
 	 * 删除评论后修改评论数量
 	 * @param tableId
 	 * @param tableName

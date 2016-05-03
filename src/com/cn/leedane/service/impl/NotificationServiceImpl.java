@@ -21,6 +21,7 @@ import com.cn.leedane.bean.NotificationBean;
 import com.cn.leedane.bean.OperateLogBean;
 import com.cn.leedane.bean.UserBean;
 import com.cn.leedane.handler.CommonHandler;
+import com.cn.leedane.handler.NotificationHandler;
 import com.cn.leedane.handler.UserHandler;
 import com.cn.leedane.log.LogAnnotation;
 import com.cn.leedane.service.NotificationService;
@@ -63,6 +64,13 @@ public class NotificationServiceImpl extends BaseServiceImpl<NotificationBean> i
 		this.operateLogService = operateLogService;
 	}
 	
+	@Autowired
+	private NotificationHandler notificationHandler;
+	
+	public void setNotificationHandler(NotificationHandler notificationHandler) {
+		this.notificationHandler = notificationHandler;
+	}
+	
 	@LogAnnotation(moduleName="通知管理",option="发送通知")
 	@Override
 	public boolean save(NotificationBean t) {
@@ -101,6 +109,11 @@ public class NotificationServiceImpl extends BaseServiceImpl<NotificationBean> i
 			sql.append(" and n.id < ? order by n.id desc limit 0,? ");
 			rs = notificationDao.executeSQL(sql.toString(), user.getId(), ConstantsUtil.STATUS_NORMAL, type, lastId, pageSize);
 		//上刷新
+		}else if("uploading".equalsIgnoreCase(method)){
+			sql.append("select n.id, n.from_user_id, n.to_user_id, n.content, n.type, n.extra, n.create_time, n.table_name, n.table_id, n.is_push_error, n.is_read");
+			sql.append(" from t_notification n where n.to_user_id = ? and n.status = ? and n.type=?");
+			sql.append(" and n.id > ? limit 0,? ");
+			rs = notificationDao.executeSQL(sql.toString(), user.getId(), ConstantsUtil.STATUS_NORMAL, type, firstId, pageSize);
 		}
 		
 		if(rs !=null && rs.size() > 0){
@@ -123,6 +136,27 @@ public class NotificationServiceImpl extends BaseServiceImpl<NotificationBean> i
 		operateLogService.saveOperateLog(user, request, null, StringUtil.getStringBufferStr(user.getAccount(),"获取收到的通知列表").toString(), "getLimit()", ConstantsUtil.STATUS_NORMAL, 0);
 		message.put("isSuccess", true);
 		message.put("message", rs);
+		return message;
+	}
+
+	@Override
+	public Map<String, Object> sendBroadcast(JSONObject jo, UserBean user,
+			HttpServletRequest request) {
+		logger.info("NotificationServiceImpl-->sendBroadcast():jsonObject=" +jo.toString() +", user=" +user.getAccount());
+		Map<String, Object> message = new HashMap<String, Object>();
+		message.put("isSuccess", false);
+		String broadcast = JsonUtil.getStringValue(jo, "broadcast");
+		if(StringUtil.isNull(broadcast)){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.某些参数为空.value));
+			message.put("responseCode", EnumUtil.ResponseCode.某些参数为空.value);
+			return message;
+		}
+		
+		boolean result = notificationHandler.sendBroadcast(broadcast);
+		
+		//保存操作日志
+		operateLogService.saveOperateLog(user, request, null, StringUtil.getStringBufferStr(user.getAccount(),"向所有在线用户发送通知", StringUtil.getSuccessOrNoStr(result)).toString(), "sendBroadcast()", ConstantsUtil.STATUS_NORMAL, 0);
+		message.put("isSuccess", result);
 		return message;
 	}
 }

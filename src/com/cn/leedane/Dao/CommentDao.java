@@ -10,4 +10,10 @@ import com.cn.leedane.bean.CommentBean;
  * Version 1.0
  */
 public interface CommentDao<T extends Serializable> extends BaseDao<CommentBean>{
+	/**
+	 * 获取当前用户的总评论数
+	 * @param userId
+	 * @return
+	 */
+	public int getTotalComments(int userId);
 }

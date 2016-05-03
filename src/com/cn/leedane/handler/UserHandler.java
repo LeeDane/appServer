@@ -63,7 +63,7 @@ public class UserHandler {
 			userPicPath = redisUtil.getString(userPicKey);
 		}else{
 			//查找数据库，找到用户的头像
-			List<Map<String, Object>> list = userService.executeSQL("select qiniu_path user_pic_path from t_file_path f where is_upload_qiniu=? and f.table_name = 't_user' and f.table_uuid = ? and f.pic_order = 0 "+buildPicSizeSQL("30x30")+"limit 0,1", true, userId);
+			List<Map<String, Object>> list = userService.executeSQL("select qiniu_path user_pic_path from t_file_path f where is_upload_qiniu=? and f.table_name = 't_user' and f.table_uuid = ? and f.pic_order = 0 "+buildPicSizeSQL("30x30")+"limit 1", true, userId);
 			if(list != null && list.size()>0){
 				userPicPath = StringUtil.changeNotNull(list.get(0).get("user_pic_path"));
 				if(StringUtil.isNotNull(userPicPath))
@@ -72,6 +72,28 @@ public class UserHandler {
 			
 		}
 		return userPicPath;
+	}
+	
+	/**
+	 * 更新用户头像的缓存数据
+	 * @param userId
+	 * @param picSize
+	 */
+	public void updateUserPicPath(int userId, String picSize){
+		String userPicKey = getRedisUserPicKey(userId, picSize);
+		String userPicPath = null;
+		
+		//先把原先的删掉
+		if(redisUtil.hasKey(userPicKey)){
+			redisUtil.delete(userPicKey);
+		}
+		//查找数据库，找到用户的头像
+		List<Map<String, Object>> list = userService.executeSQL("select qiniu_path user_pic_path from t_file_path f where is_upload_qiniu=? and f.table_name = 't_user' and f.table_uuid = ? and f.pic_order = 0 "+buildPicSizeSQL("30x30")+"limit 1", true, userId);
+		if(list != null && list.size()>0){
+			userPicPath = StringUtil.changeNotNull(list.get(0).get("user_pic_path"));
+			if(StringUtil.isNotNull(userPicPath))
+				redisUtil.addString(userPicKey, userPicPath);
+		}
 	}
 	
 	/**

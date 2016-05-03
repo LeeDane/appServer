@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.cn.leedane.Dao.TransmitDao;
+import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.bean.TransmitBean;
 /**
  * 转发Dao实现类
@@ -15,6 +16,8 @@ public class TransmitDaoImpl extends BaseDaoImpl<TransmitBean> implements Transm
 	Logger logger = Logger.getLogger(getClass());
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
-	
-	
+	@Override
+	public int getTotalTransmits(int userId) {
+		return jdbcTemplate.queryForInt("select sum(id) total_transmits from t_transmit where create_user_id = ? and status=?", userId, ConstantsUtil.STATUS_NORMAL);
+	}
 }

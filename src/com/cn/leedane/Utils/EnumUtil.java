@@ -32,7 +32,7 @@ public class EnumUtil {
 	 * Version 1.0
 	 */
 	public enum NotificationType {
-		全部("全部"),艾特我("@我"), 评论("评论"),转发("转发"),赞过我("赞过我"),私信("私信");
+		全部("全部"),艾特我("@我"), 评论("评论"),转发("转发"),赞过我("赞过我"),私信("私信"),通知("通知");
 	
 		private NotificationType(String value) {
 			this.value = value;
@@ -49,7 +49,7 @@ public class EnumUtil {
 	 * Version 1.0
 	 */
 	public enum DataTableType {
-		博客("t_blog"),心情("t_mood"), 评论("t_comment"),转发("t_transmit"),赞("t_zan");
+		博客("t_blog"),心情("t_mood"), 评论("t_comment"),转发("t_transmit"),赞("t_zan"),用户("t_user");
 	
 		private DataTableType(String value) {
 			this.value = value;
@@ -154,7 +154,10 @@ public class EnumUtil {
 		手机号为空或者不是11位数(3011),
 		操作成功(3012),
 		操作失败(3013),
-		该通知类型不存在(3014)
+		该通知类型不存在(3014),
+		用户名不能为空(3015),
+		密码不能为空(3016),
+		两次密码不匹配(3017)
 		;
 		
 		private ResponseCode(int value) {

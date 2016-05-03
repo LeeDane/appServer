@@ -60,6 +60,15 @@ public class TransmitHandler {
 	}
 	
 	/**
+	 * 获取该用户的总转发数
+	 * @param userId
+	 * @return
+	 */
+	public int getTransmits(int userId){
+		return this.transmitService.getTotalTransmits(userId);
+	}
+	
+	/**
 	 * 获取转发在redis的key
 	 * @param id
 	 * @return

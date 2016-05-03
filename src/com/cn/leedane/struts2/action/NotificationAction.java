@@ -1,7 +1,4 @@
 package com.cn.leedane.struts2.action;
-import java.util.List;
-import java.util.Map;
-
 import net.sf.json.JSONObject;
 
 import org.apache.commons.logging.Log;
@@ -11,9 +8,7 @@ import com.cn.leedane.Utils.BaseActionContext;
 import com.cn.leedane.Utils.EnumUtil;
 import com.cn.leedane.Utils.HttpUtils;
 import com.cn.leedane.bean.NotificationBean;
-import com.cn.leedane.bean.ZanBean;
 import com.cn.leedane.service.NotificationService;
-import com.cn.leedane.service.ZanService;
 /**
  * 通知action类
  * @author LeeDane
@@ -30,6 +25,29 @@ public class NotificationAction extends BaseActionContext{
 	public void setNotificationService(
 			NotificationService<NotificationBean> notificationService) {
 		this.notificationService = notificationService;
+	}
+	
+	/**
+	 * 发送广播
+	 * @return
+	 */
+	public String sendBroadcast(){
+		message.put("isSuccess", resIsSuccess);
+		try {
+			JSONObject jo = HttpUtils.getJsonObjectFromInputStream(params,request);
+			if(jo == null || jo.isEmpty()) {	
+				message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.缺少请求参数.value));
+				message.put("responseCode", EnumUtil.ResponseCode.缺少请求参数.value);
+				return SUCCESS;
+			}
+			message.putAll(notificationService.sendBroadcast(jo, user, request));
+			return SUCCESS;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.服务器处理异常.value));
+		message.put("responseCode", EnumUtil.ResponseCode.服务器处理异常.value);
+        return SUCCESS;
 	}
 	
 	/**

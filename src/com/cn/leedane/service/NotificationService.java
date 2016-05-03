@@ -1,6 +1,5 @@
 package com.cn.leedane.service;
 import java.io.Serializable;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,5 +25,16 @@ public interface NotificationService<T extends Serializable> extends BaseService
 	 * @return
 	 */
 	public Map<String, Object> getLimit(JSONObject jo, UserBean user,
+			HttpServletRequest request);
+	
+	/**
+	 * 发送广播
+	 * {'broadcast':'大家好'}
+	 * @param jo
+	 * @param user
+	 * @param request
+	 * @return
+	 */
+	public Map<String, Object> sendBroadcast(JSONObject jo, UserBean user,
 			HttpServletRequest request);
 }

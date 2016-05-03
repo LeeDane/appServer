@@ -10,4 +10,10 @@ import com.cn.leedane.bean.TransmitBean;
  * Version 1.0
  */
 public interface TransmitDao<T extends Serializable> extends BaseDao<TransmitBean>{
+	/**
+	 * 获取当前用户的转发总数
+	 * @param userId
+	 * @return
+	 */
+	public int getTotalTransmits(int userId);
 }

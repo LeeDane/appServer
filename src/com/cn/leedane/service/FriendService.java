@@ -110,4 +110,13 @@ public interface FriendService <T extends Serializable> extends BaseService<Frie
 	 * @return
 	 */
 	public Map<String, Object> matchContact(JSONObject jo, UserBean user, HttpServletRequest request);
+
+	/**
+	 * 获取全部已经跟我成为好友关系的列表
+	 * @param jo
+	 * @param user
+	 * @param request
+	 * @return
+	 */
+	public Map<String, Object> friends(JSONObject jo, UserBean user, HttpServletRequest request);
 }

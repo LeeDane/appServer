@@ -16,6 +16,7 @@ import com.cn.leedane.Utils.BaseActionContext;
 import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.DateUtil;
 import com.cn.leedane.Utils.EnumUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.Utils.EnumUtil.ResponseCode;
 import com.cn.leedane.Utils.FileUtil;
 import com.cn.leedane.Utils.HttpUtils;
@@ -23,6 +24,7 @@ import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
 import com.cn.leedane.bean.FilePathBean;
 import com.cn.leedane.bean.UploadBean;
+import com.cn.leedane.handler.UserHandler;
 import com.cn.leedane.service.FilePathService;
 import com.cn.leedane.service.UploadService;
 /**
@@ -53,6 +55,13 @@ public class FilePathAction extends BaseActionContext{
 	@Resource
 	public void setUploadService(UploadService<UploadBean> uploadService) {
 		this.uploadService = uploadService;
+	}
+	
+	@Resource
+	private UserHandler userHandler;
+	
+	public void setUserHandler(UserHandler userHandler) {
+		this.userHandler = userHandler;
 	}
 		
 	/**
@@ -185,6 +194,10 @@ public class FilePathAction extends BaseActionContext{
 			}
         	String tableUuid = JsonUtil.getStringValue(jo, "uuid"); //客户端生成的唯一性uuid标识符
         	String tableName = JsonUtil.getStringValue(jo, "tableName");  //客户端生成的唯一性uuid标识符
+        	if(tableName.equalsIgnoreCase(DataTableType.用户.value)){
+        		System.out.println("更新用户的头像的缓存数据");
+        		userHandler.updateUserPicPath(user.getId(), "30x30");
+        	}
         	int order = JsonUtil.getIntValue(jo, "order", 0); //多张图片时候的图片的位置，必须，为空默认是0	
             List<Map<String, Object>> list = uploadService.getOneUpload(tableUuid, tableName, order, user, request);
             message.put("isSuccess", true);

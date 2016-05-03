@@ -299,5 +299,10 @@ public class TransmitServiceImpl extends BaseServiceImpl<TransmitBean> implement
 		
 		return rs;
 	}
+
+	@Override
+	public int getTotalTransmits(int userId) {
+		return this.transmitDao.getTotalTransmits(userId);
+	}
 	
 }

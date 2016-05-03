@@ -481,6 +481,31 @@ public class UserAction extends BaseActionContext {
 	}
 	
 	/**
+	 * 获取用户的头像路径
+	 * @return
+	 */
+	public String getHeadPath(){
+		message.put("isSuccess", resIsSuccess);
+		try {
+			JSONObject jo = HttpUtils.getJsonObjectFromInputStream(params,request);
+			if(jo == null || jo.isEmpty()) {	
+				message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.缺少请求参数.value));
+				message.put("responseCode", EnumUtil.ResponseCode.缺少请求参数.value);
+				return SUCCESS;
+			}
+			String picSize = JsonUtil.getStringValue(jo, "picSize", "30x30");
+			message.put("message", userHandler.getUserPicPath(user.getId(), picSize));
+			message.put("isSuccess", true);
+			return SUCCESS;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.服务器处理异常.value));
+		message.put("responseCode", EnumUtil.ResponseCode.服务器处理异常.value);
+        return SUCCESS;
+	}
+	
+	/**
 	 * 用户上传个人的头像
 	 * {"base64":"hhdjshuffnfbnfds"}
 	 * @return
@@ -768,6 +793,29 @@ public class UserAction extends BaseActionContext {
 		message.put("isSuccess", resIsSuccess);
 		return SUCCESS;
 	}
+	
+	/**
+	 * 通过手机注册(为了测试需要提供的接口)
+	 * @return
+	 */
+	public String registerByPhoneNoValidate(){
+		message.put("isSuccess", resIsSuccess);
+		try {
+			JSONObject jo = HttpUtils.getJsonObjectFromInputStream(params,request);
+			if(jo == null || jo.isEmpty()) {	
+				message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.缺少请求参数.value));
+				message.put("responseCode", EnumUtil.ResponseCode.缺少请求参数.value);
+				return SUCCESS;
+			}
+			message.putAll(userService.registerByPhoneNoValidate(jo, request));
+			return SUCCESS;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.服务器处理异常.value));
+		message.put("responseCode", EnumUtil.ResponseCode.服务器处理异常.value);
+        return SUCCESS;
+	}
 	/**
 	 * 通过手机登录
 	 * @return
@@ -886,5 +934,28 @@ public class UserAction extends BaseActionContext {
 		message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.服务器处理异常.value));
 		message.put("responseCode", EnumUtil.ResponseCode.服务器处理异常.value);
 		return SUCCESS;
+	}
+	
+	/**
+	 * 获取用户的基本数据(评论数，转发数，积分)
+	 * @return
+	 */
+	public String getUserInfoData(){
+		message.put("isSuccess", resIsSuccess);
+		try {
+			JSONObject jo = HttpUtils.getJsonObjectFromInputStream(params,request);
+			if(jo == null || jo.isEmpty()) {	
+				message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.缺少请求参数.value));
+				message.put("responseCode", EnumUtil.ResponseCode.缺少请求参数.value);
+				return SUCCESS;
+			}
+			message.putAll(userService.getUserInfoData(jo, user, request));
+			return SUCCESS;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.服务器处理异常.value));
+		message.put("responseCode", EnumUtil.ResponseCode.服务器处理异常.value);
+        return SUCCESS;
 	}
 }

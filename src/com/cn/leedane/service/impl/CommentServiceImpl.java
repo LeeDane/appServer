@@ -492,5 +492,10 @@ public class CommentServiceImpl extends BaseServiceImpl<CommentBean> implements 
 		
 		return message;
 	}
+
+	@Override
+	public int getTotalComments(int userId) {
+		return this.commentDao.getTotalComments(userId);
+	}
 	
 }

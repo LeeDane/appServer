@@ -158,7 +158,7 @@ public interface BaseDao<T extends Serializable> {
 	 * @param params ?对应的值
 	 * @return
 	 */
-	public List<Map<String, Object>> executeSQL(String sq, Object ...params);
+	public List<Map<String, Object>> executeSQL(String sql, Object ...params);
 
 	/**
 	 *  根据页数和页码获取分页信息

@@ -10,6 +10,7 @@
 /user_registerUser.action
 /user_getPhoneRegisterCode.action
 /user_getPhoneLoginCode.action
+/user_registerByPhoneNoValidate.action
 /blog_getPagingBlog.action
 /blog_getHotestBlogs.action
 /blog_getNewestBlogs.action

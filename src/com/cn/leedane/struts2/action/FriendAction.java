@@ -55,7 +55,8 @@ public class FriendAction extends BaseActionContext{
 				return SUCCESS;
 			}
 			if(!jo.has("to_user_id")) {
-				message.put("message", "删除的好友id为空"); 
+				message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.某些参数为空.value));
+				message.put("responseCode", EnumUtil.ResponseCode.某些参数为空.value);
 				return SUCCESS;			
 			}
 			int to_user_id = jo.getInt("to_user_id");
@@ -67,7 +68,7 @@ public class FriendAction extends BaseActionContext{
 				//解除好友关系后，清除用户缓存的好友信息
 				//加载全部的好友信息ID和备注信息进入session中
 				//List<Map<String, Object>> friends = friendService.getFriends(user.getId());
-				Object friendsObject = session.get(ConstantsUtil.MY_FRIENDS);
+				/*Object friendsObject = session.get(ConstantsUtil.MY_FRIENDS);
 				if(friendsObject != null){
 					@SuppressWarnings("unchecked")
 					List<Map<String, Object>> friends = (List<Map<String, Object>>) friendsObject;
@@ -79,7 +80,7 @@ public class FriendAction extends BaseActionContext{
 						}
 						session.put(ConstantsUtil.MY_FRIENDS, friends);
 					}
-				}
+				}*/
 
 				// 保存操作日志信息
 				String subject = user.getAccount()+"跟"+toUser.getAccount()+"解除好友关系成功";
@@ -219,6 +220,29 @@ public class FriendAction extends BaseActionContext{
 				return SUCCESS;
 			}
 			message.putAll(friendService.friendsPaging(jo, user, request));
+			return SUCCESS;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}     
+        message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.服务器处理异常.value));
+		message.put("responseCode", EnumUtil.ResponseCode.服务器处理异常.value);
+        return SUCCESS;
+	}
+	
+	/**
+	 * 获取全部已经跟我成为好友关系列表
+	 * @return
+	 */
+	public String friends() {
+		try {
+			message.put("isSuccess", false);
+			JSONObject jo = HttpUtils.getJsonObjectFromInputStream(params, request);  
+			if(jo == null || jo.isEmpty()) {	
+				message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.缺少请求参数.value));
+				message.put("responseCode", EnumUtil.ResponseCode.缺少请求参数.value);
+				return SUCCESS;
+			}
+			message.putAll(friendService.friends(jo, user, request));
 			return SUCCESS;
 		} catch (Exception e) {
 			e.printStackTrace();

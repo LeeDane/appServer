@@ -640,6 +640,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 		map.put("scores", scoreService.getTotalScore(user.getId()));	
 		map.put("comments", commentHandler.getComments(user.getId()));
 		map.put("transmits", transmitHandler.getTransmits(user.getId()));
+		map.put("userId", user.getId());
 		Set<String> fans = fanHandler.getMyFans(user.getId());
 		if(fans == null)
 			map.put("fans", 0);

@@ -336,7 +336,7 @@ public class NotificationHandler {
 				MessageNotification messageNotification = new JPushMessageNotificationImpl();
 				//System.out.println("NotificationToUserId:"+mNotificationBean.getToUserId());
 				//发送消息不成功
-				if(!messageNotification.sendToAlias("leedane_user_"+mNotificationBean.getToUserId(), mNotificationBean.getContent())){
+				if(!messageNotification.sendToAlias("leedane_user_"+mNotificationBean.getToUserId(), mNotificationBean.getType() +":"+ mNotificationBean.getContent())){
 					mNotificationBean.setPushError(true);
 					return notificationService.update(mNotificationBean);
 				}else{

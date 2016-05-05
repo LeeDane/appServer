@@ -246,7 +246,7 @@ public class UserAction extends BaseActionContext {
 			infos.put("qq", user2.getQq());
 			infos.put("sex", user2.getSex());
 			infos.put("is_admin", user2.isAdmin());
-			infos.put("head_path", userHandler.getUserPicPath(user2.getId(), "30x30"));
+			infos.put("user_pic_path", userHandler.getUserPicPath(user2.getId(), "30x30"));
 			/*String str = "{\"uid\":"+user2.getId()+", \"pic_size\":\"60x60\"}";
 			JSONObject jo = JSONObject.fromObject(str);
 			try {

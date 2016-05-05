@@ -19,6 +19,6 @@ public class CommentDaoImpl extends BaseDaoImpl<CommentBean> implements CommentD
 	@SuppressWarnings("deprecation")
 	@Override
 	public int getTotalComments(int userId) {
-		return jdbcTemplate.queryForInt("select sum(id) total_comments from t_comment where create_user_id = ? and status=?", userId, ConstantsUtil.STATUS_NORMAL);
+		return jdbcTemplate.queryForInt("select count(id) total_comments from t_comment where create_user_id = ? and status=?", userId, ConstantsUtil.STATUS_NORMAL);
 	}
 }

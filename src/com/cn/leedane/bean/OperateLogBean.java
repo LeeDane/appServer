@@ -15,7 +15,7 @@ import javax.persistence.Table;
 public class OperateLogBean extends RecordTimeBean {
 	
 	private static final long serialVersionUID = 1L;
-	//状态，0：失败，1：成功，2：未知异常
+	//状态，0：失败，1：正常，2：未知异常
 	/**
 	 * 标题，如XX登录系统
 	 */

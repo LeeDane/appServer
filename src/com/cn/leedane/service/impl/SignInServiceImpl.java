@@ -149,7 +149,7 @@ public class SignInServiceImpl implements SignInService<SignInBean> {
 			scoreBean.setScore(StringUtil.getScoreBySignin(continuous));
 			scoreBean.setCreateTime(currentTime);
 			scoreBean.setCreateUser(user);
-			scoreBean.setDesc(DateUtil.DateToString(currentTime, "yyyy-MM-dd") +"签到");
+			scoreBean.setDesc("用户签到");
 			scoreBean.setStatus(ConstantsUtil.STATUS_NORMAL);
 			scoreBean.setTableId(signInBean.getId());
 			scoreBean.setTableName("t_sign_in");

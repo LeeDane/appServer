@@ -30,6 +30,11 @@ public class SignInBean extends RecordTimeBean{
 	 */
 	private int continuous;
 	
+	/**
+	 * 签到方式
+	 */
+	private String froms;
+	
 	private String str1;
 	private String str2;
 	

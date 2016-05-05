@@ -174,7 +174,7 @@ public class UserAction extends BaseActionContext {
 				
 				// 保存用户登录日志信息
 				String subject = user != null ? user.getAccount()+"登录系统": "账号"+jo.get("account")+"登录系统失败";
-				this.operateLogService.saveOperateLog(user, request, new Date(), subject, "login", resIsSuccess? 1 : 0, 0);
+				this.operateLogService.saveOperateLog(user, request, new Date(), subject, "账号登录", resIsSuccess? 1 : 0, 0);
 			}else{
 				resmessage = EnumUtil.getResponseValue(EnumUtil.ResponseCode.账号或密码不匹配.value);
 				message.put("responseCode", EnumUtil.ResponseCode.账号或密码不匹配.value);

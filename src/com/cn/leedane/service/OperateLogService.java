@@ -1,8 +1,11 @@
 package com.cn.leedane.service;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+
+import net.sf.json.JSONObject;
 
 import com.cn.leedane.bean.OperateLogBean;
 import com.cn.leedane.bean.UserBean;
@@ -27,5 +30,13 @@ public interface OperateLogService<T extends Serializable> extends BaseService<O
 	 */
 	public boolean saveOperateLog(UserBean user,HttpServletRequest request,Date createTime,String subject, String method,int status,int operateType);
 
-	
+	/**
+	 * 分页获取用户登录操作日志列表
+	 * @param jo
+	 * @param user
+	 * @param request
+	 * @return
+	 */
+	public Map<String, Object> getUserLoginLimit(JSONObject jo, UserBean user, HttpServletRequest request);
+
 }

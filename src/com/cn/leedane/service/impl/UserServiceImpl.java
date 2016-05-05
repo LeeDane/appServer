@@ -34,6 +34,7 @@ import com.cn.leedane.cache.SystemCache;
 import com.cn.leedane.enums.NotificationType;
 import com.cn.leedane.handler.CommentHandler;
 import com.cn.leedane.handler.FanHandler;
+import com.cn.leedane.handler.SignInHandler;
 import com.cn.leedane.handler.TransmitHandler;
 import com.cn.leedane.log.LogAnnotation;
 import com.cn.leedane.message.ISendNotification;
@@ -112,6 +113,13 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 	}
 	
 	@Resource
+	private SignInHandler signInHandler;
+	
+	public void setSignInHandler(SignInHandler signInHandler) {
+		this.signInHandler = signInHandler;
+	}
+	
+	@Resource
 	private SystemCache systemCache;
 	
 	public void setSystemCache(SystemCache systemCache) {
@@ -149,6 +157,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 		}else{
 			boolean isSave = userDao.saveUser(user);
 			if(isSave){
+				saveRegisterScore(user);
 				message.put("isSuccess", true);
 				message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.请先验证邮箱.value));
 				message.put("responseCode", EnumUtil.ResponseCode.请先验证邮箱.value);
@@ -160,7 +169,32 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 			}
 		}
 		return message;
-	}	
+	}
+	
+	/**
+	 * 对注册的用户获取系统奖励的积分
+	 * @param u
+	 */
+	private void saveRegisterScore(UserBean u){
+		Object object = systemCache.getCache("first-sign-in"); 
+		if(object != null){
+			//更新积分
+			ScoreBean scoreBean = new ScoreBean();
+			scoreBean.setTotalScore(0);
+			scoreBean.setScore(StringUtil.changeObjectToInt(object));
+			scoreBean.setCreateTime(new Date());
+			scoreBean.setCreateUser(u);
+			scoreBean.setDesc("用户注册");
+			scoreBean.setStatus(ConstantsUtil.STATUS_NORMAL);
+			scoreBean.setTableId(u.getId());
+			scoreBean.setTableName("t_user");
+			boolean isSave = scoreService.save(scoreBean);
+			//标记为已经添加
+			if(isSave){
+				signInHandler.addHistorySignIn(u.getId());
+			}
+		}
+	}
 	
 	//@Transactional(propagation=Propagation.SUPPORTS, readOnly=true) 
 	@Override
@@ -546,6 +580,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 		
 		//保存成功就返回对象，否则返回空
 		if(userDao.save(userBean)){
+			saveRegisterScore(userBean);
 			return userBean;
 		}
 		return null;
@@ -574,17 +609,13 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 					//没有过期
 					if(create.before(end)){
 						//保存操作日志
-						try {
-							operateLogService.saveOperateLog(null, request, null, "手机号码："+mobilePhone+"用户通过手机号码登录系统", "loginByPhone", ConstantsUtil.STATUS_NORMAL, 0);
-						} catch (Exception e1) {
-							e1.printStackTrace();
-						}
-						return userDao.loginUserByPhone(mobilePhone);
+						UserBean user = userDao.loginUserByPhone(mobilePhone);
+						operateLogService.saveOperateLog(user, request, null, "手机号码："+mobilePhone+"用户通过手机号码登录系统", "手机号码登录", ConstantsUtil.STATUS_NORMAL, 0);
+						return user;
 					}
 				}
 			}
 		}
-		
 		return null;
 	}
 
@@ -721,6 +752,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 		
 		boolean result = userDao.save(user);
 		if(result){
+			saveRegisterScore(user);
 			message.put("isSuccess", result);
 			message.put("message", "恭喜您注册成功,请登录");
 		}else{

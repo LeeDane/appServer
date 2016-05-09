@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.URL;
 import java.util.UUID;
 
 /**
@@ -20,6 +19,96 @@ import java.util.UUID;
  * Version 1.0
  */
 public class FileUtil {
+	
+	/**
+	 * 读取文件(文件夹)大小
+	 * @param file
+	 * @return KB
+	 */
+	public static Long getFileSizeFormatKB(File file) {
+		return getFileSize(file) / 1024;
+	}
+
+	/**
+	 * 读取文件(文件夹)大小
+	 * @param file
+	 * @return MB
+	 */
+	public static Long getFileSizeFormatMB(File file) {
+		return getFileSizeFormatKB(file) / 1024;
+	}
+
+	/**
+	 * 读取文件(文件夹)大小
+	 * @param file
+	 * @return Byte
+	 */
+	public static Long getFileSize(File file) {
+		long size = 0;
+		try {
+			if (!file.exists()) {
+				return size;
+			}
+
+			if (file.isDirectory()) {
+				File[] files = file.listFiles();
+				for (int i = 0; i < files.length; i++) {
+					size += getFileSize(files[i]);
+				}
+			} else {
+				size = file.length();
+			}
+		} catch (Exception ex) {
+
+		}
+		return new Long(size);
+	}
+	
+	/**
+	 * 读取文件(文件夹)文件数
+	 * @param file
+	 * @return
+	 */
+	public static int getFileNumber(File file) {
+		int size = 0;
+		try {
+			if (!file.exists()) {
+				return size;
+			}
+
+			if (file.isDirectory()) {
+				File[] files = file.listFiles();
+				for (int i = 0; i < files.length; i++) {
+					size += getFileNumber(files[i]);
+				}
+			} else {
+				size = 1;
+			}
+		} catch (Exception ex) {
+
+		}
+		return size;
+	}
+	
+	/**
+	 * 判断文件是否存在
+	 * @param fileName
+	 * @return
+	 */
+	public static boolean isExist(String fileName) {
+		try {
+			if (fileName == null || fileName.equals("")) {
+				return false;
+			}
+			File file = new File(fileName);
+			if (file.exists() && file.isFile()) {
+				return true;
+			}
+			return false;
+		} catch (Exception ex) {
+			return false;
+		}
+	}
 
 	/**
 	 * 从指定的文件路径中加载字符串文件返回

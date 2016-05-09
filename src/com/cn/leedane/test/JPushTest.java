@@ -1,7 +1,6 @@
 package com.cn.leedane.test;
 
-import com.cn.leedane.message.JPushMessageNotificationImpl;
-import com.cn.leedane.message.notification.MessageNotification;
+import com.cn.leedane.message.JpushCustomMessage;
 
 public class JPushTest {
 
@@ -27,8 +26,10 @@ public class JPushTest {
             System.out.println("Error Code: " + e.getErrorCode());
             System.out.println("Error Message: " + e.getErrorMessage());
         }*/
-		MessageNotification messageNotification = new JPushMessageNotificationImpl();
-		messageNotification.sendToAlias("leedane_user_"+1, "你好。。 server3");
+		/*MessageNotification messageNotification = new JPushMessageNotificationImpl();
+		messageNotification.sendToAlias("leedane_user_"+1, "你好。。 server3");*/
+		JpushCustomMessage message= new JpushCustomMessage();
+		System.out.println(message.sendToAlias("leedane_user_1", "hello message22", "toUserId", "5"));
 	}
 	
 }

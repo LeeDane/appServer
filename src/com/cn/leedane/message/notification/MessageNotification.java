@@ -2,6 +2,8 @@ package com.cn.leedane.message.notification;
 
 import java.util.Set;
 
+import cn.jpush.api.push.model.Message;
+
 /**
  * 信息发送的接口
  * @author LeeDane

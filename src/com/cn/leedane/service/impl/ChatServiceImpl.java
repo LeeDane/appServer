@@ -21,10 +21,8 @@ import com.cn.leedane.Utils.StringUtil;
 import com.cn.leedane.bean.ChatBean;
 import com.cn.leedane.bean.OperateLogBean;
 import com.cn.leedane.bean.UserBean;
+import com.cn.leedane.handler.NotificationHandler;
 import com.cn.leedane.handler.UserHandler;
-import com.cn.leedane.message.JpushCustomMessage;
-import com.cn.leedane.message.notification.CustomMessage;
-import com.cn.leedane.message.notification.MessageNotification;
 import com.cn.leedane.service.ChatService;
 import com.cn.leedane.service.OperateLogService;
 
@@ -57,6 +55,14 @@ public class ChatServiceImpl extends BaseServiceImpl<ChatBean> implements ChatSe
 	public void setUserHandler(UserHandler userHandler) {
 		this.userHandler = userHandler;
 	}
+	
+	@Resource
+	private NotificationHandler notificationHandler;
+	
+	public void setNotificationHandler(NotificationHandler notificationHandler) {
+		this.notificationHandler = notificationHandler;
+	}
+	
 	
 	@Override
 	public Map<String, Object> getLimit(JSONObject jo, UserBean user,
@@ -138,23 +144,33 @@ public class ChatServiceImpl extends BaseServiceImpl<ChatBean> implements ChatSe
 		//保存操作日志
 		operateLogService.saveOperateLog(user, request, null, StringUtil.getStringBufferStr(user.getAccount(),"给用户ID为：", toUserId, "发送聊天信息", StringUtil.getSuccessOrNoStr(result)).toString(), "send()", ConstantsUtil.STATUS_NORMAL, 0);
 		if(result){
-			//给对方发送通知
-			CustomMessage customMessage = new JpushCustomMessage();
-			customMessage.sendToAlias("leedane_user_"+toUserId, JSONObject.fromObject(chatBean).toString(), "toUserId", String.valueOf(toUserId));
 			
-			Map<String, Object> chat = new HashMap<String, Object>();
-			chat.put("id", chatBean.getId());
-			chat.put("create_user_id", user.getId());
-			chat.put("to_user_id", chatBean.getToUserId());
-			chat.put("create_time", DateUtil.DateToString(chatBean.getCreateTime()));
-			chat.put("type", chatBean.getType());
-			chat.put("content", chatBean.getContent());
+			Map<String, Object> chatMap = chatBeanToMap(chatBean);
+			//给对方发送通知
+			notificationHandler.sendCustomMessageById(user, toUserId, chatMap);
+			
 			message.put("isSuccess", result);
-			message.put("message", chat);
+			message.put("message", chatMap);
 		}else{
 			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.服务器处理异常.value));
 			message.put("responseCode", EnumUtil.ResponseCode.服务器处理异常.value);
 		}
 		return message;
+	}
+	
+	/**
+	 * 将chatbean转化成map集合存储
+	 * @param chatBean
+	 * @return
+	 */
+	public static Map<String, Object> chatBeanToMap(ChatBean chatBean){
+		Map<String, Object> chat = new HashMap<String, Object>();
+		chat.put("id", chatBean.getId());
+		chat.put("create_user_id", chatBean.getCreateUser().getId());
+		chat.put("to_user_id", chatBean.getToUserId());
+		chat.put("create_time", DateUtil.DateToString(chatBean.getCreateTime()));
+		chat.put("type", chatBean.getType());
+		chat.put("content", chatBean.getContent());
+		return chat;
 	}
 }

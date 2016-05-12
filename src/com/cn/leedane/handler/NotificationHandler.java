@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -17,9 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.cn.leedane.Utils.ConstantsUtil;
+import com.cn.leedane.Utils.DateUtil;
 import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.Utils.EnumUtil.NotificationType;
-import com.cn.leedane.Utils.DateUtil;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.SpringUtils;
 import com.cn.leedane.Utils.StringUtil;
@@ -31,6 +32,8 @@ import com.cn.leedane.bean.TransmitBean;
 import com.cn.leedane.bean.UserBean;
 import com.cn.leedane.cache.SystemCache;
 import com.cn.leedane.message.JPushMessageNotificationImpl;
+import com.cn.leedane.message.JpushCustomMessage;
+import com.cn.leedane.message.notification.CustomMessage;
 import com.cn.leedane.message.notification.MessageNotification;
 import com.cn.leedane.service.CommentService;
 import com.cn.leedane.service.NotificationService;
@@ -178,6 +181,22 @@ public class NotificationHandler {
 			notificationBean.setStatus(ConstantsUtil.STATUS_NORMAL);
 			futures.add(executorService.submit(notification));
 		}
+	}
+	
+	/**
+	 * 发送聊天的自定义消息
+	 * @param user
+	 * @param toUserId
+	 * @param chatMap
+	 */
+	public void sendCustomMessageById(UserBean user, int toUserId, Map<String, Object> chatMap){
+		if(user.getId() == toUserId){
+			System.out.println("自己不能给自己发信息");
+			return;
+		}
+		
+		CustomMessage customMessage = new JpushCustomMessage();	
+		customMessage.sendToAlias("leedane_user_"+toUserId, JSONObject.fromObject(chatMap).toString(), "fromUserId", String.valueOf(user.getId()));	
 	}
 	
 	/**

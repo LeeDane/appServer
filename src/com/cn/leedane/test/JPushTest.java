@@ -29,7 +29,7 @@ public class JPushTest {
 		/*MessageNotification messageNotification = new JPushMessageNotificationImpl();
 		messageNotification.sendToAlias("leedane_user_"+1, "你好。。 server3");*/
 		JpushCustomMessage message= new JpushCustomMessage();
-		System.out.println(message.sendToAlias("leedane_user_1", "hello message22", "toUserId", "5"));
+		System.out.println(message.sendToAlias("leedane_user_1", "我是测试号", "toUserId", "2"));
 	}
 	
 }

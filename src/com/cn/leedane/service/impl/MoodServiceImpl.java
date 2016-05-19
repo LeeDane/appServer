@@ -287,107 +287,63 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 	@Override
 	public Map<String, Object> getMoodByLimit(JSONObject jo,
 			UserBean user, HttpServletRequest request){
+		logger.info("MoodServiceImpl-->getMoodByLimit():jo=" +jo.toString());
 		long start = System.currentTimeMillis();
+		int toUserId = JsonUtil.getIntValue(jo, "toUserId", user.getId()); //
 		List<Map<String, Object>> rs = new ArrayList<Map<String,Object>>();
-		int toUserId = JsonUtil.getIntValue(jo, "toUserId"); //操作的对象用户的id
 		int pageSize = JsonUtil.getIntValue(jo, "pageSize", ConstantsUtil.DEFAULT_PAGE_SIZE); //每页的大小
 		int lastId = JsonUtil.getIntValue(jo, "last_id"); //开始的页数
 		int firstId = JsonUtil.getIntValue(jo, "first_id"); //结束的页数
 		String method = JsonUtil.getStringValue(jo, "method", "firstloading"); //操作方式
 		String picSize = ConstantsUtil.DEFAULT_PIC_SIZE; //JsonUtil.getStringValue(jo, "pic_size"); //图像的规格(大小)		
-		logger.info("MoodServiceImpl-->getMoodByLimit():jo=" +jo.toString());
-		Set<Integer> fids = friendHandler.getFromToFriendIds(user.getId());
-		
+				
 		StringBuffer sql = new StringBuffer();
 		Map<String, Object> message = new HashMap<String, Object>();
 		message.put("isSuccess", false);
-		if(toUserId == user.getId()){
-			if("firstloading".equalsIgnoreCase(method)){
-				sql.append("select m.id, m.content, m.froms, m.uuid, m.create_user_id, date_format(m.create_time,'%Y-%c-%d %H:%i:%s') create_time, m.has_img,");
-				sql.append(" m.read_number, m.zan_number, m.comment_number, m.transmit_number, m.share_number, u.account");
-				sql.append(" from t_mood m inner join t_user u on u.id = m.create_user_id where m.status = ? and ");
-				sql.append(buildCreateUserIdInSQL(fids));
-				sql.append(" order by m.id desc limit 0,?");
-				rs = moodDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, pageSize);
-			//下刷新
-			}else if("lowloading".equalsIgnoreCase(method)){
-				sql.append("select m.id, m.content, m.froms, m.uuid, m.create_user_id, date_format(m.create_time,'%Y-%c-%d %H:%i:%s') create_time, m.has_img,");
-				sql.append(" m.read_number, m.zan_number, m.comment_number, m.transmit_number, m.share_number, u.account");
-				sql.append(" from t_mood m inner join t_user u on u.id = m.create_user_id where m.status = ? and ");
-				sql.append(buildCreateUserIdInSQL(fids));
-				sql.append(" and m.id < ? order by m.id desc limit 0,? ");
-				rs = moodDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, lastId, pageSize);
-			//上刷新
-			}else if("uploading".equalsIgnoreCase(method)){
-				sql.append("select m.id, m.content, m.froms, m.uuid, m.create_user_id, date_format(m.create_time,'%Y-%c-%d %H:%i:%s') create_time, m.has_img,");
-				sql.append(" m.read_number, m.zan_number, m.comment_number, m.transmit_number, m.share_number, u.account");
-				sql.append(" from t_mood m inner join t_user u on u.id = m.create_user_id where m.status = ? and ");
-				sql.append(buildCreateUserIdInSQL(fids));
-				sql.append(" and m.id > ? limit 0,?  ");
-				rs = moodDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, firstId, pageSize);
-			}
-		}else{
-			if("firstloading".equalsIgnoreCase(method)){
-				sql.append("select m.id, m.content, m.froms, m.uuid, m.create_user_id, date_format(m.create_time,'%Y-%c-%d %H:%i:%s') create_time, m.has_img,");
-				sql.append(" m.read_number, m.zan_number, m.comment_number, m.transmit_number, m.share_number, u.account");
-				sql.append(" from t_mood m inner join t_user u on u.id = m.create_user_id where m.status = ? and ");
-				sql.append(" m.create_user_id = ?");
-				sql.append(" order by m.id desc limit 0,?");
-				rs = moodDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, toUserId, pageSize);
-			//下刷新
-			}else if("lowloading".equalsIgnoreCase(method)){
-				sql.append("select m.id, m.content, m.froms, m.uuid, m.create_user_id, date_format(m.create_time,'%Y-%c-%d %H:%i:%s') create_time, m.has_img,");
-				sql.append(" m.read_number, m.zan_number, m.comment_number, m.transmit_number, m.share_number, u.account");
-				sql.append(" from t_mood m inner join t_user u on u.id = m.create_user_id where m.status = ? and ");
-				sql.append(" m.create_user_id = ?");
-				sql.append(" and m.id < ? order by m.id desc limit 0,? ");
-				rs = moodDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, toUserId, lastId, pageSize);
-			//上刷新
-			}else if("uploading".equalsIgnoreCase(method)){
-				sql.append("select m.id, m.content, m.froms, m.uuid, m.create_user_id, date_format(m.create_time,'%Y-%c-%d %H:%i:%s') create_time, m.has_img,");
-				sql.append(" m.read_number, m.zan_number, m.comment_number, m.transmit_number, m.share_number, u.account");
-				sql.append(" from t_mood m inner join t_user u on u.id = m.create_user_id where m.status = ? and ");
-				sql.append(" m.create_user_id = ?");
-				sql.append(" and m.id > ? limit 0,?  ");
-				rs = moodDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, toUserId, firstId, pageSize);
-			}
+		
+		if("firstloading".equalsIgnoreCase(method)){
+			sql.append("select m.id, m.content, m.froms, m.uuid, m.create_user_id, date_format(m.create_time,'%Y-%c-%d %H:%i:%s') create_time, m.has_img,");
+			sql.append(" m.read_number, m.zan_number, m.comment_number, m.transmit_number, m.share_number, u.account");
+			sql.append(" from t_mood m inner join t_user u on u.id = m.create_user_id where m.status = ? and ");
+			sql.append(" m.create_user_id = ?");
+			sql.append(" order by m.id desc limit 0,?");
+			rs = moodDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, toUserId, pageSize);
+		//下刷新
+		}else if("lowloading".equalsIgnoreCase(method)){
+			sql.append("select m.id, m.content, m.froms, m.uuid, m.create_user_id, date_format(m.create_time,'%Y-%c-%d %H:%i:%s') create_time, m.has_img,");
+			sql.append(" m.read_number, m.zan_number, m.comment_number, m.transmit_number, m.share_number, u.account");
+			sql.append(" from t_mood m inner join t_user u on u.id = m.create_user_id where m.status = ? and ");
+			sql.append(" m.create_user_id = ?");
+			sql.append(" and m.id < ? order by m.id desc limit 0,? ");
+			rs = moodDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, toUserId, lastId, pageSize);
+		//上刷新
+		}else if("uploading".equalsIgnoreCase(method)){
+			sql.append("select m.id, m.content, m.froms, m.uuid, m.create_user_id, date_format(m.create_time,'%Y-%c-%d %H:%i:%s') create_time, m.has_img,");
+			sql.append(" m.read_number, m.zan_number, m.comment_number, m.transmit_number, m.share_number, u.account");
+			sql.append(" from t_mood m inner join t_user u on u.id = m.create_user_id where m.status = ? and ");
+			sql.append(" m.create_user_id = ?");
+			sql.append(" and m.id > ? limit 0,?  ");
+			rs = moodDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, toUserId, firstId, pageSize);
 		}
 		
 		if(rs !=null && rs.size() > 0){
-			JSONObject friendObject = friendHandler.getFromToFriends(user.getId());
-			int createUserId = 0;
 			boolean hasImg ;
 			String uuid;
 			int moodId;
-			String account;
 			//为名字备注赋值
 			for(int i = 0; i < rs.size(); i++){
-				createUserId = StringUtil.changeObjectToInt(rs.get(i).get("create_user_id"));
 				hasImg = StringUtil.changeObjectToBoolean(rs.get(i).get("has_img"));
 				uuid = StringUtil.changeNotNull(rs.get(i).get("uuid"));
 				moodId = StringUtil.changeObjectToInt(rs.get(i).get("id"));
-				if(createUserId> 0){
-					rs.get(i).put("user_pic_path", userHandler.getUserPicPath(createUserId, "30x30"));
-					//System.out.println(userHandler.getUserPicPath(createUserId));
-					if(createUserId != user.getId()){
-						if(friendObject != null){
-							account = JsonUtil.getStringValue(friendObject, "user_" +createUserId);
-							if(StringUtil.isNotNull(account))
-								//替换好友称呼的名称
-								rs.get(i).put("account", account);
-						}
-					}else{
-						rs.get(i).put("account", "本人");
-					}
-					rs.get(i).put("zan_users", zanHandler.getZanUser(moodId, "t_mood", user, 6));
-					rs.get(i).put("comment_number", commentHandler.getCommentNumber(moodId, "t_mood"));
-					rs.get(i).put("transmit_number", transmitHandler.getTransmitNumber(moodId, "t_mood"));
-					rs.get(i).put("zan_number", zanHandler.getZanNumber(moodId, "t_mood"));
-				}
+				
+				rs.get(i).put("zan_users", zanHandler.getZanUser(moodId, "t_mood", user, 6));
+				rs.get(i).put("comment_number", commentHandler.getCommentNumber(moodId, "t_mood"));
+				rs.get(i).put("transmit_number", transmitHandler.getTransmitNumber(moodId, "t_mood"));
+				rs.get(i).put("zan_number", zanHandler.getZanNumber(moodId, "t_mood"));
+				
 				
 				//有图片的获取图片的路径
 				if(hasImg && !StringUtil.isNull(uuid)){
-					//System.out.println("图片地："+moodHandler.getMoodImg("t_mood", uuid, picSize));
 					rs.get(i).put("imgs", moodHandler.getMoodImg("t_mood", uuid, picSize));
 				}
 			}	
@@ -452,30 +408,7 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 		return message;
 	}
 	
-	/**
-	 * 构建CreateUser的SQL语句字符串
-	 * @param ids
-	 * @return
-	 */
-	private String buildCreateUserIdInSQL(Set<Integer> ids){
-		int length = ids.size();
-		if(length == 0) 
-			return "";
-		StringBuffer buffer = new StringBuffer();
-		buffer.append(" m.create_user_id in (");
-		int i = 0;
-		for(Integer id: ids){
-			if(i == length -1){
-				buffer.append(id);
-			}else{
-				buffer.append(id + ",");
-			}
-			i++;
-		}
-		buffer.append(") ");
-		
-		return buffer.toString();
-	}
+	
 
 	@Override
 	public int getCountByUser(JSONObject jo, UserBean user, HttpServletRequest request){

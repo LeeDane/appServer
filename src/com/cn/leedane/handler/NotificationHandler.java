@@ -261,6 +261,7 @@ public class NotificationHandler {
 				int code = json.getInt("code");	
 				if(code == 100000){
 					robotReply = json.getString("text");
+					robotReply = robotReply.replaceAll("图灵", "");
 				}else{
 					robotReply = "你在说什么？没听见";
 				}

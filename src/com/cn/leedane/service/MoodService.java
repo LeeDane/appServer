@@ -56,7 +56,7 @@ public interface MoodService <T extends Serializable> extends BaseService<MoodBe
 	public Map<String, Object> deleteMood(JSONObject jo, UserBean user, HttpServletRequest request);
 
 	/**
-	 * 获取指定的心情
+	 * 获取登录用户的心情列表
 	 * @param jo 格式{"uid":1, "pageSize":5, "last_id": 1, "first_id":1, "method":"lowloading"}(uploading, firstloading)
 	 * @param user
 	 * @param request

@@ -1,8 +1,23 @@
 package com.cn.leedane.test;
 
-import com.cn.leedane.message.JpushCustomMessage;
+import java.util.Date;
+import java.util.Map;
 
-public class JPushTest {
+import javax.annotation.Resource;
+
+import org.junit.Test;
+
+import net.sf.json.JSONObject;
+
+import com.cn.leedane.Utils.ConstantsUtil;
+import com.cn.leedane.bean.ChatBean;
+import com.cn.leedane.bean.UserBean;
+import com.cn.leedane.message.JpushCustomMessage;
+import com.cn.leedane.message.notification.Notification;
+import com.cn.leedane.service.UserService;
+import com.cn.leedane.service.impl.ChatServiceImpl;
+
+public class JPushTest extends BaseTest{
 
 	public static void main(String[] args) {
 		/*JPushClient jpushClient = new JPushClient(ConstantsUtil.JPUSH_MASTER_SECRET, ConstantsUtil.JPUSH_APPKEY, 10);
@@ -28,8 +43,39 @@ public class JPushTest {
         }*/
 		/*MessageNotification messageNotification = new JPushMessageNotificationImpl();
 		messageNotification.sendToAlias("leedane_user_"+1, "你好。。 server3");*/
+		/*Notification notification = new Notification();
+		notification.setToUser(toUser);
+		
+		
 		JpushCustomMessage message= new JpushCustomMessage();
-		System.out.println(message.sendToAlias("leedane_user_1", "我是测试号", "toUserId", "2"));
+		System.out.println(message.sendToAlias("leedane_user_1", "我是测试号", "toUserId", "2"));*/
+	}
+	
+	@Resource
+	private UserService<UserBean> userService;
+	
+	/**
+	 * 测试发送聊天
+	 */
+	@Test
+	public void chat() {
+		UserBean user = userService.findById(11);
+		if(user == null){
+			user = new UserBean();
+			user.setId(11);
+		}
+		ChatBean chatBean = new ChatBean();
+		chatBean.setId(1104);
+		chatBean.setContent("测试内容1");
+		chatBean.setCreateTime(new Date());
+		chatBean.setCreateUser(user);
+		chatBean.setStatus(ConstantsUtil.STATUS_NORMAL);
+		chatBean.setToUserId(1);
+		chatBean.setType(1);
+		
+		Map<String, Object> chatMap = ChatServiceImpl.chatBeanToMap(chatBean);
+		JpushCustomMessage message= new JpushCustomMessage();
+		System.out.println(message.sendToAlias("leedane_user_1", JSONObject.fromObject(chatMap).toString(), "toUserId", "11"));
 	}
 	
 }

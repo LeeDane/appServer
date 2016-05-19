@@ -76,7 +76,7 @@ public class ChatServiceImpl extends BaseServiceImpl<ChatBean> implements ChatSe
 			message.put("responseCode", EnumUtil.ResponseCode.没有操作权限.value);
 			return message;
 		}
-		
+		int lastId = JsonUtil.getIntValue(jo, "last_id", 0); //开始的页数
 		int firstId = JsonUtil.getIntValue(jo, "first_id"); //开始的页数
 		String method = JsonUtil.getStringValue(jo, "method", "firstloading"); //操作方式
 		int pageSize = JsonUtil.getIntValue(jo, "pageSize", ConstantsUtil.DEFAULT_PAGE_SIZE); //每页的大小
@@ -101,15 +101,12 @@ public class ChatServiceImpl extends BaseServiceImpl<ChatBean> implements ChatSe
 			sql.append(" from t_chat c where ((c.create_user_id = ? and c.to_user_id =?) or (c.to_user_id =? and c.create_user_id = ?))");
 			sql.append(" and c.id < ? order by c.id desc limit 0,? ");
 			rs = chatDao.executeSQL(sql.toString(), user.getId(), toUserId, user.getId(), toUserId, firstId, pageSize);
+		}else if("lowloading".equalsIgnoreCase(method)){
+			sql.append("select c.id, c.create_user_id, c.to_user_id , date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time, c.type, c.content");
+			sql.append(" from t_chat c where ((c.create_user_id = ? and c.to_user_id =?) or (c.to_user_id =? and c.create_user_id = ?))");
+			sql.append(" and c.id > ? order by c.id desc limit 0,? ");
+			rs = chatDao.executeSQL(sql.toString(), user.getId(), toUserId, user.getId(), toUserId, lastId, pageSize);
 		}
-		/*if(rs !=null && rs.size() > 0){
-			int createUserId = 0;
-			//为名字备注赋值
-			for(int i = 0; i < rs.size(); i++){
-				createUserId = StringUtil.changeObjectToInt(rs.get(i).get("to_user_id"));
-				rs.get(i).putAll(userHandler.getBaseUserInfo(createUserId));
-			}	
-		}*/
 		//保存操作日志
 		operateLogService.saveOperateLog(user, request, null, StringUtil.getStringBufferStr(user.getAccount(),"获取聊天分页列表").toString(), "getLimit()", ConstantsUtil.STATUS_NORMAL, 0);
 			

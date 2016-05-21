@@ -212,14 +212,14 @@ public class ZanHandler {
 		StringBuffer returnValue = new StringBuffer();
 		//赞用户
 		if(!redisUtil.hasKey(zanUserKey)){
-			List<Map<String, Object>> results = zanService.executeSQL("select u.id, u.account from t_zan z inner join t_user u on z.create_user_id = u.id where z.table_name=? and z.table_id = ?", tableName, tableId);
-			if(results != null && results.size()> 0){
-				String[] userArray = new String[results.size()];
-				for(int i = 0; i < results.size(); i++){
-					userArray[i] = StringUtil.changeNotNull(results.get(i).get("id"))+ ","+ StringUtil.changeNotNull(results.get(i).get("account"));
-					returnValue.append(results.get(i).get("id"));
+			List<Map<String, Object>> rs = zanService.executeSQL("select u.id, u.account from t_zan z inner join t_user u on z.create_user_id = u.id where z.table_name=? and z.table_id = ?", tableName, tableId);
+			if(rs != null && rs.size()> 0){
+				String[] userArray = new String[rs.size()];
+				for(int i = 0; i < rs.size(); i++){
+					userArray[i] = StringUtil.changeNotNull(rs.get(i).get("id"))+ ","+ StringUtil.changeNotNull(rs.get(i).get("account"));
+					returnValue.append(rs.get(i).get("id"));
 					returnValue.append(",");
-					returnValue.append(results.get(i).get("account"));
+					returnValue.append(rs.get(i).get("account"));
 					returnValue.append(";");
 				}
 				redisUtil.addSet(zanUserKey, userArray);

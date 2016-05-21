@@ -94,13 +94,20 @@ public class MoodHandler {
 		JSONArray jsonArray = new JSONArray();
 		if(!redisUtil.hasKey(moodKey)){
 			StringBuffer sql = new StringBuffer();
-			sql.append("select m.create_user_id, m.froms, m.content, m.has_img, (select account from t_user where id = m.create_user_id) account,date_format(m.create_time,'%Y-%c-%d %H:%i:%s') create_time");
+			sql.append("select m.create_user_id, m.froms, m.content, m.has_img, date_format(m.create_time,'%Y-%c-%d %H:%i:%s') create_time");
 			//sql.append(" ,(case when has_img = 1 then (select qiniu_path from t_file_path where status = ? and table_name='t_mood' and table_uuid = m.uuid and pic_size=?) else '' end) path");
 			sql.append(" ,uuid");
 			sql.append(" from t_mood m");
 			sql.append(" where m.id=? ");
 			sql.append(" and m.status = ?");
 			list = moodService.executeSQL(sql.toString(), moodId, ConstantsUtil.STATUS_NORMAL);
+			if(list != null && list.size() >0){
+				int createUserId;
+				for(int i = 0; i < list.size(); i++){
+					createUserId = StringUtil.changeObjectToInt(list.get(i).get("create_user_id"));
+					list.get(i).putAll(userHandler.getBaseUserInfo(createUserId));
+				}
+			}
 			jsonArray = JSONArray.fromObject(list);
 			redisUtil.addString(moodKey, jsonArray.toString());
 		}else{
@@ -119,7 +126,7 @@ public class MoodHandler {
 			int createUserId = StringUtil.changeObjectToInt(list.get(0).get("create_user_id"));
 			if( createUserId > 0)
 				//填充图片信息
-				list.get(0).put("user_pic_path", userHandler.getUserPicPath(createUserId, "30x30"));
+				list.get(0).putAll(userHandler.getBaseUserInfo(createUserId));
 		}
 		return list;
 	}

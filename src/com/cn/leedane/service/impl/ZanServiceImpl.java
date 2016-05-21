@@ -29,6 +29,7 @@ import com.cn.leedane.handler.FriendHandler;
 import com.cn.leedane.handler.NotificationHandler;
 import com.cn.leedane.handler.UserHandler;
 import com.cn.leedane.handler.ZanHandler;
+import com.cn.leedane.redis.util.RedisUtil;
 import com.cn.leedane.service.OperateLogService;
 import com.cn.leedane.service.ZanService;
 /**
@@ -261,6 +262,50 @@ public class ZanServiceImpl extends BaseServiceImpl<ZanBean> implements ZanServi
 			zanHandler.cancelZan(zanBean.getTableId(), zanBean.getTableName(), user);
 			message.put("isSuccess", true);
 		}			
+		
+		return message;
+	}
+
+	@Override
+	public Map<String, Object> getAllZanUser(JSONObject jo, UserBean user,
+			HttpServletRequest request) {
+		logger.info("ZanServiceImpl-->getAllZanUser():jsonObject=" +jo.toString() +", user=" +user.getAccount());
+		Map<String, Object> message = new HashMap<String, Object>();
+		message.put("isSuccess", false);
+		int tableId = JsonUtil.getIntValue(jo, "table_id");
+		String tableName = JsonUtil.getStringValue(jo, "table_name");
+		
+		
+		if(tableId == 0 || StringUtil.isNull(tableName)){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.操作对象不存在.value));
+			message.put("responseCode", EnumUtil.ResponseCode.操作对象不存在.value);
+		}
+		
+		List<Map<String, Object>> rs = zanDao.executeSQL("select z.id, u.id create_user_id, date_format(z.create_time,'%Y-%c-%d %H:%i:%s') create_time  from t_zan z inner join t_user u on z.create_user_id = u.id where z.table_name=? and z.table_id = ?", tableName, tableId);
+		if(rs != null && rs.size() > 0){
+			int createUserId ;
+			String[] userArray = new String[rs.size()];
+			for(int i = 0; i < rs.size(); i++){
+				createUserId = StringUtil.changeObjectToInt(rs.get(i).get("create_user_id"));
+				rs.get(i).putAll(userHandler.getBaseUserInfo(createUserId));
+				userArray[i] = StringUtil.changeNotNull(rs.get(i).get("id"))+ ","+ StringUtil.changeNotNull(rs.get(i).get("account"));
+			}
+			
+			//同时更新一下赞的信息
+			RedisUtil redisUtil = RedisUtil.getInstance();
+			String zanUserKey = ZanHandler.getZanUserKey(tableId, tableName);
+			String zanKey = ZanHandler.getZanKey(tableId, tableName);
+			redisUtil.delete(zanUserKey);
+			redisUtil.delete(zanKey);
+			redisUtil.addSet(zanUserKey, userArray);
+			redisUtil.addString(zanKey, String.valueOf(rs.size()));
+		}
+		
+		message.put("isSuccess", true);
+		message.put("message", rs);
+		
+		//保存操作日志
+		operateLogService.saveOperateLog(user, request, null, StringUtil.getStringBufferStr(user.getAccount(),"获取表ID为：", tableId, ",表名为：", tableName, "的全部赞用户", StringUtil.getSuccessOrNoStr(true)).toString(), "getAllZanUser()", ConstantsUtil.STATUS_NORMAL, 0);
 		
 		return message;
 	}

@@ -55,4 +55,15 @@ public interface ZanService<T extends Serializable> extends BaseService<ZanBean>
 	 */
 	public List<Map<String, Object>> getLimit(JSONObject jo, UserBean user,
 			HttpServletRequest request);
+	
+	/**
+	 * 获取点赞的全部用户
+	 * {'table_name':'t_mood','table_id':1}
+	 * @param jo
+	 * @param user
+	 * @param request
+	 * @return
+	 */
+	public Map<String, Object> getAllZanUser(JSONObject jo, UserBean user,
+			HttpServletRequest request);
 }

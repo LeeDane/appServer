@@ -199,6 +199,22 @@ public class FriendHandler {
 	}
 	
 	/**
+	 * 判断toUserId是否在userId关注列表中
+	 * @param userId
+	 * @param toUserId
+	 * @return
+	 */
+	public boolean inFriend(int userId, int toUserId){
+		boolean result = false;
+		Set<Integer> set = getFromToFriendIds(userId);
+		if(set != null && set.size() >0){
+			result = set.contains(toUserId);
+		}
+		return result;
+	}
+	
+	
+	/**
 	 * 将字符串转成数组集合
 	 * @param str
 	 * @param userId

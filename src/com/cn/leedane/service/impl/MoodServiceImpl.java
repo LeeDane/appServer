@@ -546,4 +546,40 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 		
 		return list;
 	}
+
+	@Override
+	public Map<String, Object> search(JSONObject jo, UserBean user,
+			HttpServletRequest request) {
+		logger.info("MoodServiceImpl-->search():jo="+jo.toString());
+		String searchKey = JsonUtil.getStringValue(jo, "searchKey");
+		Map<String, Object> message = new HashMap<String, Object>();
+		message.put("isSuccess", false);
+		
+		if(StringUtil.isNull(searchKey)){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.检索关键字不能为空.value));
+			message.put("responseCode", EnumUtil.ResponseCode.检索关键字不能为空.value);
+			return message;
+		}
+		
+		List<Map<String, Object>> rs = moodDao.executeSQL("select id, content, uuid, froms, create_user_id, date_format(create_time,'%Y-%c-%d %H:%i:%s') create_time, has_img from t_mood where status=? and content like '%"+searchKey+"%' order by create_time desc limit 25", ConstantsUtil.STATUS_NORMAL);
+		if(rs != null && rs.size() > 0){
+			int createUserId = 0;
+			boolean hasImg;
+			String uuid;
+			for(int i = 0; i < rs.size(); i++){
+				createUserId = StringUtil.changeObjectToInt(rs.get(i).get("create_user_id"));
+				hasImg = StringUtil.changeObjectToBoolean(rs.get(i).get("has_img"));
+				uuid = StringUtil.changeNotNull(rs.get(i).get("uuid"));
+				
+				rs.get(i).putAll(userHandler.getBaseUserInfo(createUserId));
+				//有图片的获取图片的路径
+				if(hasImg && !StringUtil.isNull(uuid)){
+					rs.get(i).put("imgs", moodHandler.getMoodImg("t_mood", uuid, ConstantsUtil.DEFAULT_PIC_SIZE));
+				}
+			}
+		}
+		message.put("isSuccess", true);
+		message.put("message", rs);
+		return message;
+	}
 }

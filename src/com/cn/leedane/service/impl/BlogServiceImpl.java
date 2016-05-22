@@ -19,6 +19,7 @@ import com.cn.leedane.Utils.StringUtil;
 import com.cn.leedane.bean.BlogBean;
 import com.cn.leedane.bean.OperateLogBean;
 import com.cn.leedane.bean.UserBean;
+import com.cn.leedane.handler.UserHandler;
 import com.cn.leedane.service.BlogService;
 import com.cn.leedane.service.OperateLogService;
 
@@ -43,6 +44,13 @@ public class BlogServiceImpl extends BaseServiceImpl<BlogBean> implements BlogSe
 	public void setOperateLogService(
 			OperateLogService<OperateLogBean> operateLogService) {
 		this.operateLogService = operateLogService;
+	}
+	
+	@Resource
+	private UserHandler userHandler;
+	
+	public void setUserHandler(UserHandler userHandler) {
+		this.userHandler = userHandler;
 	}
 	
 	Map<String,Object> message = new HashMap<String,Object>();
@@ -197,5 +205,32 @@ public class BlogServiceImpl extends BaseServiceImpl<BlogBean> implements BlogSe
 	public List<Map<String, Object>> getRecommendBlogs(int size) {
 		logger.info("BlogServiceImpl-->getRecommendBlogs():size="+size);
 		return this.blogDao.getRecommendBlogs(size);
+	}
+
+	@Override
+	public Map<String, Object> search(JSONObject jo, UserBean user,
+			HttpServletRequest request) {
+		logger.info("BlogServiceImpl-->search():jo="+jo.toString());
+		String searchKey = JsonUtil.getStringValue(jo, "searchKey");
+		Map<String, Object> message = new HashMap<String, Object>();
+		message.put("isSuccess", false);
+		
+		if(StringUtil.isNull(searchKey)){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.检索关键字不能为空.value));
+			message.put("responseCode", EnumUtil.ResponseCode.检索关键字不能为空.value);
+			return message;
+		}
+		
+		List<Map<String, Object>> rs = blogDao.executeSQL("select id, img_url, title, has_img, tag, date_format(create_time,'%Y-%c-%d %H:%i:%s') create_time, digest, froms, source, create_user_id from t_blog where status=? and (digest like '%"+searchKey+"%' or title like '%"+searchKey+"%' or content like '%"+searchKey+"%') order by create_time desc limit 25", ConstantsUtil.STATUS_NORMAL);
+		if(rs != null && rs.size() > 0){
+			int createUserId = 0;
+			for(int i = 0; i < rs.size(); i++){
+				createUserId = StringUtil.changeObjectToInt(rs.get(i).get("create_user_id"));
+				rs.get(i).putAll(userHandler.getBaseUserInfo(createUserId));
+			}
+		}
+		message.put("isSuccess", true);
+		message.put("message", rs);
+		return message;
 	}
 }

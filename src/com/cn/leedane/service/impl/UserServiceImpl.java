@@ -34,8 +34,10 @@ import com.cn.leedane.cache.SystemCache;
 import com.cn.leedane.enums.NotificationType;
 import com.cn.leedane.handler.CommentHandler;
 import com.cn.leedane.handler.FanHandler;
+import com.cn.leedane.handler.FriendHandler;
 import com.cn.leedane.handler.SignInHandler;
 import com.cn.leedane.handler.TransmitHandler;
+import com.cn.leedane.handler.UserHandler;
 import com.cn.leedane.log.LogAnnotation;
 import com.cn.leedane.message.ISendNotification;
 import com.cn.leedane.message.SendNotificationImpl;
@@ -99,6 +101,14 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 	}
 	
 	@Resource
+	private UserHandler userHandler;
+	
+	public void setUserHandler(UserHandler userHandler) {
+		this.userHandler = userHandler;
+	}
+	
+	
+	@Resource
 	private TransmitHandler transmitHandler;
 	
 	public void setTransmitHandler(TransmitHandler transmitHandler) {
@@ -110,6 +120,13 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 	
 	public void setFanHandler(FanHandler fanHandler) {
 		this.fanHandler = fanHandler;
+	}
+	
+	@Resource
+	private FriendHandler friendHandler;
+	
+	public void setFriendHandler(FriendHandler friendHandler) {
+		this.friendHandler = friendHandler;
 	}
 	
 	@Resource
@@ -763,6 +780,39 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 		//保存操作日志
 		operateLogService.saveOperateLog(user, request, null, StringUtil.getStringBufferStr("注册账号为", account , ",手机号码为：", StringUtil.getSuccessOrNoStr(result)).toString(), "registerByPhoneNoValidate()", ConstantsUtil.STATUS_NORMAL, 0);	
 		
+		return message;
+	}
+
+	@Override
+	public Map<String, Object> search(JSONObject jo, UserBean user,
+			HttpServletRequest request) {
+		logger.info("UserServiceImpl-->search():jo="+jo.toString());
+		String searchKey = JsonUtil.getStringValue(jo, "searchKey");
+		Map<String, Object> message = new HashMap<String, Object>();
+		message.put("isSuccess", false);
+		
+		if(StringUtil.isNull(searchKey)){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.检索关键字不能为空.value));
+			message.put("responseCode", EnumUtil.ResponseCode.检索关键字不能为空.value);
+			return message;
+		}
+		
+		
+		List<Map<String, Object>> rs = userDao.executeSQL("select id, account, personal_introduction introduction, birth_day birth_day, mobile_phone phone, sex, email, qq, date_format(register_time,'%Y-%c-%d %H:%i:%s') create_time from t_user where status=? and account like '%"+searchKey+"%' order by create_time desc limit 25", ConstantsUtil.STATUS_NORMAL);
+		if(rs != null && rs.size() > 0){
+			int id = 0;
+			for(int i = 0; i < rs.size(); i++){
+				id = StringUtil.changeObjectToInt(rs.get(i).get("id"));
+				rs.get(i).putAll(userHandler.getBaseUserInfo(id));
+				if(id != user.getId()){
+					rs.get(i).put("is_fan", fanHandler.inAttention(user.getId(), id));
+					rs.get(i).put("is_friend", friendHandler.inFriend(user.getId(), id));
+				}
+					
+			}
+		}
+		message.put("isSuccess", true);
+		message.put("message", rs);
 		return message;
 	}
 }

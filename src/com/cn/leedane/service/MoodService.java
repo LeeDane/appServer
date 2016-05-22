@@ -118,4 +118,13 @@ public interface MoodService <T extends Serializable> extends BaseService<MoodBe
 	 */
 	public List<Map<String, Object>> detailImgs(JSONObject jo, UserBean user,
 			HttpServletRequest request) ;
+
+	/**
+	 * 搜索心情
+	 * @param jo
+	 * @param user
+	 * @param request
+	 * @return
+	 */
+	public Map<String, Object> search(JSONObject jo, UserBean user, HttpServletRequest request);
 }

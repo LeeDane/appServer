@@ -291,4 +291,13 @@ public interface UserService <T extends Serializable> extends BaseService<UserBe
 	 * @return
 	 */
 	public Map<String, Object> registerByPhoneNoValidate(JSONObject jo, HttpServletRequest request);
+
+	/**
+	 * 搜索用户
+	 * @param jo
+	 * @param user
+	 * @param request
+	 * @return
+	 */
+	public Map<String, Object> search(JSONObject jo, UserBean user, HttpServletRequest request);
 }

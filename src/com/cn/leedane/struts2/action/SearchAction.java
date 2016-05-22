@@ -13,6 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cn.leedane.Utils.BaseActionContext;
 import com.cn.leedane.Utils.ConstantsUtil;
@@ -20,7 +21,13 @@ import com.cn.leedane.Utils.EnumUtil;
 import com.cn.leedane.Utils.HttpUtils;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
+import com.cn.leedane.bean.BlogBean;
+import com.cn.leedane.bean.MoodBean;
+import com.cn.leedane.bean.UserBean;
 import com.cn.leedane.lucene.solr.SolrHandler;
+import com.cn.leedane.service.BlogService;
+import com.cn.leedane.service.MoodService;
+import com.cn.leedane.service.UserService;
 /**
  * 搜索专用的action
  * @author LeeDane
@@ -30,6 +37,27 @@ import com.cn.leedane.lucene.solr.SolrHandler;
 public class SearchAction extends BaseActionContext{	
 	protected final Log log = LogFactory.getLog(getClass());
 	private static final long serialVersionUID = 1L;
+	
+	@Autowired
+	private UserService<UserBean> userService;
+	
+	public void setUserService(UserService<UserBean> userService) {
+		this.userService = userService;
+	}
+	
+	@Autowired
+	private MoodService<MoodBean> moodService;
+	
+	public void setMoodService(MoodService<MoodBean> moodService) {
+		this.moodService = moodService;
+	}
+	
+	@Autowired
+	private BlogService<BlogBean> blogService;
+	
+	public void setBlogService(BlogService<BlogBean> blogService) {
+		this.blogService = blogService;
+	}
 	
 	
 	/**
@@ -96,6 +124,76 @@ public class SearchAction extends BaseActionContext{
 		}
         return SUCCESS;
 	}
+	
+	/**
+	 * 搜索用户
+	 * @return
+	 */
+	public String user() {
+		try {
+			message.put("isSuccess", false);
+			JSONObject jo = HttpUtils.getJsonObjectFromInputStream(params, request);  
+			if(jo == null || jo.isEmpty()) {	
+				message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.缺少请求参数.value));
+				message.put("responseCode", EnumUtil.ResponseCode.缺少请求参数.value);
+				return SUCCESS;
+			}
+			message.putAll(userService.search(jo, user, request));
+			return SUCCESS;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}     
+        message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.服务器处理异常.value));
+		message.put("responseCode", EnumUtil.ResponseCode.服务器处理异常.value);
+        return SUCCESS;
+	}
+	
+	/**
+	 * 搜索心情
+	 * @return
+	 */
+	public String mood() {
+		try {
+			message.put("isSuccess", false);
+			JSONObject jo = HttpUtils.getJsonObjectFromInputStream(params, request);  
+			if(jo == null || jo.isEmpty()) {	
+				message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.缺少请求参数.value));
+				message.put("responseCode", EnumUtil.ResponseCode.缺少请求参数.value);
+				return SUCCESS;
+			}
+			message.putAll(moodService.search(jo, user, request));
+			return SUCCESS;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}     
+        message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.服务器处理异常.value));
+		message.put("responseCode", EnumUtil.ResponseCode.服务器处理异常.value);
+        return SUCCESS;
+	}
+	
+	/**
+	 * 搜索心情
+	 * @return
+	 */
+	public String blog() {
+		try {
+			message.put("isSuccess", false);
+			JSONObject jo = HttpUtils.getJsonObjectFromInputStream(params, request);  
+			if(jo == null || jo.isEmpty()) {	
+				message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.缺少请求参数.value));
+				message.put("responseCode", EnumUtil.ResponseCode.缺少请求参数.value);
+				return SUCCESS;
+			}
+			message.putAll(blogService.search(jo, user, request));
+			return SUCCESS;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}     
+        message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.服务器处理异常.value));
+		message.put("responseCode", EnumUtil.ResponseCode.服务器处理异常.value);
+        return SUCCESS;
+	}
+	
 	
 	/**
 	 * 获取指定类型搜索的域（type不能为0，为0需要特殊处理）

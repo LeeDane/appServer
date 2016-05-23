@@ -19,3 +19,4 @@
 /redis_delete.action
 /redis_clearAll.action
 /weixin_execute.action
+/search_blog.action

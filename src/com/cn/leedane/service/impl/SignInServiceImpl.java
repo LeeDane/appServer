@@ -34,7 +34,7 @@ import com.cn.leedane.service.SignInService;
  * 2015年7月10日 下午6:19:30
  * Version 1.0
  */
-public class SignInServiceImpl implements SignInService<SignInBean> {
+public class SignInServiceImpl extends BaseServiceImpl<SignInBean> implements SignInService<SignInBean> {
 	Logger logger = Logger.getLogger(getClass());
 	@Resource
 	private SignInDao<SignInBean> signInDao;
@@ -140,6 +140,7 @@ public class SignInServiceImpl implements SignInService<SignInBean> {
 		Date currentTime = new Date();
 		
 		signInBean.setCreateTime(currentTime);
+		signInBean.setCreateDate(DateUtil.DateToString(currentTime, "yyyy-MM-dd"));
 		signInBean.setCreateUser(user);
 		signInBean.setStatus(ConstantsUtil.STATUS_NORMAL);
 		

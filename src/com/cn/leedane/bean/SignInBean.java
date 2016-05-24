@@ -35,6 +35,11 @@ public class SignInBean extends RecordTimeBean{
 	 */
 	private String froms;
 	
+	/**
+	 * 创建日期(用于和create_user_id做联合约束记录的唯一性)
+	 */
+	private String createDate;
+	
 	private String str1;
 	private String str2;
 	
@@ -70,6 +75,14 @@ public class SignInBean extends RecordTimeBean{
 	}
 	public void setStr2(String str2) {
 		this.str2 = str2;
+	}
+	
+	@Column(name="create_date", length=10)
+	public String getCreateDate() {
+		return createDate;
+	}
+	public void setCreateDate(String createDate) {
+		this.createDate = createDate;
 	}
 		
 }

@@ -20,3 +20,4 @@
 /redis_clearAll.action
 /weixin_execute.action
 /search_blog.action
+/batchDeal_execute.action

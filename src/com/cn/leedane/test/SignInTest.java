@@ -71,8 +71,10 @@ public class SignInTest extends BaseTest {
 		}
 		
 		//bean.setScore(score);
-		bean.setCreateTime(new Date());
+		Date currentTime = new Date();
+		bean.setCreateTime(currentTime);
 		bean.setContinuous(continuous);
+		bean.setCreateDate(DateUtil.DateToString(currentTime, "yyyy-MM-dd"));
 		systemCache = (SystemCache) SpringUtils.getBean("systemCache");
 		String adminId = (String) systemCache.getCache("admin-id");
 		int aid = 1;

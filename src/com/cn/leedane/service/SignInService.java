@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import net.sf.json.JSONObject;
 
+import com.cn.leedane.bean.SignInBean;
 import com.cn.leedane.bean.UserBean;
 
 /**
@@ -16,7 +17,7 @@ import com.cn.leedane.bean.UserBean;
  * 2015年7月10日 下午6:18:22
  * Version 1.0
  */
-public interface SignInService <T extends Serializable> {
+public interface SignInService <T extends Serializable> extends BaseService<SignInBean>{
 	
 	/**
 	 * 用户指定时间是否已经签到

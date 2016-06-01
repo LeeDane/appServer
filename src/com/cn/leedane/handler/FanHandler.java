@@ -1,6 +1,7 @@
 package com.cn.leedane.handler;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -131,7 +132,7 @@ public class FanHandler {
 				}
 			}	
 			if(scoreMembers.isEmpty()){
-				return null;
+				return new HashSet<String>();
 			}
 			redisUtil.zadd(attentionIDKey, scoreMembers);
 		}

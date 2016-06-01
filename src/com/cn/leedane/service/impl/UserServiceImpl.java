@@ -197,7 +197,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 		if(object != null){
 			//更新积分
 			ScoreBean scoreBean = new ScoreBean();
-			scoreBean.setTotalScore(0);
+			scoreBean.setTotalScore(StringUtil.changeObjectToInt(object));
 			scoreBean.setScore(StringUtil.changeObjectToInt(object));
 			scoreBean.setCreateTime(new Date());
 			scoreBean.setCreateUser(u);

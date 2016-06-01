@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import net.sf.json.JSONObject;
 
 import com.cn.leedane.Utils.ConstantsUtil;
+import com.cn.leedane.Utils.DateUtil;
 import com.cn.leedane.Utils.EnumUtil;
 import com.cn.leedane.Utils.HttpUtils;
 import com.cn.leedane.Utils.JsonUtil;
@@ -20,6 +21,8 @@ import com.cn.leedane.Utils.SpringUtils;
 import com.cn.leedane.Utils.StringUtil;
 import com.cn.leedane.bean.UserBean;
 import com.cn.leedane.cache.SystemCache;
+import com.cn.leedane.handler.UserHandler;
+import com.cn.leedane.redis.util.RedisUtil;
 import com.cn.leedane.service.UserService;
 import com.opensymphony.xwork2.Action;
 import com.opensymphony.xwork2.ActionContext;
@@ -52,6 +55,13 @@ public class LoginInterceptor extends AbstractInterceptor {
 		this.userService = userService;
 	}
 	
+	@Autowired
+	private UserHandler userHandler;
+	
+	public void setUserHandler(UserHandler userHandler) {
+		this.userHandler = userHandler;
+	}
+		
 	/**
 	 * 获得systemCache对象
 	 */
@@ -108,6 +118,7 @@ public class LoginInterceptor extends AbstractInterceptor {
 		//session中缓存的用户
 		if(user != null){
 			stack.setValue("user", user);
+			userHandler.addLastRequestTime(user.getId());
 			return invocation.invoke();
 		}else{
 			
@@ -194,6 +205,9 @@ public class LoginInterceptor extends AbstractInterceptor {
 								default:
 									break;
 							}
+							
+							userHandler.addLastRequestTime(user.getId());
+							
 							//当验证账号的状态是正常的情况，继续执行action
 							if(canDo){
 								stack.setValue("user", user);
@@ -214,5 +228,7 @@ public class LoginInterceptor extends AbstractInterceptor {
 			return Action.ERROR;
 		}
 	}
+	
+	
 
 }

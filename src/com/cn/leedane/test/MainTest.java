@@ -1,9 +1,9 @@
 package com.cn.leedane.test;
 
 import java.io.IOException;
-import java.util.Set;
+import java.util.Date;
 
-import com.cn.leedane.Utils.StringUtil;
+import com.cn.leedane.Utils.DateUtil;
 
 /**
  * main方法相关的测试类
@@ -28,7 +28,7 @@ public class MainTest {
          String size = df.format(d) +"M";
          
 		System.out.println(size);*/
-		String value = " @";
+		/*String value = " @";
 		//只有一个@字符启动好友选择
         if(value.equals("@")){
         	System.out.println("sss");
@@ -36,7 +36,12 @@ public class MainTest {
 
         if(value.endsWith(" @")){
         	System.out.println("aasss");
-        }
+        }*/
+		
+		/*String ss = "U2FsdGVkX1+GwIYSkb6ewlmShIAAR+k1oKV87HFVoZlaCLjKUa3RsXxMIzs88xv2gvX9wXRao4SLaiOyB8113w=";
+		System.out.println(Base64Util.decode(ss.getBytes()));*/
+		
+		System.out.println(DateUtil.DateToString(new Date(), "HH:mm"));
 	}	
 
 }

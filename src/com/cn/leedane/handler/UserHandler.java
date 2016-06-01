@@ -1,5 +1,6 @@
 package com.cn.leedane.handler;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.cn.leedane.Utils.ConstantsUtil;
+import com.cn.leedane.Utils.DateUtil;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
 import com.cn.leedane.bean.UserBean;
@@ -50,6 +52,23 @@ public class UserHandler {
 			}
 		}
 		return userInfos;
+	}
+	
+	/**
+	 * 保存用户操作的最新的请求时间记录
+	 * @param userId
+	 */
+	public void addLastRequestTime(int userId){
+		redisUtil.addString(getRequestTimeKey(userId), DateUtil.DateToString(new Date()));
+	}
+	
+	/**
+	 * 获取用户操作的最新请求时间记录
+	 * @param userId
+	 * @return
+	 */
+	public String getLastRequestTime(int userId){
+		return StringUtil.changeNotNull(redisUtil.getString(getRequestTimeKey(userId)));
 	}
 	
 	/**
@@ -220,6 +239,15 @@ public class UserHandler {
 	
 	public static String getRedisUserInfoKey(int userId){
 		return "user_info_"+userId;
+	}
+	
+	/**
+	 * 获取最新的请求Redis键
+	 * @param userId
+	 * @return
+	 */
+	public static String getRequestTimeKey(int userId){
+		return "last_request_time_"+userId;
 	}
 	
 	/**

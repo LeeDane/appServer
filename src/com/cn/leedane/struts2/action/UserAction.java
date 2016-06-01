@@ -257,6 +257,8 @@ public class UserAction extends BaseActionContext {
 			
 			if(isSelf){
 				infos.put("no_login_code", user2.getNoLoginCode());
+			}else{
+				infos.put("last_request_time", userHandler.getLastRequestTime(user2.getId()));//最近操作记录
 			}
 			infos.put("personal_introduction", user2.getPersonalIntroduction());
 		}

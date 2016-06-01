@@ -346,7 +346,7 @@ public class StringUtil {
 		
 		//没有昨天签到记录的情况下
 		if(continuous == 0) {
-			return 1;
+			return score + 1;
 		}
 		switch (continuous) {
 			case 1:

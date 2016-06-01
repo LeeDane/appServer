@@ -2,6 +2,7 @@ package com.cn.leedane.service.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -183,6 +184,8 @@ public class CircleOfFriendServiceImpl implements CircleOfFriendService<TimeLine
 		String picSize = ConstantsUtil.DEFAULT_PIC_SIZE; //JsonUtil.getStringValue(jo, "pic_size"); //图像的规格(大小)		
 
 		Set<String> fids = fanHandler.getMyAttentions(user.getId());
+		if(fids == null)
+			fids = new HashSet<String>();
 		fids.add(String.valueOf(user.getId()));
 		
 		StringBuffer sql = new StringBuffer();

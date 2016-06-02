@@ -159,7 +159,7 @@ public class UserAction extends BaseActionContext {
 								putInSessionAfterLoginSuccess();
 							}
 							
-							message.put("userinfo", getUserInfo(user, true));
+							message.put("userinfo", userHandler.getUserInfo(user, true));
 							resmessage = EnumUtil.getResponseValue(EnumUtil.ResponseCode.恭喜您登录成功.value);
 							message.put("responseCode", EnumUtil.ResponseCode.恭喜您登录成功.value);
 						}
@@ -211,7 +211,7 @@ public class UserAction extends BaseActionContext {
 				// 保存操作日志信息
 				String subject = user.getAccount() + "查看" + searchUser.getAccount() + "个人基本信息";
 				this.operateLogService.saveOperateLog(user, request, new Date(), subject, "searchUserByUserId", 1, 0);
-				message.put("userinfo", getUserInfo(searchUser, false));
+				message.put("userinfo", userHandler.getUserInfo(searchUser, false));
 				message.put("isSuccess", true);
 				return SUCCESS;
 			}else{
@@ -228,42 +228,7 @@ public class UserAction extends BaseActionContext {
 		return SUCCESS;
 	}
 
-	/**
-	 * 获取提供调用使用的用户信息
-	 * @param user2
-	 * @param isSelf  是否是自己，自己的话可以不加载一些信息
-	 * @return
-	 */
-	private Map<String, Object> getUserInfo(UserBean user2, boolean isSelf) {
-		HashMap<String, Object> infos = new HashMap<String, Object>();
-		if(user2 != null){
-			infos.put("id", user2.getId());
-			infos.put("account", user2.getAccount());
-			infos.put("email", user2.getEmail());
-			infos.put("age", user2.getAge());
-			infos.put("mobile_phone", user2.getMobilePhone());
-			//infos.put("pic_path", user2.getPicPath());
-			infos.put("qq", user2.getQq());
-			infos.put("sex", user2.getSex());
-			infos.put("is_admin", user2.isAdmin());
-			infos.put("user_pic_path", userHandler.getUserPicPath(user2.getId(), "30x30"));
-			/*String str = "{\"uid\":"+user2.getId()+", \"pic_size\":\"60x60\"}";
-			JSONObject jo = JSONObject.fromObject(str);
-			try {
-				infos.put("head_path", userService.getHeadFilePathStrById(jo, user2, request));
-			} catch (Exception e) {
-				e.printStackTrace();
-			}*/
-			
-			if(isSelf){
-				infos.put("no_login_code", user2.getNoLoginCode());
-			}else{
-				infos.put("last_request_time", userHandler.getLastRequestTime(user2.getId()));//最近操作记录
-			}
-			infos.put("personal_introduction", user2.getPersonalIntroduction());
-		}
-		return infos;
-	}
+	
 
 	/**
 	 * 检查用户的权限
@@ -784,7 +749,7 @@ public class UserAction extends BaseActionContext {
 				}else if(user.getStatus() == 0){
 					resmessage = "请先登录邮箱完成注册...";
 				}else{
-					message.put("userinfo", getUserInfo(user, true));
+					message.put("userinfo", userHandler.getUserInfo(user, true));
 					resmessage = "登录成功，正在为您跳转...";
 					this.resIsSuccess = true;
 				}
@@ -844,7 +809,7 @@ public class UserAction extends BaseActionContext {
 					resmessage = EnumUtil.getResponseValue(EnumUtil.ResponseCode.请先验证邮箱.value);
 					message.put("responseCode", EnumUtil.ResponseCode.请先验证邮箱.value);
 				}else{
-					message.put("userinfo", getUserInfo(user, true));
+					message.put("userinfo", userHandler.getUserInfo(user, true));
 					resmessage = EnumUtil.getResponseValue(EnumUtil.ResponseCode.恭喜您登录成功.value);
 					message.put("responseCode", EnumUtil.ResponseCode.恭喜您登录成功.value);
 					this.resIsSuccess = true;
@@ -952,6 +917,29 @@ public class UserAction extends BaseActionContext {
 				return SUCCESS;
 			}
 			message.putAll(userService.getUserInfoData(jo, user, request));
+			return SUCCESS;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.服务器处理异常.value));
+		message.put("responseCode", EnumUtil.ResponseCode.服务器处理异常.value);
+        return SUCCESS;
+	}
+	
+	/**
+	 * 更新用户的基本信息
+	 * @return
+	 */
+	public String updateUserBase(){
+		message.put("isSuccess", resIsSuccess);
+		try {
+			JSONObject jo = HttpUtils.getJsonObjectFromInputStream(params,request);
+			if(jo == null || jo.isEmpty()) {	
+				message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.缺少请求参数.value));
+				message.put("responseCode", EnumUtil.ResponseCode.缺少请求参数.value);
+				return SUCCESS;
+			}
+			message.putAll(userService.updateUserBase(jo, user, request));
 			return SUCCESS;
 		} catch (Exception e) {
 			e.printStackTrace();

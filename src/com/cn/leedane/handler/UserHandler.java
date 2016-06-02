@@ -137,6 +137,15 @@ public class UserHandler {
 	}
 	
 	/**
+	 * 删除用户的基本信息
+	 * @return
+	 */
+	public void deleteUserDetail(int userId){
+		String userInfoKey = getRedisUserInfoKey(userId);
+		redisUtil.delete(userInfoKey);
+	}
+	
+	/**
 	 * 获取用户的名称
 	 * @return
 	 */
@@ -170,6 +179,45 @@ public class UserHandler {
 	public String getUserMobilePhone(int userId){
 		JSONObject userInfo = getUserDetail(userId);
 		return JsonUtil.getStringValue(userInfo, "mobile_phone");
+	}
+	
+	/**
+	 * 获取提供调用使用的用户信息
+	 * @param user2
+	 * @param isSelf  是否是自己，自己的话可以不加载一些信息
+	 * @return
+	 */
+	public Map<String, Object> getUserInfo(UserBean user2, boolean isSelf) {
+		HashMap<String, Object> infos = new HashMap<String, Object>();
+		if(user2 != null){
+			infos.put("id", user2.getId());
+			infos.put("account", user2.getAccount());
+			infos.put("email", user2.getEmail());
+			infos.put("age", user2.getAge());
+			infos.put("birth_day", user2.getBirthDay());
+			infos.put("mobile_phone", user2.getMobilePhone());
+			//infos.put("pic_path", user2.getPicPath());
+			infos.put("qq", user2.getQq());
+			infos.put("sex", user2.getSex());
+			infos.put("is_admin", user2.isAdmin());
+			infos.put("education_background", user2.getEducationBackground());
+			infos.put("user_pic_path", getUserPicPath(user2.getId(), "30x30"));
+			/*String str = "{\"uid\":"+user2.getId()+", \"pic_size\":\"60x60\"}";
+			JSONObject jo = JSONObject.fromObject(str);
+			try {
+				infos.put("head_path", userService.getHeadFilePathStrById(jo, user2, request));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}*/
+			
+			if(isSelf){
+				infos.put("no_login_code", user2.getNoLoginCode());
+			}else{
+				infos.put("last_request_time", getLastRequestTime(user2.getId()));//最近操作记录
+			}
+			infos.put("personal_introduction", user2.getPersonalIntroduction());
+		}
+		return infos;
 	}
 	
 	/**

@@ -300,4 +300,13 @@ public interface UserService <T extends Serializable> extends BaseService<UserBe
 	 * @return
 	 */
 	public Map<String, Object> search(JSONObject jo, UserBean user, HttpServletRequest request);
+
+	/**
+	 * 更新用户的基本信息
+	 * @param jo
+	 * @param user
+	 * @param request
+	 * @return
+	 */
+	public Map<String, Object> updateUserBase(JSONObject jo, UserBean user, HttpServletRequest request);
 }

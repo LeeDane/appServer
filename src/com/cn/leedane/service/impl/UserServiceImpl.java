@@ -815,4 +815,48 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 		message.put("message", rs);
 		return message;
 	}
+
+	@Override
+	public Map<String, Object> updateUserBase(JSONObject jo, UserBean user,
+			HttpServletRequest request) {
+		logger.info("UserServiceImpl-->updateUserBase():jo="+jo.toString());
+		String sex = JsonUtil.getStringValue(jo, "sex");
+		String mobilePhone = JsonUtil.getStringValue(jo, "mobile_phone");
+		String qq = JsonUtil.getStringValue(jo, "qq");
+		String email = JsonUtil.getStringValue(jo, "email");
+		String birthDay = JsonUtil.getStringValue(jo, "birth_day");
+		String educationBackground = JsonUtil.getStringValue(jo, "education_background");
+		String personalIntroduction = JsonUtil.getStringValue(jo, "personal_introduction");
+		Map<String, Object> message = new HashMap<String, Object>();
+		message.put("isSuccess", false);
+		user.setSex(sex);
+		user.setMobilePhone(mobilePhone);
+		user.setQq(qq);
+		user.setEmail(email);
+		if(StringUtil.isNotNull(birthDay)){
+			Date day = DateUtil.stringToDate(birthDay, "yyyy-MM-dd");
+			user.setBirthDay(day);
+		}
+		
+		user.setEducationBackground(educationBackground);
+		user.setPersonalIntroduction(personalIntroduction);
+		
+		boolean result = userDao.update(user);
+		if(result){
+			saveRegisterScore(user);
+			message.put("isSuccess", result);
+			
+			//把Redis缓存的信息删除掉
+			userHandler.deleteUserDetail(user.getId());
+			message.put("userinfo", userHandler.getUserInfo(user, true));
+		}else{
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.数据库保存失败.value));
+			message.put("responseCode", EnumUtil.ResponseCode.数据库保存失败.value);
+		}
+			
+		//保存操作日志
+		operateLogService.saveOperateLog(user, request, null, StringUtil.getStringBufferStr("账号为", user.getAccount() , "用户更新基本信息", StringUtil.getSuccessOrNoStr(result)).toString(), "updateUserBase()", ConstantsUtil.STATUS_NORMAL, 0);	
+		
+		return message;
+	}
 }

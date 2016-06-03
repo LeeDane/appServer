@@ -412,11 +412,10 @@ public class FriendServiceImpl extends BaseServiceImpl<FriendBean> implements Fr
 			for(int i = 0; i < rs.size(); i++){
 				fId = StringUtil.changeObjectToInt(rs.get(i).get("id"));
 				rs.get(i).putAll(userHandler.getBaseUserInfo(fId));
-			}	
-			message.put("isSuccess", true);
-			message.put("message", rs);
+			}
 		}
-		
+		message.put("isSuccess", true);
+		message.put("message", rs);
 		return message;
 	}
 	

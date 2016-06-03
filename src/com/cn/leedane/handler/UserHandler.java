@@ -192,7 +192,7 @@ public class UserHandler {
 		if(user2 != null){
 			infos.put("id", user2.getId());
 			infos.put("account", user2.getAccount());
-			infos.put("email", user2.getEmail());
+			infos.put("email", StringUtil.changeNotNull(user2.getEmail()));
 			infos.put("age", user2.getAge());
 			Date birthDay = user2.getBirthDay();
 			if(birthDay != null){
@@ -201,12 +201,12 @@ public class UserHandler {
 				infos.put("birth_day", "");
 			}
 			
-			infos.put("mobile_phone", user2.getMobilePhone());
+			infos.put("mobile_phone", StringUtil.changeNotNull(user2.getMobilePhone()));
 			//infos.put("pic_path", user2.getPicPath());
-			infos.put("qq", user2.getQq());
-			infos.put("sex", user2.getSex());
+			infos.put("qq", StringUtil.changeNotNull(user2.getQq()));
+			infos.put("sex", StringUtil.changeNotNull(user2.getSex()));
 			infos.put("is_admin", user2.isAdmin());
-			infos.put("education_background", user2.getEducationBackground());
+			infos.put("education_background", StringUtil.changeNotNull(user2.getEducationBackground()));
 			infos.put("user_pic_path", getUserPicPath(user2.getId(), "30x30"));
 			/*String str = "{\"uid\":"+user2.getId()+", \"pic_size\":\"60x60\"}";
 			JSONObject jo = JSONObject.fromObject(str);
@@ -221,7 +221,7 @@ public class UserHandler {
 			}else{
 				infos.put("last_request_time", getLastRequestTime(user2.getId()));//最近操作记录
 			}
-			infos.put("personal_introduction", user2.getPersonalIntroduction());
+			infos.put("personal_introduction", StringUtil.changeNotNull(user2.getPersonalIntroduction()));
 		}
 		return infos;
 	}

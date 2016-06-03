@@ -194,7 +194,13 @@ public class UserHandler {
 			infos.put("account", user2.getAccount());
 			infos.put("email", user2.getEmail());
 			infos.put("age", user2.getAge());
-			infos.put("birth_day", user2.getBirthDay());
+			Date birthDay = user2.getBirthDay();
+			if(birthDay != null){
+				infos.put("birth_day", DateUtil.DateToString(birthDay, "yyyy-MM-dd"));
+			}else{
+				infos.put("birth_day", "");
+			}
+			
 			infos.put("mobile_phone", user2.getMobilePhone());
 			//infos.put("pic_path", user2.getPicPath());
 			infos.put("qq", user2.getQq());

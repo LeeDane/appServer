@@ -309,4 +309,13 @@ public interface UserService <T extends Serializable> extends BaseService<UserBe
 	 * @return
 	 */
 	public Map<String, Object> updateUserBase(JSONObject jo, UserBean user, HttpServletRequest request);
+
+	/**
+	 * 更新登录密码
+	 * @param jo
+	 * @param user
+	 * @param request
+	 * @return
+	 */
+	public Map<String, Object> updatePassword(JSONObject jo, UserBean user, HttpServletRequest request);
 }

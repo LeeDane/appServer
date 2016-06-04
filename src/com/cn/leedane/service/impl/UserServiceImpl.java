@@ -859,4 +859,51 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 		
 		return message;
 	}
+
+	@Override
+	public Map<String, Object> updatePassword(JSONObject jo, UserBean user,
+			HttpServletRequest request) {
+		logger.info("UserServiceImpl-->updatePassword():jo="+jo.toString());
+		
+		//都是经过第一次MD5加密后的字符串
+		String password = JsonUtil.getStringValue(jo, "password"); //原来的密码
+		String newPassword = JsonUtil.getStringValue(jo, "new_password"); //后来的密码
+		
+		Map<String, Object> message = new HashMap<String, Object>();
+		message.put("isSuccess", false);
+		if(StringUtil.isNull(password) || StringUtil.isNull(newPassword)){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.某些参数为空.value));
+			message.put("responseCode", EnumUtil.ResponseCode.某些参数为空.value);
+			return message;
+		}
+		
+		if(!user.getPassword().equals(MD5Util.compute(password))){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.原密码错误.value));
+			message.put("responseCode", EnumUtil.ResponseCode.原密码错误.value);
+			return message;
+		}
+		
+		if(password.equals(newPassword)){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.要修改的密码跟原密码相同.value));
+			message.put("responseCode", EnumUtil.ResponseCode.要修改的密码跟原密码相同.value);
+			return message;
+		}
+		
+		user.setPassword(MD5Util.compute(newPassword));
+		
+		boolean result = userDao.update(user);
+		if(result){
+			message.put("isSuccess", result);
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.新密码修改成功.value));
+			message.put("responseCode", EnumUtil.ResponseCode.新密码修改成功.value);
+		}else{
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.数据库保存失败.value));
+			message.put("responseCode", EnumUtil.ResponseCode.数据库保存失败.value);
+		}
+			
+		//保存操作日志
+		operateLogService.saveOperateLog(user, request, null, StringUtil.getStringBufferStr("账号为", user.getAccount() , "用户更改登录密码", StringUtil.getSuccessOrNoStr(result)).toString(), "updatePassword()", ConstantsUtil.STATUS_NORMAL, 0);	
+		
+		return message;
+	}
 }

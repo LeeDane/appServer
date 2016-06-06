@@ -17,6 +17,7 @@ import com.cn.leedane.wechat.service.BaseXMLWechatService;
 import com.cn.leedane.wechat.service.impl.BindUserXMLService;
 import com.cn.leedane.wechat.service.impl.BlogXMLService;
 import com.cn.leedane.wechat.service.impl.ChatXMLService;
+import com.cn.leedane.wechat.service.impl.NewestAppXMLService;
 import com.cn.leedane.wechat.service.impl.SearchXMLService;
 import com.cn.leedane.wechat.service.impl.SendMoodXMLService;
 import com.cn.leedane.wechat.service.impl.TranslationXMLService;
@@ -106,7 +107,7 @@ public class WeixinAction extends BaseActionContext{
 				
 				System.out.println("用户发送的："+Content);
 				
-				String returnMsg = "请输入‘主菜单’，进入主菜单状态；\n\r 输入‘翻译’，进入翻译模式；\n\r 输入‘聊天’，进入聊天模式；\n\r 输入‘查询’，进入官网查询模式；\n\r 输入‘心情’，进入发布心情模式；\n\r 输入‘最新博客’，获取最新的博客；\n\r输入‘退出’，退出绑定。";
+				String returnMsg = "请输入‘主菜单’，进入主菜单状态；\n\r 输入‘翻译’，进入翻译模式；\n\r 输入‘聊天’，进入聊天模式；\n\r 输入‘查询’，进入官网查询模式；\n\r 输入‘心情’，进入发布心情模式；\n\r 输入‘最新博客’，获取最新的博客；\n\r 输入‘新版app’，获取最新的android app链接；\n\r输入‘退出’，退出绑定。";
 				//处理用户请求的内容，判断需要调用哪个接口
 				//主菜单
 				if(Content.startsWith("主菜单") || Content.equals(WeixinUtil.MODEL_MAIN_MENU)){
@@ -182,6 +183,10 @@ public class WeixinAction extends BaseActionContext{
 						}
 					}
 					
+				}else if(Content.startsWith("新版app") || currentType.equals(WeixinUtil.MODEL_NEWEST_APP)){
+					cacheBean.setCurrentType(WeixinUtil.MODEL_NEWEST_APP);
+					baseService = new NewestAppXMLService();
+					returnMsg = baseService.responseXML();	
 				}else if(Content.startsWith("退出") || Content.equals(WeixinUtil.MODEL_OUT)){
 	
 					cacheBean.setCurrentType(WeixinUtil.MODEL_MAIN_MENU);

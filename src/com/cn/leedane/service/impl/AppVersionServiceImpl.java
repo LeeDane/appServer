@@ -95,7 +95,7 @@ public class AppVersionServiceImpl extends BaseServiceImpl<FilePathBean> impleme
 	 * 获取数据库中上传的最新版本
 	 * @return
 	 */
-	private List<Map<String, Object>> getNewestVersion(){
+	public List<Map<String, Object>> getNewestVersion(){
 		List<Map<String, Object>>  list = new ArrayList<Map<String,Object>>();
 		StringBuffer sql = new StringBuffer();
 		sql.append("select f.id, f.file_desc, f.file_version, f.qiniu_path path, f.lenght");

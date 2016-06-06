@@ -56,6 +56,11 @@ public class WeixinUtil {
 	public static final String MODEL_BLOG_SEARCH  = "blogsearch";
 	
 	/**
+	 * 选择的模式类型：博客查询
+	 */
+	public static final String MODEL_NEWEST_APP  = "newestapp";
+	
+	/**
 	 * 选择的模式类型：发布心情
 	 */
 	public static final String MODEL_SEND_MOOD  = "sendmood";

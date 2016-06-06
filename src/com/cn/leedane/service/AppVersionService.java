@@ -1,6 +1,7 @@
 package com.cn.leedane.service;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,6 +26,12 @@ public interface AppVersionService <T extends Serializable> extends BaseService<
 	 * @return
 	 */
 	public Map<String, Object> getNewest(JSONObject jo, UserBean user, HttpServletRequest request);
+	
+	/**
+	 * 获取数据库中上传的最新版本
+	 * @return
+	 */
+	public List<Map<String, Object>> getNewestVersion();
 	
 	
 }

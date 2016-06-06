@@ -22,6 +22,7 @@ import org.springframework.web.context.ContextLoaderListener;
 
 import com.cn.leedane.Utils.CommonUtil;
 import com.cn.leedane.Utils.SpringUtils;
+import com.cn.leedane.Utils.SensitiveWord.SensitiveWordInit;
 import com.cn.leedane.bean.OptionBean;
 import com.cn.leedane.cache.SystemCache;
 import com.cn.leedane.redis.util.RedisUtil;
@@ -40,6 +41,7 @@ public class CacheContextLoaderListener extends ContextLoaderListener{
 		loadOptionTable(); //加载选项表中的数据
 		loadFilterUrls(); //加载过滤的url地址
 		loadLeeDaneProperties(); // 加载leedane.properties文件
+		SensitiveWordInit.getInstance(); //加载敏感词库
 	}
 	
 	/**

@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -18,6 +19,7 @@ import com.cn.leedane.Utils.DateUtil;
 import com.cn.leedane.Utils.EnumUtil;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
+import com.cn.leedane.Utils.SensitiveWord.SensitivewordFilter;
 import com.cn.leedane.bean.ChatBean;
 import com.cn.leedane.bean.OperateLogBean;
 import com.cn.leedane.bean.UserBean;
@@ -128,6 +130,19 @@ public class ChatServiceImpl extends BaseServiceImpl<ChatBean> implements ChatSe
 			return message;
 		}
 		String content = JsonUtil.getStringValue(jo, "content"); //聊天内容
+		
+		//检测敏感词
+		SensitivewordFilter filter = new SensitivewordFilter();
+		long beginTime = System.currentTimeMillis();
+		Set<String> set = filter.getSensitiveWord(content, 1);
+		if(set.size() > 0){
+			message.put("message", "有敏感词"+set.size()+"个："+set.toString());
+			message.put("responseCode", EnumUtil.ResponseCode.系统检测到有敏感词.value);
+			long endTime = System.currentTimeMillis();
+			System.out.println("总共消耗时间为：" + (endTime - beginTime));
+			return message;
+		}
+		
 		int type = JsonUtil.getIntValue(jo, "type", 0); //聊天类型
 		ChatBean chatBean = new ChatBean();
 		chatBean.setContent(content);

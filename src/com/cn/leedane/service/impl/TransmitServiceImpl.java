@@ -19,6 +19,7 @@ import com.cn.leedane.Dao.TransmitDao;
 import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.EnumUtil;
 import com.cn.leedane.Utils.EnumUtil.NotificationType;
+import com.cn.leedane.Utils.SensitiveWord.SensitivewordFilter;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
 import com.cn.leedane.bean.FriendBean;
@@ -97,22 +98,40 @@ public class TransmitServiceImpl extends BaseServiceImpl<TransmitBean> implement
 	}
 	private RedisUtil redisUtil = RedisUtil.getInstance();
 	@Override
-	public boolean add(JSONObject jo, UserBean user,
+	public Map<String, Object> add(JSONObject jo, UserBean user,
 			HttpServletRequest request) throws Exception {
 		//{\"table_name\":\"t_mood\", \"table_id\":1, 'content':'转发信息'}
 		logger.info("TransmitServiceImpl-->add():jsonObject=" +jo.toString() +", user=" +user.getAccount());
 		String tableName = JsonUtil.getStringValue(jo, "table_name");
 		int tableId = JsonUtil.getIntValue(jo, "table_id", 0);
 		String content = JsonUtil.getStringValue(jo, "content");
-		
+		Map<String, Object> message = new HashMap<String, Object>();
+		message.put("isSuccess", false);
+				
 		boolean result = false;
 		if(StringUtil.isNull(tableName) || tableId < 1 || StringUtil.isNull(content)){
-			return result;
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.某些参数为空.value));
+			message.put("responseCode", EnumUtil.ResponseCode.某些参数为空.value);
+			return message;
+		}
+		
+		//检测敏感词
+		SensitivewordFilter filter = new SensitivewordFilter();
+		long beginTime = System.currentTimeMillis();
+		Set<String> set = filter.getSensitiveWord(content, 1);
+		if(set.size() > 0){
+			message.put("message", "有敏感词"+set.size()+"个："+set.toString());
+			message.put("responseCode", EnumUtil.ResponseCode.系统检测到有敏感词.value);
+			long endTime = System.currentTimeMillis();
+			System.out.println("总共消耗时间为：" + (endTime - beginTime));
+			return message;
 		}
 		
 		//检查该实体数据是否数据存在,防止对不存在的对象添加评论
 		if(!recordExists(tableName, tableId)){
-			return result;
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.没有操作实例.value));
+			message.put("responseCode", EnumUtil.ResponseCode.没有操作实例.value);
+			return message;
 		}
 		
 		TransmitBean bean = new TransmitBean();
@@ -153,8 +172,8 @@ public class TransmitServiceImpl extends BaseServiceImpl<TransmitBean> implement
 			count = String.valueOf(Integer.parseInt(redisUtil.getString(key)) + 1);
 		}
 		redisUtil.addString(key, count);
-		
-		return result;
+		message.put("isSuccess", result);
+		return message;
 	}
 	
 	/**

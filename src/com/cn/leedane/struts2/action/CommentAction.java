@@ -40,7 +40,7 @@ public class CommentAction extends BaseActionContext{
 				message.put("responseCode", EnumUtil.ResponseCode.缺少请求参数.value);
 				return SUCCESS;
 			}
-			message.put("isSuccess", commentService.add(jo, user, request));
+			message.putAll(commentService.add(jo, user, request));
 			long end = System.currentTimeMillis();
 			System.out.println("发表评论总计耗时：" +(end - start) +"毫秒");
 			return SUCCESS;

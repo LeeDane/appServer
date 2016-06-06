@@ -20,6 +20,7 @@ import com.cn.leedane.Exception.ErrorException;
 import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.EnumUtil;
 import com.cn.leedane.Utils.EnumUtil.NotificationType;
+import com.cn.leedane.Utils.SensitiveWord.SensitivewordFilter;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
 import com.cn.leedane.bean.CommentBean;
@@ -109,7 +110,7 @@ public class CommentServiceImpl extends BaseServiceImpl<CommentBean> implements 
 	}
 
 	@Override
-	public boolean add(JSONObject jo, UserBean user,
+	public Map<String, Object> add(JSONObject jo, UserBean user,
 			HttpServletRequest request){
 		// {\"table_name\":\"t_mood\", \"table_id\":123
 		//, \"content\":\"我同意\" ,\"level\": 1, \"pid\":23, \"from\":\"Android客户端\"}
@@ -118,14 +119,32 @@ public class CommentServiceImpl extends BaseServiceImpl<CommentBean> implements 
 		int tableId = JsonUtil.getIntValue(jo, "table_id", 0);
 		String content = JsonUtil.getStringValue(jo, "content");
 		String from = JsonUtil.getStringValue(jo, "froms");
+		Map<String, Object> message = new HashMap<String, Object>();
+		message.put("isSuccess", false);
+		
+		//检测敏感词
+		SensitivewordFilter filter = new SensitivewordFilter();
+		long beginTime = System.currentTimeMillis();
+		Set<String> set = filter.getSensitiveWord(content, 1);
+		if(set.size() > 0){
+			message.put("message", "有敏感词"+set.size()+"个："+set.toString());
+			message.put("responseCode", EnumUtil.ResponseCode.系统检测到有敏感词.value);
+			long endTime = System.currentTimeMillis();
+			System.out.println("总共消耗时间为：" + (endTime - beginTime));
+			return message;
+		}
 		
 		if(StringUtil.isNull(tableName) || tableId < 1 || StringUtil.isNull(content)){
-			return false;
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.某些参数为空.value));
+			message.put("responseCode", EnumUtil.ResponseCode.某些参数为空.value);
+			return message;
 		}
 		
 		//检查该实体数据是否数据存在,防止对不存在的对象添加评论
 		if(!recordExists(tableName, tableId)){
-			return false;
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.没有操作实例.value));
+			message.put("responseCode", EnumUtil.ResponseCode.没有操作实例.value);
+			return message;
 		}
 		
 		int level = JsonUtil.getIntValue(jo, "level", 5);
@@ -189,7 +208,8 @@ public class CommentServiceImpl extends BaseServiceImpl<CommentBean> implements 
 			}
 			redisUtil.addString(key, count);*/
 		}
-		return true;
+		message.put("isSuccess", true);
+		return message;
 	}
 	
 	/**

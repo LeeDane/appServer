@@ -26,7 +26,7 @@ public interface TransmitService<T extends Serializable> extends BaseService<Tra
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean add(JSONObject jo, UserBean user, HttpServletRequest request) throws Exception;
+	public Map<String, Object> add(JSONObject jo, UserBean user, HttpServletRequest request) throws Exception;
 
 	
 

@@ -43,7 +43,7 @@ public class TransmitAction extends BaseActionContext{
 				message.put("responseCode", EnumUtil.ResponseCode.缺少请求参数.value);
 				return SUCCESS;
 			}
-			message.put("isSuccess", transmitService.add(jo, user, request));
+			message.putAll(transmitService.add(jo, user, request));
 			long end = System.currentTimeMillis();
 			System.out.println("转发总计耗时：" +(end - start) +"毫秒");
 			return SUCCESS;

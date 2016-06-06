@@ -20,6 +20,7 @@ import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.DateUtil;
 import com.cn.leedane.Utils.EnumUtil;
 import com.cn.leedane.Utils.EnumUtil.NotificationType;
+import com.cn.leedane.Utils.SensitiveWord.SensitivewordFilter;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
 import com.cn.leedane.bean.FilePathBean;
@@ -474,6 +475,18 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 		
 		//从客户端获取uuid(有图片的情况下)，为空表示无图，有图就有值
 		String uuid = JsonUtil.getStringValue(jsonObject, "uuid");
+		
+		//检测敏感词
+		SensitivewordFilter filter = new SensitivewordFilter();
+		long beginTime = System.currentTimeMillis();
+		Set<String> set = filter.getSensitiveWord(content, 1);
+		if(set.size() > 0){
+			message.put("message", "有敏感词"+set.size()+"个:"+set.toString());
+			message.put("responseCode", EnumUtil.ResponseCode.系统检测到有敏感词.value);
+			long endTime = System.currentTimeMillis();
+			System.out.println("总共消耗时间为：" + (endTime - beginTime));
+			return message;
+		}
 		
 		MoodBean moodBean = new MoodBean();
 		moodBean.setContent(content);

@@ -34,7 +34,7 @@ public interface CommentService<T extends Serializable> extends BaseService<Comm
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean add(JSONObject jo, UserBean user, HttpServletRequest request);
+	public Map<String, Object> add(JSONObject jo, UserBean user, HttpServletRequest request);
 
 	/**
 	 * 获取分页的评论

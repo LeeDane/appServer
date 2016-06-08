@@ -19,6 +19,7 @@ import com.cn.leedane.Dao.FilePathDao;
 import com.cn.leedane.Dao.TemporaryBase64Dao;
 import com.cn.leedane.Utils.Base64ImageUtil;
 import com.cn.leedane.Utils.ConstantsUtil;
+import com.cn.leedane.Utils.EnumUtil;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
 import com.cn.leedane.bean.FilePathBean;
@@ -455,41 +456,47 @@ public class FilePathServiceImpl extends BaseServiceImpl<FilePathBean> implement
 	}
 
 	@Override
-	public List<Map<String, Object>> getUploadFileByLimit(JSONObject jo,
+	public Map<String, Object> getUploadFileByLimit(JSONObject jo,
 			UserBean user, HttpServletRequest request) {
 		logger.info("FilePathServiceImpl-->getUploadFileByLimit():jo="+jo.toString());
 		int pageSize = JsonUtil.getIntValue(jo, "pageSize", 10); //每页的大小
-		int lastId = JsonUtil.getIntValue(jo, "lastId");
-		int firstId = JsonUtil.getIntValue(jo, "firstId");
-		String tableName = ConstantsUtil.UPLOAD_FILE_TABLE_NAME;
+		int lastId = JsonUtil.getIntValue(jo, "last_id");
+		int firstId = JsonUtil.getIntValue(jo, "first_id");
+		//String tableName = ConstantsUtil.UPLOAD_FILE_TABLE_NAME;
 		
 		//执行的方式，现在支持：uploading(向上刷新)，lowloading(向下刷新)，firstloading(第一次刷新)
 		String method = JsonUtil.getStringValue(jo, "method");
+		
+		Map<String, Object> message = new HashMap<String, Object>();
+		message.put("isSuccess", false);
+		
 		List<Map<String,Object>> r = new ArrayList<Map<String,Object>>();
 		StringBuffer sql = new StringBuffer();
 		System.out.println("执行的方式是："+method +",pageSize:"+pageSize+",lastId:"+lastId+",firstId:"+firstId);
 		//下刷新
 		if(method.equalsIgnoreCase("lowloading")){
-			sql.append("select f.path, f.table_name, f.table_uuid, date_format(f.create_time,'%Y-%c-%d %H:%i:%s') create_time");
-			sql.append(" from t_file_path f inner join t_user u on f.create_user_id = u.id ");
-			sql.append(" where f.status = ? and u.id = ? and f.table_name = ? and f.id < ? order by f.id desc limit 0,?");
-			r = filePathDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, user.getId(), tableName, lastId, pageSize);
+			sql.append("select f.id, f.path, f.is_upload_qiniu, f.table_name, f.table_uuid, date_format(f.create_time,'%Y-%c-%d %H:%i:%s') create_time");
+			sql.append(" from t_file_path f");
+			sql.append(" where f.status = ? and f.create_user_id = ? and f.id < ? order by f.id desc limit 0,?");
+			r = filePathDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, user.getId(), lastId, pageSize);
 			
 		//上刷新
 		}else if(method.equalsIgnoreCase("uploading")){
-			sql.append("select f.path, f.table_name, f.table_uuid, date_format(f.create_time,'%Y-%c-%d %H:%i:%s') create_time");
-			sql.append(" from t_file_path f inner join t_user u on f.create_user_id = u.id ");
-			sql.append(" where f.status = ? and u.id = ? and f.table_name = ? and f.id > ?  limit 0,?");
-			r = filePathDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, user.getId(), tableName, firstId, pageSize);
+			sql.append("select f.id, f.path, f.is_upload_qiniu, f.table_name, f.table_uuid, date_format(f.create_time,'%Y-%c-%d %H:%i:%s') create_time");
+			sql.append(" from t_file_path f");
+			sql.append(" where f.status = ? and f.create_user_id = ? and f.id > ?  limit 0,?");
+			r = filePathDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, user.getId(), firstId, pageSize);
 			
 		//第一次刷新
 		}else if(method.equalsIgnoreCase("firstloading")){
-			sql.append("select f.path, f.table_name, f.table_uuid, date_format(f.create_time,'%Y-%c-%d %H:%i:%s') create_time");
-			sql.append(" from t_file_path f inner join t_user u on f.create_user_id = u.id");
-			sql.append(" where f.status = ? and u.id = ? and f.table_name = ?  order by f.id desc limit 0,?");
-			r = filePathDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, user.getId(), tableName, pageSize);
+			sql.append("select f.id, f.path, f.is_upload_qiniu, f.table_name, f.table_uuid, date_format(f.create_time,'%Y-%c-%d %H:%i:%s') create_time");
+			sql.append(" from t_file_path f");
+			sql.append(" where f.status = ? and f.create_user_id = ? order by f.id desc limit 0,?");
+			r = filePathDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, user.getId(), pageSize);
 		}
-		return r;
+		message.put("isSuccess", true);
+		message.put("message", r);
+		return message;
 	}
 
 	@Override

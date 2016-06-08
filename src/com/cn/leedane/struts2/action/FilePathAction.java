@@ -234,7 +234,7 @@ public class FilePathAction extends BaseActionContext{
      * 分页获取上传的文件
      * @return
      */
-    public String getPagingFile() {
+    public String paging() {
     	long startTime = System.currentTimeMillis();
     	message.put("isSuccess", false);
     	try{
@@ -244,9 +244,7 @@ public class FilePathAction extends BaseActionContext{
 				message.put("responseCode", EnumUtil.ResponseCode.缺少请求参数.value);
 				return SUCCESS;
 			}
-			List<Map<String, Object>> r = filePathService.getUploadFileByLimit(jo, user, request);
-			message.put("isSuccess", true);
-			message.put("message", r);
+			message.putAll(filePathService.getUploadFileByLimit(jo, user, request));
 			return SUCCESS;
 		}catch(Exception e){
 			e.printStackTrace();

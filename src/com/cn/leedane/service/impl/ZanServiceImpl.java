@@ -100,6 +100,7 @@ public class ZanServiceImpl extends BaseServiceImpl<ZanBean> implements ZanServi
 		String froms = JsonUtil.getStringValue(jo, "froms");
 		int tableId = JsonUtil.getIntValue(jo, "table_id", 0);
 		Map<String, Object> message = new HashMap<String, Object>();
+		message.put("isSuccess", false);
 		if(zanDao.exists(tableName, tableId, user.getId())){
 			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.需要添加的记录已经存在.value));
 			message.put("responseCode", EnumUtil.ResponseCode.需要添加的记录已经存在.value);

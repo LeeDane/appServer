@@ -110,7 +110,7 @@ public interface FilePathService <T extends Serializable> extends BaseService<Fi
 	 * @param request
 	 * @return
 	 */
-	public List<Map<String, Object>> getUploadFileByLimit(JSONObject jo,
+	public Map<String, Object> getUploadFileByLimit(JSONObject jo,
 			UserBean user, HttpServletRequest request);
 	
 	/**

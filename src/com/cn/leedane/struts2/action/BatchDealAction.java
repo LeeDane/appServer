@@ -5,10 +5,14 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cn.leedane.Utils.BaseActionContext;
+import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.StringUtil;
 import com.cn.leedane.bean.BlogBean;
+import com.cn.leedane.bean.FilePathBean;
 import com.cn.leedane.bean.SignInBean;
+import com.cn.leedane.handler.CloudStoreHandler;
 import com.cn.leedane.service.BlogService;
+import com.cn.leedane.service.FilePathService;
 import com.cn.leedane.service.SignInService;
 
 /**
@@ -24,6 +28,12 @@ public class BatchDealAction extends BaseActionContext {
 	
 	@Autowired
 	private BlogService<BlogBean> blogService;
+	
+	@Autowired
+	private FilePathService<FilePathBean> filePathService;
+	
+	@Autowired
+	private CloudStoreHandler cloudStoreHandler;
 	/**
 	 * 执行方法
 	 * @return
@@ -59,6 +69,32 @@ public class BatchDealAction extends BaseActionContext {
 			System.out.println("i="+i);
 		}
 		
+		return SUCCESS;
+	}
+	
+	/**
+	 * 执行上传最新的10条记录
+	 * @return
+	 * @throws Exception
+	 */
+	public String upload10() {
+		try {
+			List<Map<String, Object>> paths = filePathService.executeSQL("select * from t_file_path where is_upload_qiniu = 0 and table_name <> 't_mood' order by id desc limit 10");
+			if(paths != null && paths.size() > 0){	
+				List<Map<String,Object>> fileBeans = cloudStoreHandler.executeUpload(paths);
+				if(fileBeans != null && fileBeans.size() >0){
+					for(Map<String, Object> m: fileBeans){
+						if(m.containsKey("id")){
+							filePathService.updateUploadQiniu(StringUtil.changeObjectToInt(m.get("id")), ConstantsUtil.QINIU_SERVER_URL + StringUtil.changeNotNull(m.get("path")));
+						}
+					}
+				}
+			}else{
+				System.out.println("没有要上传的文件");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return SUCCESS;
 	}
 }

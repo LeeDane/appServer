@@ -21,3 +21,5 @@
 /weixin_execute.action
 /search_blog.action
 /batchDeal_execute.action
+/batchDeal_upload10.action
+/tool_fanyi.action

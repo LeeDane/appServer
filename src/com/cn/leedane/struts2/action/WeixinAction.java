@@ -2,6 +2,7 @@ package com.cn.leedane.struts2.action;
 
 import java.io.PrintWriter;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.struts2.ServletActionContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.cn.leedane.Utils.BaseActionContext;
 import com.cn.leedane.Utils.SpringUtils;
 import com.cn.leedane.Utils.StringUtil;
+import com.cn.leedane.Utils.SensitiveWord.SensitivewordFilter;
 import com.cn.leedane.bean.UserBean;
 import com.cn.leedane.handler.WechatHandler;
 import com.cn.leedane.service.UserService;
@@ -171,9 +173,16 @@ public class WeixinAction extends BaseActionContext{
 							if(Content.startsWith("心情")){
 								Content = Content.substring(2, Content.length());
 							}
-							if(!StringUtil.isNull(Content)){
-								baseService = new SendMoodXMLService(request,map);
-								returnMsg = baseService.responseXML();
+							if(StringUtil.isNotNull(Content)){
+								//检测敏感词
+								SensitivewordFilter filter = new SensitivewordFilter();
+								Set<String> set = filter.getSensitiveWord(Content, 1);
+								if(set.size() > 0){
+									returnMsg =  "心情发送失败，原因是内容含有敏感词"+set.size()+"个："+set.toString();
+								}else{
+									baseService = new SendMoodXMLService(request,map);
+									returnMsg = baseService.responseXML();
+								}
 							}else{
 								returnMsg = "进入发送心情模式";
 							}

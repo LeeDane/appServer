@@ -5,9 +5,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
 import com.cn.leedane.Utils.StringUtil;
 import com.cn.leedane.wechat.service.BaseXMLWechatService;
 import com.cn.leedane.wechat.util.HttpRequestUtil;
@@ -27,36 +24,15 @@ public class TranslationXMLService extends BaseXMLWechatService {
 					r = "进入翻译模式";
 				}else{					
 					r = HttpRequestUtil.sendAndRecieveFromYoudao(Content);
-					r = getYoudaoFanyiContent(r);
+					r = StringUtil.getYoudaoFanyiContent(r);
 				}
 			}else{
 				r = HttpRequestUtil.sendAndRecieveFromYoudao(Content);
-				r = getYoudaoFanyiContent(r);
+				r = StringUtil.getYoudaoFanyiContent(r);
 			}	
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return r;
 	}
-	
-	
-	/**
-	 * 从有道翻译返回的json数据中获得翻译内容
-	 * @param returnMsg
-	 * @return
-	 */
-	private String getYoudaoFanyiContent(String returnMsg) {
-		System.out.println("有道翻译返回的信息:"+returnMsg);
-		StringBuffer buffer = new StringBuffer();
-		JSONObject json = JSONObject.fromObject(returnMsg);
-		
-		JSONArray array = json.getJSONArray("translation");
-		if(array.size() > 0){
-			for(int i = 0 ; i < array.size(); i++){
-				buffer.append(array.get(i).toString()+"  \n");
-			}
-		}
-		return buffer.toString();
-	}
-
 }

@@ -53,9 +53,10 @@ public class ChatXMLService extends BaseXMLWechatService{
 		if(WeixinUtil.TYPE_TEXT.equals(MsgType)){
 			int code = json.getInt("code");
 					
-			if(code == 100000)
+			if(code == 100000){
 				wtext = json.getString("text");
-			else if(code == 302000){//新闻
+				wtext = wtext.replaceAll("图灵", "");
+			}else if(code == 302000){//新闻
 				
 				StringBuffer buffer = new StringBuffer();
 				buffer.append(json.getString("text")+"\n");

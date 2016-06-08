@@ -69,8 +69,11 @@ public class CloudStoreHandler {
     public List<Map<String, Object>> executeUpload(List<Map<String, Object>> filePathBeans){
     	System.out.println("开始执行上传操作...............");
     	List<Map<String, Object>> returnFilePaths = new ArrayList<Map<String,Object>>();
+    	System.out.println("..............."+filePathBeans.size());
     	if(filePathBeans == null || filePathBeans.size() < 1)
     		return returnFilePaths;
+    	
+    	System.out.println("...............");
     	//派发2个线程
 		ExecutorService threadpool = Executors.newFixedThreadPool(filePathBeans.size() > 5 ? 5: filePathBeans.size());
 		List<Future<Boolean>> futures = new ArrayList<Future<Boolean>>();
@@ -79,6 +82,7 @@ public class CloudStoreHandler {
 		for(Map<String, Object> filePathBean: filePathBeans){	
 			fileFullPath = ConstantsUtil.DEFAULT_SAVE_FILE_FOLDER +"file" +File.separator +StringUtil.changeNotNull(filePathBean.get("path"));
 			if(!StringUtil.isNull(fileFullPath)){
+				System.out.println("fileFullPath:"+fileFullPath);
 				File file = new File(fileFullPath);
 				if(file.exists()){
 					if(file.length() >= 1024 *1024 * 4){//对于大于4M的文件，生成多个临时文件分开上传
@@ -227,6 +231,7 @@ public class CloudStoreHandler {
 				    System.out.println("大文件上传七牛云存储服务器成功,文件本地路径：" + filePath);
             	}
 			}*/
+            System.out.println("大文件上传完成");
 			return r.isOK() && r.statusCode == 200;
 		}
 		

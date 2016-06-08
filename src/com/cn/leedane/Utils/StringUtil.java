@@ -14,6 +14,8 @@ import net.sf.jmimemagic.MagicException;
 import net.sf.jmimemagic.MagicMatch;
 import net.sf.jmimemagic.MagicMatchNotFoundException;
 import net.sf.jmimemagic.MagicParseException;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 /**
  * 字符串相关工具类
@@ -513,6 +515,30 @@ public class StringUtil {
 			} 
 		}
 		return usernames;
+	}
+	
+	/**
+	 * 从有道翻译返回的json数据中获得翻译内容
+	 * @param returnMsg
+	 * @return
+	 */
+	public static String getYoudaoFanyiContent(String returnMsg) {
+		System.out.println("有道翻译返回的信息:"+returnMsg);
+		StringBuffer buffer = new StringBuffer();
+		if(isNotNull(returnMsg)){
+			JSONObject json = JSONObject.fromObject(returnMsg);
+			
+			JSONArray array = json.getJSONArray("translation");
+			if(array.size() > 0){
+				for(int i = 0 ; i < array.size(); i++){
+					buffer.append(array.get(i).toString()+"  \n");
+				}
+			}
+		}else{
+			buffer.append("无法进行翻译，请稍后重试");
+		}
+		
+		return buffer.toString();
 	}
 	
 	public static void main(String[] args) {

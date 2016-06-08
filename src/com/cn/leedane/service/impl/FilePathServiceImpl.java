@@ -404,14 +404,22 @@ public class FilePathServiceImpl extends BaseServiceImpl<FilePathBean> implement
 			}
 		}
 		
+		try {
+			//临时文件复制到file文件夹下
+			FileCopyUtils.copy(file, fileNew);
+			if(file != null)
+				file.delete();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			return false;
+		}
+		
 		//是图像
 		if(Base64ImageUtil.isSupportType(fileName)){
 			//暂时先使用以前的方式，获取bitmap
 			try {
 				String base64 = Base64ImageUtil.convertImageToBase64(filePath, fileName.substring(fileName.lastIndexOf(".")+1, fileName.length()));	
-				FileCopyUtils.copy(file, fileNew);
 				return saveEachFile(order, base64, user, uuid, tableName, fileName);
-			
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -431,7 +439,6 @@ public class FilePathServiceImpl extends BaseServiceImpl<FilePathBean> implement
 			filePathBean.setTableUuid(uuid);
 			filePathBean.setVersion(version);
 			filePathBean.setDesc(desc);
-			filePathBean.setLenght(file.length());
 			try {
 				return filePathDao.save(filePathBean);
 			} catch (Exception e) {
@@ -488,7 +495,7 @@ public class FilePathServiceImpl extends BaseServiceImpl<FilePathBean> implement
 	@Override
 	public boolean updateUploadQiniu(int fId, String qiniuPath) {
 		logger.info("FilePathServiceImpl-->updateUploadQiniu():文件ID="+fId+",文件路径："+qiniuPath);
-		return filePathDao.update("update t_file_path set qiniu_path=? , is_upload_qiniu=? where id=? ", qiniuPath, ConstantsUtil.STATUS_NORMAL, fId);
+		return filePathDao.update("update t_file_path set qiniu_path=? , is_upload_qiniu=?, modify_time=? where id=? ", qiniuPath, ConstantsUtil.STATUS_NORMAL, new Date(), fId);
 	}
 	
 }

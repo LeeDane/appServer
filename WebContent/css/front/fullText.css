@@ -1,0 +1,117 @@
+/**
+*整个框架的div样式
+**/
+.full-text-body{
+	width: 1024px;
+	margin: 0 auto;
+	min-height: 1500px;
+	margin-top: 1px;
+}
+/**
+*对文章扩充信息的控制，如作者，时间，来自哪里
+**/
+.full-text-title{
+	font-family: Times, TimesNR, 'New Century Schoolbook', Georgia, 'New York', serif;
+	font-size: 10px;
+	color: #999999;
+	padding: 10px 0 10px 0;
+}
+
+/**
+*内容的主体部分
+*/
+.full-text-main{
+	width: 100%;
+}
+/**
+*内容下方的评论、转发等
+*/
+.full-text-operate{
+	margin-top: 5px;
+	height: 30px;
+}
+
+/**
+*内容的主体左侧部分
+*/
+.full-text-main-left{
+	width: 700px;
+	background-color: #fff;
+	display: inline-block;
+}
+.full-text-main-left-main{
+	width: 100%;	
+	min-height: 800px;	
+	border:1px solid #F5EFEF;
+	padding: 8px;
+	border-radius: 4px;
+}
+/**
+*增加评论
+*/
+.full-text-add-comment{
+	width: 100%;
+}
+
+/**
+*评论列表
+*/
+.full-text-comment-list{
+	width: 100%;
+	clear: both;
+}
+.comment-list-each{
+	width: 98%;
+	background-color: #fff;
+	border-radius:4px;
+	border: 1px solid #ddd;
+	margin-top: 8px;
+	margin-bottom: 8px;
+}
+.comment-list-each-left{
+	margin: 3px;
+	float: left;
+	width: 30%;
+}
+.comment-list-user-img-bg{
+	width: 20px;
+	height: 26px;
+	margin: 0 auto;
+	border-radius:3px;
+	-moz-box-shadow: 3px 3px 3px #888888; /* 老的 Firefox */
+	box-shadow: 3px 3px 3px #888888;
+}
+.comment-list-time{
+	margin-top: 8px;
+	font-size: 16px;
+}
+.comment-list-each-right{
+	padding: 5px;
+	width: 60%;
+	float: right;
+}
+
+.comment-list-title{
+	font-size: 16px;
+	font-family: inherit;
+	font-weight: 500;
+	line-height: 1.1;
+	color: inherit;
+	margin-top: 2px;
+	margin-bottom: 2px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	
+}
+/**
+*内容的主体左侧部分
+*/
+.full-text-main-right{
+	width: 300px;
+	background-color: #999999;
+	display: inline-block;
+	min-height: 800px;	
+	margin-right: 8px;
+	float: right;
+}

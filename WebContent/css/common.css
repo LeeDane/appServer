@@ -1,0 +1,194 @@
+*{
+	margin: 0px;
+	padding: 0px;
+}
+
+.submitStyle{
+	width: 80px;
+	display:inline-block;
+	height: 30px;
+	line-height: 30px;
+	text-align: center;
+	font-size: 16px;
+	border-radius:4px;
+	cursor: pointer;
+	background-color: #2812EC;
+}
+
+.inputTextStyle200{
+	width: 200px;
+	height: 30px;
+	line-height:30px;
+	font-size:18px;
+	border-radius:4px;
+	margin: 0 auto;
+	background-color: #F5F5FA;
+	border: 1px solid #717077;
+}
+.inputTextStyle300{
+	width: 300px;
+	height: 30px;
+	line-height:30px;
+	font-size:16px;
+	border-radius:4px;
+	margin: 0 auto;
+	background-color: #F5F5FA;
+	border: 1px solid #717077;
+}
+.inputTextStyle600{
+	width: 600px;
+	height: 30px;
+	line-height:30px;
+	font-size:16px;
+	border-radius:4px;
+	margin: 0 auto;
+	background-color: #F5F5FA;
+	border: 1px solid #717077;
+}
+.navLeft{
+	text-indent: 20px;
+}
+.hand{
+	cursor: pointer;
+}
+.handBlue:hover{
+	text-decoration: underline;
+	font-style: 16px;
+	font: '宋体';
+	color: #66CCFF;
+}
+
+.marginLeft20{
+	margin-left: 20px;
+}
+
+/*自定义面板*/
+.myPanel{
+	width: 300px;
+	
+	border:1px solid transparent;
+	border-radius:4px;
+}
+.myPanel-heading{
+	background-color: #bce8f1;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	border-color:#bce8f1;
+}
+
+/*自定义博客正文*/
+
+.indexBlog{
+	width: 98%;
+	background-color: #fff;
+	border-radius:4px;
+	border:1px solid #ddd;
+	height: 278px;
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+.indexBlogImg{
+	margin: 8px;
+	float: left;
+	width: 30%;
+}
+.indexBlogMain{
+	padding: 0px;
+	width: 65%;
+	float: left;
+}
+
+.indexContent{
+	height: 140px;
+	/**#FAF8F8*/
+	background-color: #F9F6F6;
+	border-radius:3px;
+	overflow: hidden;
+	clear: both;
+}
+
+.releaseTitle{
+	font-size: 24px;
+	font-family: inherit;
+	font-weight: 500;
+	line-height: 1.1;
+	color: inherit;
+	margin-top: 8px;
+	margin-bottom: 8px;
+	height: 24px;
+	text-overflow:ellipsis; 
+	white-space:nowrap; 
+	overflow:hidden;
+}
+
+.releaseTime{
+	margin-left: 0px;
+	font-size: 0.5em;
+	color: #999999;
+}
+
+
+/*圆角div*/
+.circularDiv{
+	display: inline-block;
+	width: 25px;
+	height:25px;
+	line-height:25px;
+	text-align:center;
+	border-radius:60px;
+	margin-right: 8px;
+	color: #fff;
+}
+/*排名的颜色*/
+.ranking1{
+	background-color: #F56666;
+}
+.ranking2{
+	background-color: #F48DD5;
+}
+.ranking3{
+	background-color: #7158BD;
+}
+.ranking4{
+	background-color: #58BD8B;
+}
+.ranking5{
+	background-color: #BEBE5A;
+}
+
+/* .tooltip.left{
+	padding: 0 5px;
+	margin-left: 0px;
+} */
+.imgbg{ 
+	opacity:0.5;
+	filter(alpha=50);
+	margin-right: 2px;
+}
+.imgbg:hover{ 
+	opacity:1;
+	filter(alpha=100);
+	cursor: pointer;
+}
+
+.marginRightAndLeft2px{
+	margin-left: 2px;
+	margin-right: 2px;
+}
+
+/*文字用...表示*/
+.wordHidden{
+	text-overflow:ellipsis; 
+	white-space:nowrap; 
+	overflow:hidden;
+}
+
+/**分页的切换按钮的样式*/
+.activePaging{
+	
+}
+
+.color-blue{
+	color:blueviolet;
+}

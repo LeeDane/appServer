@@ -1,0 +1,11 @@
+.git
+.svn
+.settings
+*.class
+*.classpath
+.tgitconfig
+WebContent/WEB-INF/classes
+*.war
+src/*.xml
+src/com/qiniu
+WebContent/test

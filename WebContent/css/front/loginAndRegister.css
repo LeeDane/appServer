@@ -1,0 +1,89 @@
+body {
+	width: 1024px;
+	margin: 0 auto;
+}
+#loginAndRegisterTitles{
+	outline: 1px;
+}
+.loginAndRegisterTitle{
+	width: 50%;
+	float: left;
+	height: 30px;
+	line-height: 30px;
+	text-align: center;
+	cursor: pointer;
+}
+.loginAndRegisterMain{
+	clear: both;
+	padding-top: 20px;
+	background-color: gray;
+}
+#loginMain{
+	text-align: center;
+}
+
+#registerMain{
+	text-align: center;
+}
+.inputAccount{
+	width: 300px;
+	height: 30px;
+	line-height:30px;
+	font-size:18px;
+	border-radius:4px;
+	margin: 0 auto;
+	background: url(../../images/account.png) left top no-repeat;
+	padding-left: 32px;
+	border-color: #999999;
+	background-color: #F5F5FA;
+	border: 3px solid #717077;
+}
+
+.inputPassword{
+	width: 300px;
+	height: 30px;
+	line-height:32px;
+	font-size:18px;
+	border-radius:4px;
+	margin: 0 auto;
+	background: url(../../images/password.png) left top no-repeat;
+	padding-left: 30px;
+	background-color: #F5F5FA;
+	border: 3px solid #717077;
+}
+
+.inputEmail{
+	width: 300px;
+	height: 30px;
+	line-height:32px;
+	font-size:18px;
+	border-radius:4px;
+	margin: 0 auto;
+	background: url(../../images/email.png) left top no-repeat;
+	padding-left: 30px;
+	background-color: #F5F5FA;
+	border: 3px solid #717077;
+}
+
+.inputVerificationCode{
+	width: 150px;
+	height: 30px;
+	line-height:32px;
+	font-size:18px;
+	border-radius:4px;
+	margin: 0 auto;
+	background: url(../../images/email.png) left top no-repeat;
+	padding-left: 30px;
+	background-color: #F5F5FA;
+	border: 3px solid #717077;
+}
+
+img,input{
+	vertical-align: middle;
+}
+
+.loginAndRegisterType{
+	font-family: '华文行楷','宋体';
+	font-weight: bold;
+	font-size: 16px;
+}

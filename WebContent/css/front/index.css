@@ -1,0 +1,49 @@
+body{
+	/* background-image: url(../../images/homepage_bg.jpg); */
+}
+.indexBlogImgBg{
+	width: 200px;
+	height: 260px;
+	margin: 0 auto;
+	border-radius:3px;
+	-moz-box-shadow: 3px 3px 3px #888888; /* ÀÏµÄ Firefox */
+	box-shadow: 3px 3px 3px #888888;
+}
+
+.is-olivedrab{
+	background-color: olivedrab;
+}
+
+.is-orchid{
+	background-color: orchid;
+}
+
+.is-orange{
+	background-color: orange;
+}
+
+.is-blueviolet{
+	background-color: blueviolet;
+}
+
+.is-burlywood{
+	background-color: burlywood;
+}
+
+.is-aquamarine{
+	background-color: aquamarine;
+}
+.is-thistle{
+	background-color: thistle;
+}
+.is-deepskyblue{
+	background-color: deepskyblue;
+}
+.is-aquamarine{
+	background-color: aquamarine;
+}
+
+.highlight-thumbnail{
+	border:2px solid #bce8f1;
+	background-color: #bce8f1;
+}

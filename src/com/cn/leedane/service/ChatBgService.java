@@ -36,4 +36,13 @@ public interface ChatBgService <T extends Serializable> extends BaseService<Chat
 	 * @return
 	 */
 	public Map<String, Object> publish(JSONObject jo, UserBean user, HttpServletRequest request);
+
+	/**
+	 * 下载付费版本的聊天背景
+	 * @param jo
+	 * @param user
+	 * @param request
+	 * @return
+	 */
+	public Map<String, Object> verifyChatBg(JSONObject jo, UserBean user, HttpServletRequest request);
 }

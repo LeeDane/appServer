@@ -18,17 +18,23 @@ import com.cn.leedane.Utils.EnumUtil;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
 import com.cn.leedane.bean.ChatBgBean;
+import com.cn.leedane.bean.ChatBgUserBean;
 import com.cn.leedane.bean.OperateLogBean;
+import com.cn.leedane.bean.ScoreBean;
 import com.cn.leedane.bean.UserBean;
+import com.cn.leedane.handler.ChatBgUserHandler;
 import com.cn.leedane.handler.NotificationHandler;
 import com.cn.leedane.handler.UserHandler;
+import com.cn.leedane.redis.util.RedisUtil;
 import com.cn.leedane.service.ChatBgService;
+import com.cn.leedane.service.ChatBgUserService;
 import com.cn.leedane.service.OperateLogService;
+import com.cn.leedane.service.ScoreService;
 
 /**
- * 聊天信息列表service实现类
+ * 聊天背景相关service实现类
  * @author LeeDane
- * 2016年5月5日 下午11:59:29
+ * 2016年6月5日 下午11:59:29
  * Version 1.0
  */
 public class ChatBgServiceImpl extends BaseServiceImpl<ChatBgBean> implements ChatBgService<ChatBgBean> {
@@ -62,6 +68,20 @@ public class ChatBgServiceImpl extends BaseServiceImpl<ChatBgBean> implements Ch
 		this.notificationHandler = notificationHandler;
 	}
 	
+	@Resource
+	private ScoreService<ScoreBean> scoreService;
+	
+	public void setScoreService(ScoreService<ScoreBean> scoreService) {
+		this.scoreService = scoreService;
+	}
+	
+	@Resource
+	private ChatBgUserService<ChatBgUserBean> chatBgUserService;
+	
+	public void setChatBgUserService(
+			ChatBgUserService<ChatBgUserBean> chatBgUserService) {
+		this.chatBgUserService = chatBgUserService;
+	}
 	
 	@Override
 	public Map<String, Object> paging(JSONObject jo, UserBean user,
@@ -181,4 +201,132 @@ public class ChatBgServiceImpl extends BaseServiceImpl<ChatBgBean> implements Ch
 		}
 		return message;
 	}
+
+
+	@Override
+	public Map<String, Object> verifyChatBg(JSONObject jo, UserBean user,
+			HttpServletRequest request) {
+		logger.info("ChatBgServiceImpl-->verifyChatBg():jo="+jo.toString());
+		Map<String, Object> message = new HashMap<String, Object>();
+		message.put("isSuccess", false);
+		int cid = JsonUtil.getIntValue(jo, "cid", 0); //聊天背景的ID
+		
+		ChatBgBean chatBg = null;
+		if(cid < 1 || (chatBg = chatBgDao.findById(cid)) == null){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.操作对象不存在.value));
+			message.put("responseCode", EnumUtil.ResponseCode.操作对象不存在.value);
+			return message;
+		}
+		
+		if(chatBg.getCreateUser().getId() == user.getId()){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.自己上传的聊天背景资源.value));
+			message.put("isSuccess", true);
+			return message;
+		}
+		
+		RedisUtil redisUtil = RedisUtil.getInstance();
+		
+		String chatBgUserKey = ChatBgUserHandler.getChatBgUserKey(user.getId(), cid);
+		boolean result = false;
+		//还没有缓存记录
+		if(!redisUtil.hasKey(chatBgUserKey)){
+			System.out.println("没有缓存");
+			boolean e = chatBgUserService.exists(user.getId(), cid);
+			if(!e){//还没有下载记录
+				redisUtil.addString(chatBgUserKey, "true");
+				//保存下载记录
+				ChatBgUserBean t = new ChatBgUserBean();
+				t.setChatBgTableId(chatBg.getId());
+				t.setCreateTime(new Date());
+				t.setCreateUser(user);
+				t.setStatus(ConstantsUtil.STATUS_NORMAL);
+				result = chatBgUserService.save(t);
+				if(chatBg.getType() == 0){
+					message.put("message", "这个是免费的资源，不需要扣下载积分");
+					message.put("isSuccess", true);
+					return message;
+				}
+				result = saveScore(chatBg, user);
+			}else{
+				redisUtil.addString(chatBgUserKey, "false");
+				message.put("message", "已经下载过该资源");
+				message.put("isSuccess", true);
+				return message;
+			}
+		}else{
+			String val = redisUtil.getString(chatBgUserKey);
+			System.out.println("已经缓存："+val);
+			if(StringUtil.isNotNull(val)){
+				System.out.println("缓存："+StringUtil.changeObjectToBoolean(val));
+				if(!StringUtil.changeObjectToBoolean(val)){
+					redisUtil.addString(chatBgUserKey, "true");
+					//保存下载记录
+					ChatBgUserBean t = new ChatBgUserBean();
+					t.setChatBgTableId(chatBg.getId());
+					t.setCreateTime(new Date());
+					t.setCreateUser(user);
+					t.setStatus(ConstantsUtil.STATUS_NORMAL);
+					result = chatBgUserService.save(t);
+					if(chatBg.getType() == 0){
+						message.put("message", "这个是免费的资源，不需要扣下载积分");
+						message.put("isSuccess", true);
+						return message;
+					}
+					result = saveScore(chatBg, user);
+				}else{
+					message.put("message", "已经下载过该资源");
+					message.put("isSuccess", true);
+					return message;
+				}
+			}else{
+				message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.服务器处理异常.value));
+				message.put("responseCode", EnumUtil.ResponseCode.服务器处理异常.value);
+				return message;
+			}
+		}
+		
+		//保存操作日志
+		operateLogService.saveOperateLog(user, request, null, StringUtil.getStringBufferStr(user.getAccount(), "下载聊天背景的资源", StringUtil.getSuccessOrNoStr(result)).toString(), "verifyChatBg()", ConstantsUtil.STATUS_NORMAL, 0);
+		if(result){
+			message.put("isSuccess", result);
+			message.put("message", "扣除下载积分成功!");
+		}else{
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.数据库保存失败.value));
+			message.put("responseCode", EnumUtil.ResponseCode.数据库保存失败.value);
+		}
+		return message;
+	}
+	
+	private boolean saveScore(ChatBgBean chatBg, UserBean user){
+		boolean result = false;
+		Date d = new Date();  //共用时间
+		int bgScore = chatBg.getScore();  //下载需要处理的积分
+		//扣除用户下载积分
+		ScoreBean scoreBean = new ScoreBean();
+		int score = 0 - bgScore;
+		scoreBean.setTotalScore(scoreService.getTotalScore(user.getId()) + score);
+		scoreBean.setScore(score);
+		scoreBean.setCreateTime(d);
+		scoreBean.setCreateUser(user);
+		scoreBean.setDesc("下载聊天背景");
+		scoreBean.setStatus(ConstantsUtil.STATUS_NORMAL);
+		scoreBean.setTableId(chatBg.getId());
+		scoreBean.setTableName("t_chat_bg");
+		result = scoreService.save(scoreBean);
+		if(result){
+			//增加用户下载资源积分
+			ScoreBean scoreBean1 = new ScoreBean();
+			scoreBean1.setTotalScore(scoreService.getTotalScore(user.getId()) + bgScore);
+			scoreBean1.setScore(bgScore);
+			scoreBean1.setCreateTime(d);
+			scoreBean1.setCreateUser(chatBg.getCreateUser());
+			scoreBean1.setDesc("下载聊天背景");
+			scoreBean1.setStatus(ConstantsUtil.STATUS_NORMAL);
+			scoreBean1.setTableId(chatBg.getId());
+			scoreBean1.setTableName("t_chat_bg");
+			result = scoreService.save(scoreBean1);
+		}
+		return result;
+	}
+
 }

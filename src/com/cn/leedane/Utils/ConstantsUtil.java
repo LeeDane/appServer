@@ -244,6 +244,11 @@ public class ConstantsUtil {
     public static final String TIME_LINE_SELF = "time_line_self_";
     
     /**
+     * 用户下载资源记录在redis存储的前缀
+     */
+    public static final String CHAT_BG_USER = "chat_bg_user_";
+    
+    /**
      * 微信当前用户在redis存储的前缀
      */
     public static final String WECHAT_USER_REDIS = "wechat_user_";

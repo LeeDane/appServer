@@ -69,4 +69,27 @@ public class ChatBgAction extends BaseActionContext{
 		message.put("responseCode", EnumUtil.ResponseCode.服务器处理异常.value);
         return SUCCESS;
 	}
+	
+	/**
+	 * 检验聊天背景
+	 * @return
+	 */
+	public String verifyChatBg(){
+		try {
+			message.put("isSuccess", false);
+			JSONObject jo = HttpUtils.getJsonObjectFromInputStream(params, request);  
+			if(jo == null || jo.isEmpty()) {	
+				message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.缺少请求参数.value));
+				message.put("responseCode", EnumUtil.ResponseCode.缺少请求参数.value);
+				return SUCCESS;
+			}
+			message.putAll(chatBgService.verifyChatBg(jo, user, request));
+			return SUCCESS;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}     
+        message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.服务器处理异常.value));
+		message.put("responseCode", EnumUtil.ResponseCode.服务器处理异常.value);
+        return SUCCESS;
+	}
 }

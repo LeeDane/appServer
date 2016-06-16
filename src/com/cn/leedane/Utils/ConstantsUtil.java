@@ -130,12 +130,12 @@ public class ConstantsUtil {
 	/**
 	 * 极光推送Master Secret
 	 */
-	public static final String JPUSH_MASTER_SECRET = "02f464322e5af637b3436730";
+	public static final String JPUSH_MASTER_SECRET = "8cf0c594b18e376c667f61a8";
 	
 	/**
 	 * 极光推送AppKey
 	 */
-	public static final String JPUSH_APPKEY = "24a548f53d47a3d68498dbcc";
+	public static final String JPUSH_APPKEY = "52a273ed4a53533801809f1b";
 	
 	/**
 	 * 支持的图片类型

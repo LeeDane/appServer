@@ -94,7 +94,7 @@ public class MoodHandler {
 		JSONArray jsonArray = new JSONArray();
 		if(!redisUtil.hasKey(moodKey)){
 			StringBuffer sql = new StringBuffer();
-			sql.append("select m.create_user_id, m.froms, m.content, m.has_img, date_format(m.create_time,'%Y-%c-%d %H:%i:%s') create_time");
+			sql.append("select m.create_user_id, m.froms, m.content, m.has_img, date_format(m.create_time,'%Y-%c-%d %H:%i:%s') create_time,location,longitude,latitude");
 			//sql.append(" ,(case when has_img = 1 then (select qiniu_path from t_file_path where status = ? and table_name='t_mood' and table_uuid = m.uuid and pic_size=?) else '' end) path");
 			sql.append(" ,uuid");
 			sql.append(" from t_mood m");

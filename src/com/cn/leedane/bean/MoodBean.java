@@ -47,6 +47,21 @@ public class MoodBean extends RecordTimeBean{
 	private boolean hasImg;
 	
 	/**
+	 * 位置的展示信息
+	 */
+	private String location;
+	
+	/**
+	 * 经度
+	 */
+    private double longitude;
+    
+    /**
+     * 纬度
+     */
+    private double latitude;
+	
+	/**
 	 * 阅读次数
 	 */
 	private int readNumber; 
@@ -197,4 +212,24 @@ public class MoodBean extends RecordTimeBean{
 	public void setSolrIndex(boolean isSolrIndex) {
 		this.isSolrIndex = isSolrIndex;
 	}
+	public String getLocation() {
+		return location;
+	}
+	public void setLocation(String location) {
+		this.location = location;
+	}
+	public double getLongitude() {
+		return longitude;
+	}
+	public void setLongitude(double longitude) {
+		this.longitude = longitude;
+	}
+	public double getLatitude() {
+		return latitude;
+	}
+	public void setLatitude(double latitude) {
+		this.latitude = latitude;
+	}
+	
+	
 }

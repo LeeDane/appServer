@@ -163,6 +163,14 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 		
 		MoodBean moodBean = new MoodBean();
 		moodBean.setContent(content);
+		String location = JsonUtil.getStringValue(jsonObject, "location");
+		if(StringUtil.isNotNull(location)){
+			double longitude = JsonUtil.getDoubleValue(jsonObject, "longitude");
+			double latitude = JsonUtil.getDoubleValue(jsonObject, "latitude");
+			moodBean.setLocation(location);
+			moodBean.setLongitude(longitude);
+			moodBean.setLatitude(latitude);
+		}
 		moodBean.setCreateTime(new Date());
 		moodBean.setFroms(JsonUtil.getStringValue(jsonObject, "froms"));
 		moodBean.setPublishNow(true);
@@ -304,7 +312,7 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 		
 		if("firstloading".equalsIgnoreCase(method)){
 			sql.append("select m.id, m.content, m.froms, m.uuid, m.create_user_id, date_format(m.create_time,'%Y-%c-%d %H:%i:%s') create_time, m.has_img,");
-			sql.append(" m.read_number, m.zan_number, m.comment_number, m.transmit_number, m.share_number, u.account");
+			sql.append(" m.read_number, m.location, m.longitude, m.latitude, m.zan_number, m.comment_number, m.transmit_number, m.share_number, u.account");
 			sql.append(" from t_mood m inner join t_user u on u.id = m.create_user_id where m.status = ? and ");
 			sql.append(" m.create_user_id = ?");
 			sql.append(" order by m.id desc limit 0,?");
@@ -312,7 +320,7 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 		//下刷新
 		}else if("lowloading".equalsIgnoreCase(method)){
 			sql.append("select m.id, m.content, m.froms, m.uuid, m.create_user_id, date_format(m.create_time,'%Y-%c-%d %H:%i:%s') create_time, m.has_img,");
-			sql.append(" m.read_number, m.zan_number, m.comment_number, m.transmit_number, m.share_number, u.account");
+			sql.append(" m.read_number, m.location, m.longitude, m.latitude, m.zan_number, m.comment_number, m.transmit_number, m.share_number, u.account");
 			sql.append(" from t_mood m inner join t_user u on u.id = m.create_user_id where m.status = ? and ");
 			sql.append(" m.create_user_id = ?");
 			sql.append(" and m.id < ? order by m.id desc limit 0,? ");
@@ -320,7 +328,7 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 		//上刷新
 		}else if("uploading".equalsIgnoreCase(method)){
 			sql.append("select m.id, m.content, m.froms, m.uuid, m.create_user_id, date_format(m.create_time,'%Y-%c-%d %H:%i:%s') create_time, m.has_img,");
-			sql.append(" m.read_number, m.zan_number, m.comment_number, m.transmit_number, m.share_number, u.account");
+			sql.append(" m.read_number, m.location, m.longitude, m.latitude, m.zan_number, m.comment_number, m.transmit_number, m.share_number, u.account");
 			sql.append(" from t_mood m inner join t_user u on u.id = m.create_user_id where m.status = ? and ");
 			sql.append(" m.create_user_id = ?");
 			sql.append(" and m.id > ? limit 0,?  ");
@@ -386,6 +394,14 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 		
 		MoodBean moodBean = new MoodBean();
 		moodBean.setContent(content);
+		String location = JsonUtil.getStringValue(jsonObject, "location");
+		if(StringUtil.isNotNull(location)){
+			double longitude = JsonUtil.getDoubleValue(jsonObject, "longitude");
+			double latitude = JsonUtil.getDoubleValue(jsonObject, "latitude");
+			moodBean.setLocation(location);
+			moodBean.setLongitude(longitude);
+			moodBean.setLatitude(latitude);
+		}
 		moodBean.setCreateTime(new Date());
 		moodBean.setCreateUser(user);
 		moodBean.setFroms(froms);
@@ -490,6 +506,14 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 		
 		MoodBean moodBean = new MoodBean();
 		moodBean.setContent(content);
+		String location = JsonUtil.getStringValue(jsonObject, "location");
+		if(StringUtil.isNotNull(location)){
+			double longitude = JsonUtil.getDoubleValue(jsonObject, "longitude");
+			double latitude = JsonUtil.getDoubleValue(jsonObject, "latitude");
+			moodBean.setLocation(location);
+			moodBean.setLongitude(longitude);
+			moodBean.setLatitude(latitude);
+		}
 		moodBean.setCreateTime(new Date());
 		moodBean.setFroms(JsonUtil.getStringValue(jsonObject, "froms"));
 		moodBean.setPublishNow(true);

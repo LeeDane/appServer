@@ -146,6 +146,23 @@ public class JsonUtil {
 	 * @param key  键名称
 	 * @return
 	 */
+	public static double getDoubleValue(JSONObject object, String key){
+		if(JsonUtil.hasKey(object, key)){
+			String s = String.valueOf(object.get(key));
+			if(StringUtil.isIntNumeric(s)){
+				return Double.parseDouble(s);
+			}
+			return 0;
+		}
+		return 0;
+	}
+	
+	/**
+	 * 从json对象中获取key对应的值，没有该key返回0
+	 * @param object json对象
+	 * @param key  键名称
+	 * @return
+	 */
 	public static long getLongValue(JSONObject object, String key){
 		if(JsonUtil.hasKey(object, key)){
 			String s = String.valueOf(object.get(key));

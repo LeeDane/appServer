@@ -59,10 +59,10 @@ public class JPushTest extends BaseTest{
 	 */
 	@Test
 	public void chat() {
-		UserBean user = userService.findById(11);
+		UserBean user = userService.findById(1);
 		if(user == null){
 			user = new UserBean();
-			user.setId(11);
+			user.setId(1);
 		}
 		ChatBean chatBean = new ChatBean();
 		chatBean.setId(1104);
@@ -75,7 +75,7 @@ public class JPushTest extends BaseTest{
 		
 		Map<String, Object> chatMap = ChatServiceImpl.chatBeanToMap(chatBean);
 		JpushCustomMessage message= new JpushCustomMessage();
-		System.out.println(message.sendToAlias("leedane_user_1", JSONObject.fromObject(chatMap).toString(), "toUserId", "11"));
+		System.out.println(message.sendToAlias("leedane_user_11", JSONObject.fromObject(chatMap).toString(), "toUserId", "1"));
 	}
 	
 }

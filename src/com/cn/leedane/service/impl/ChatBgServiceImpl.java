@@ -76,6 +76,13 @@ public class ChatBgServiceImpl extends BaseServiceImpl<ChatBgBean> implements Ch
 	}
 	
 	@Resource
+	private ChatBgUserHandler chatBgUserHandler;
+	
+	public void setChatBgUserHandler(ChatBgUserHandler chatBgUserHandler) {
+		this.chatBgUserHandler = chatBgUserHandler;
+	}
+	
+	@Resource
 	private ChatBgUserService<ChatBgUserBean> chatBgUserService;
 	
 	public void setChatBgUserService(
@@ -125,6 +132,14 @@ public class ChatBgServiceImpl extends BaseServiceImpl<ChatBgBean> implements Ch
 			sql.append(buildChatBgTypeSql(type));
 			sql.append(" and c.id > ? limit 0,? ");
 			rs = chatBgDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, firstId, pageSize);
+		}
+		
+		//判断是否已经下载过
+		if(rs != null && rs.size() >0){
+			for(int i = 0; i < rs.size();i++){
+				rs.get(i).put("download", chatBgUserHandler.isDownload(user.getId(), StringUtil.changeObjectToInt(rs.get(i).get("id"))));
+				rs.get(i).putAll(userHandler.getBaseUserInfo(StringUtil.changeObjectToInt(rs.get(i).get("create_user_id"))));
+			}
 		}
 		//保存操作日志
 		operateLogService.saveOperateLog(user, request, null, StringUtil.getStringBufferStr(user.getAccount(),"获取聊天背景分页列表").toString(), "paging()", ConstantsUtil.STATUS_NORMAL, 0);
@@ -308,7 +323,7 @@ public class ChatBgServiceImpl extends BaseServiceImpl<ChatBgBean> implements Ch
 		scoreBean.setScore(score);
 		scoreBean.setCreateTime(d);
 		scoreBean.setCreateUser(user);
-		scoreBean.setDesc("下载聊天背景");
+		scoreBean.setDesc("扣除下载聊天背景积分");
 		scoreBean.setStatus(ConstantsUtil.STATUS_NORMAL);
 		scoreBean.setTableId(chatBg.getId());
 		scoreBean.setTableName("t_chat_bg");
@@ -320,7 +335,7 @@ public class ChatBgServiceImpl extends BaseServiceImpl<ChatBgBean> implements Ch
 			scoreBean1.setScore(bgScore);
 			scoreBean1.setCreateTime(d);
 			scoreBean1.setCreateUser(chatBg.getCreateUser());
-			scoreBean1.setDesc("下载聊天背景");
+			scoreBean1.setDesc("聊天背景资源被下载奖励");
 			scoreBean1.setStatus(ConstantsUtil.STATUS_NORMAL);
 			scoreBean1.setTableId(chatBg.getId());
 			scoreBean1.setTableName("t_chat_bg");

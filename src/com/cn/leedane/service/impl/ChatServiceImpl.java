@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import com.cn.leedane.Dao.ChatDao;
 import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.DateUtil;
+import com.cn.leedane.Utils.EmojiUtil;
 import com.cn.leedane.Utils.EnumUtil;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
@@ -131,6 +132,14 @@ public class ChatServiceImpl extends BaseServiceImpl<ChatBean> implements ChatSe
 		}
 		String content = JsonUtil.getStringValue(jo, "content"); //聊天内容
 		
+		//过滤掉emoji
+		content = EmojiUtil.filterEmoji(content);
+		if(StringUtil.isNull(content)){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.聊天内容不能为空.value));
+			message.put("responseCode", EnumUtil.ResponseCode.聊天内容不能为空.value);
+			return message;
+		}
+			
 		//检测敏感词
 		SensitivewordFilter filter = new SensitivewordFilter();
 		long beginTime = System.currentTimeMillis();

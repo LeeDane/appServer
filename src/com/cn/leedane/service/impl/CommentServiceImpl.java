@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.cn.leedane.Dao.CommentDao;
 import com.cn.leedane.Exception.ErrorException;
 import com.cn.leedane.Utils.ConstantsUtil;
+import com.cn.leedane.Utils.EmojiUtil;
 import com.cn.leedane.Utils.EnumUtil;
 import com.cn.leedane.Utils.EnumUtil.NotificationType;
 import com.cn.leedane.Utils.SensitiveWord.SensitivewordFilter;
@@ -134,6 +135,9 @@ public class CommentServiceImpl extends BaseServiceImpl<CommentBean> implements 
 			return message;
 		}
 		
+		//过滤掉emoji
+		content = EmojiUtil.filterEmoji(content);
+		
 		if(StringUtil.isNull(tableName) || tableId < 1 || StringUtil.isNull(content)){
 			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.某些参数为空.value));
 			message.put("responseCode", EnumUtil.ResponseCode.某些参数为空.value);
@@ -195,18 +199,6 @@ public class CommentServiceImpl extends BaseServiceImpl<CommentBean> implements 
 			 * 通过表名+ID唯一存储
 			 */
 			commentHandler.addComment(tableName, tableId);
-			/*RedisUtil redisUtil = RedisUtil.getInstance();
-			String key = getCommentKey(tableName, tableId);
-			String count = null;
-			//还没有添加到redis中
-			if(StringUtil.isNull(redisUtil.getString(key))){
-				//获取数据库中所有评论的数量
-				List<Map<String, Object>> numbers = commentDao.executeSQL("select count(id) number from t_comment where table_name=? and table_id = ?", tableName, tableId);
-				count = String.valueOf(StringUtil.changeObjectToInt(numbers.get(0).get("number")) +1);	
-			}else{
-				count = String.valueOf(Integer.parseInt(redisUtil.getString(key)) + 1);
-			}
-			redisUtil.addString(key, count);*/
 		}
 		message.put("isSuccess", true);
 		return message;

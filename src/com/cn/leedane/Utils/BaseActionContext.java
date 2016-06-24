@@ -1,5 +1,7 @@
 package com.cn.leedane.Utils;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,6 +9,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
 
 import org.apache.struts2.interceptor.ServletRequestAware;
 import org.apache.struts2.interceptor.ServletResponseAware;
@@ -85,6 +89,27 @@ ServletResponseAware, SessionAware {
 		super(context);
 	}
 	*/
+	
+	/**
+	 * 通过原先servlet方式输出json对象。
+	 * 目的：解决复杂的文本中含有特殊的字符导致struts2的json
+	 * 		解析失败，给客户端返回500的bug
+	 */
+	protected void printWriter(){
+		JSONObject jsonObject = JSONObject.fromObject(message);
+		response.setCharacterEncoding("utf-8");
+		PrintWriter writer = null;
+		try {
+			writer = response.getWriter();
+			writer.append(jsonObject.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}finally{
+			if(writer != null)
+				writer.close();
+		}
+		
+	}
 	private ActionContext getActionContext() {
 		return ActionContext.getContext();
 	}

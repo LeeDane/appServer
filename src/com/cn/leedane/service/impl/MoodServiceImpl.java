@@ -2,6 +2,7 @@ package com.cn.leedane.service.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,6 +19,7 @@ import com.cn.leedane.Dao.FilePathDao;
 import com.cn.leedane.Dao.MoodDao;
 import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.DateUtil;
+import com.cn.leedane.Utils.EmojiUtil;
 import com.cn.leedane.Utils.EnumUtil;
 import com.cn.leedane.Utils.EnumUtil.NotificationType;
 import com.cn.leedane.Utils.SensitiveWord.SensitivewordFilter;
@@ -155,12 +157,15 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 		String content = JsonUtil.getStringValue(jsonObject, "content");
 		Map<String, Object> message = new HashMap<String, Object>();
 		message.put("isSuccess", false);
+		
+		//过滤掉emoji
+		content = EmojiUtil.filterEmoji(content);
 		if(StringUtil.isNull(content)){
 			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.某些参数为空.value));
 			message.put("responseCode", EnumUtil.ResponseCode.某些参数为空.value);
 			return message;
 		}
-		
+				
 		MoodBean moodBean = new MoodBean();
 		moodBean.setContent(content);
 		String location = JsonUtil.getStringValue(jsonObject, "location");
@@ -384,7 +389,6 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 		boolean hasImg = JsonUtil.getBooleanValue(jsonObject, "hasImg");
 		Map<String, Object> message = new HashMap<String, Object>();
 		message.put("isSuccess", false);
-		logger.info("saveDividedMood():content:" +content +",uuid="+uuid.toString()+",froms="+froms+",hasImg=" +hasImg);
 		//检查uuid是否已经存在了
 		if(moodDao.executeSQL("select id from T_MOOD where table_uuid =? ", uuid).size() > 0){
 			String oldUUid = uuid;
@@ -483,6 +487,9 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 		String content = JsonUtil.getStringValue(jsonObject, "content");
 		Map<String, Object> message = new HashMap<String, Object>();
 		message.put("isSuccess", false);
+		//过滤掉emoji
+		content = EmojiUtil.filterEmoji(content);
+		
 		if(StringUtil.isNull(content)){
 			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.某些参数为空.value));
 			message.put("responseCode", EnumUtil.ResponseCode.某些参数为空.value);
@@ -561,7 +568,7 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 		
 		return message;
 	}
-
+	
 	@Override
 	public List<Map<String, Object>> detailImgs(JSONObject jo, UserBean user, HttpServletRequest request) {
 		logger.info("MoodServiceImpl-->detailImgs():jsonObject=" +jo.toString() +", user=" +user.getAccount());

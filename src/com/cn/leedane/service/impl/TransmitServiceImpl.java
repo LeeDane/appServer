@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cn.leedane.Dao.TransmitDao;
 import com.cn.leedane.Utils.ConstantsUtil;
+import com.cn.leedane.Utils.EmojiUtil;
 import com.cn.leedane.Utils.EnumUtil;
 import com.cn.leedane.Utils.EnumUtil.NotificationType;
 import com.cn.leedane.Utils.SensitiveWord.SensitivewordFilter;
@@ -109,6 +110,10 @@ public class TransmitServiceImpl extends BaseServiceImpl<TransmitBean> implement
 		message.put("isSuccess", false);
 				
 		boolean result = false;
+		
+		//过滤掉emoji
+		content = EmojiUtil.filterEmoji(content);
+		
 		if(StringUtil.isNull(tableName) || tableId < 1 || StringUtil.isNull(content)){
 			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.某些参数为空.value));
 			message.put("responseCode", EnumUtil.ResponseCode.某些参数为空.value);

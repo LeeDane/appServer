@@ -320,23 +320,25 @@ public class MoodAction extends BaseActionContext{
 	 * {'uid':1; 'mid':1},uid非必须，为空表示当前登录用户
 	 * @return 返回心情的内容，图片地址（120x120大小的图像）
 	 */
-	public String detail(){
+	public void detail(){
 		message.put("isSuccess", resIsSuccess);
 		try {
 			JSONObject jo = HttpUtils.getJsonObjectFromInputStream(params,request);
 			if(jo == null || jo.isEmpty()) {	
 				message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.缺少请求参数.value));
 				message.put("responseCode", EnumUtil.ResponseCode.缺少请求参数.value);
-				return SUCCESS;
+				printWriter();
+				return;
 			}
 			message.putAll(moodService.detail(jo, user, request, "120x120"));
-			return SUCCESS;
+			printWriter();
+			return;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.服务器处理异常.value));
 		message.put("responseCode", EnumUtil.ResponseCode.服务器处理异常.value);
-        return SUCCESS;
+		printWriter();
 	}
 	/**
 	 * 获取心情的图片

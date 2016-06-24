@@ -82,7 +82,16 @@ public interface FriendService <T extends Serializable> extends BaseService<Frie
 	 * @param request
 	 * @return
 	 */
-	public Map<String, Object> friendsPaging(JSONObject jo, UserBean user, HttpServletRequest request);
+	public Map<String, Object> friendsAlreadyPaging(JSONObject jo, UserBean user, HttpServletRequest request);
+	
+	/**
+	 * 获取还未跟我成为好友关系的用户(我发起对方未答应或者对方发起我还未答应的)
+	 * @param jo
+	 * @param user
+	 * @param request
+	 * @return
+	 */
+	public Map<String, Object> friendsNotyetPaging(JSONObject jo, UserBean user, HttpServletRequest request);
 	
 	/**
 	 * 获取我发送的好友请求列表(我加别人的)

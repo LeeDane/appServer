@@ -219,7 +219,7 @@ public class FriendAction extends BaseActionContext{
 				message.put("responseCode", EnumUtil.ResponseCode.缺少请求参数.value);
 				return SUCCESS;
 			}
-			message.putAll(friendService.friendsPaging(jo, user, request));
+			message.putAll(friendService.friendsAlreadyPaging(jo, user, request));
 			return SUCCESS;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -228,6 +228,31 @@ public class FriendAction extends BaseActionContext{
 		message.put("responseCode", EnumUtil.ResponseCode.服务器处理异常.value);
         return SUCCESS;
 	}
+	
+	/**
+	 * 获取还未跟我成为好友关系的用户(我发起对方未答应或者对方发起我还未答应的)
+	 * @return
+	 */
+	public String friendsNotyetPaging() {
+		try {
+			message.put("isSuccess", false);
+			//{"id":1, "to_user_id": 2}
+			JSONObject jo = HttpUtils.getJsonObjectFromInputStream(params, request);  
+			if(jo == null || jo.isEmpty()) {	
+				message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.缺少请求参数.value));
+				message.put("responseCode", EnumUtil.ResponseCode.缺少请求参数.value);
+				return SUCCESS;
+			}
+			message.putAll(friendService.friendsNotyetPaging(jo, user, request));
+			return SUCCESS;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}     
+        message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.服务器处理异常.value));
+		message.put("responseCode", EnumUtil.ResponseCode.服务器处理异常.value);
+        return SUCCESS;
+	}
+	
 	
 	/**
 	 * 获取全部已经跟我成为好友关系列表

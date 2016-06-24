@@ -194,22 +194,28 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 	 */
 	private void saveRegisterScore(UserBean u){
 		Object object = systemCache.getCache("first-sign-in"); 
+		int score = 0;
 		if(object != null){
-			//更新积分
-			ScoreBean scoreBean = new ScoreBean();
-			scoreBean.setTotalScore(StringUtil.changeObjectToInt(object));
-			scoreBean.setScore(StringUtil.changeObjectToInt(object));
-			scoreBean.setCreateTime(new Date());
-			scoreBean.setCreateUser(u);
-			scoreBean.setDesc("用户注册");
-			scoreBean.setStatus(ConstantsUtil.STATUS_NORMAL);
-			scoreBean.setTableId(u.getId());
-			scoreBean.setTableName("t_user");
-			boolean isSave = scoreService.save(scoreBean);
-			//标记为已经添加
-			if(isSave){
-				signInHandler.addHistorySignIn(u.getId());
-			}
+			score = StringUtil.changeObjectToInt(object);
+		}
+		
+		//分数等于0直接不保存
+		if(score == 0 )
+			return;
+		//更新积分
+		ScoreBean scoreBean = new ScoreBean();
+		scoreBean.setTotalScore(score);
+		scoreBean.setScore(score);
+		scoreBean.setCreateTime(new Date());
+		scoreBean.setCreateUser(u);
+		scoreBean.setDesc("用户注册");
+		scoreBean.setStatus(ConstantsUtil.STATUS_NORMAL);
+		scoreBean.setTableId(u.getId());
+		scoreBean.setTableName("t_user");
+		boolean isSave = scoreService.save(scoreBean);
+		//标记为已经添加
+		if(isSave){
+			signInHandler.addHistorySignIn(u.getId());
 		}
 	}
 	
@@ -222,7 +228,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 		}else{
 			UserBean user = userDao.checkRegisterCode(registerCode);
 			 if(user != null){
-				 user.setStatus(1);
+				 user.setStatus(ConstantsUtil.STATUS_NORMAL);
 				 return updateUserState(user);
 			 }else
 				 return false;

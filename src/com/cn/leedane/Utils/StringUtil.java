@@ -236,7 +236,7 @@ public class StringUtil {
 		try {
 			return Integer.parseInt(String.valueOf(obj));
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.println(obj +"转换成int失败");
 			return 0;
 		}
 	}
@@ -250,7 +250,7 @@ public class StringUtil {
         try {
             return Long.parseLong(String.valueOf(obj));
         } catch (Exception e) {
-            e.printStackTrace();
+        	System.out.println(obj +"转换成long失败");
             return 0;
         }
     }
@@ -263,7 +263,7 @@ public class StringUtil {
 		try {
 			return Boolean.parseBoolean(String.valueOf(obj));
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.println(obj +"转换成boolean失败");
 			return false;
 		}
 	}
@@ -527,12 +527,15 @@ public class StringUtil {
 		StringBuffer buffer = new StringBuffer();
 		if(isNotNull(returnMsg)){
 			JSONObject json = JSONObject.fromObject(returnMsg);
-			
-			JSONArray array = json.getJSONArray("translation");
-			if(array.size() > 0){
-				for(int i = 0 ; i < array.size(); i++){
-					buffer.append(array.get(i).toString()+"  \n");
+			if(json.has("translation")){
+				JSONArray array = json.getJSONArray("translation");
+				if(array.size() > 0){
+					for(int i = 0 ; i < array.size(); i++){
+						buffer.append(array.get(i).toString()+"  \n");
+					}
 				}
+			}else{
+				buffer.append("抱歉！无法翻译" + (json.has("errorCode")? "，错误码是:"+json.getInt("errorCode") : ""));
 			}
 		}else{
 			buffer.append("无法进行翻译，请稍后重试");

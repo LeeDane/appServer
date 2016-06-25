@@ -804,7 +804,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 		}
 		
 		
-		List<Map<String, Object>> rs = userDao.executeSQL("select id, account, personal_introduction introduction, birth_day birth_day, mobile_phone phone, sex, email, qq, date_format(register_time,'%Y-%c-%d %H:%i:%s') create_time from t_user where status=? and account like '%"+searchKey+"%' order by create_time desc limit 25", ConstantsUtil.STATUS_NORMAL);
+		List<Map<String, Object>> rs = userDao.executeSQL("select id, account, personal_introduction introduction, date_format(birth_day,'%Y-%c-%d') birth_day, mobile_phone phone, sex, email, qq, date_format(register_time,'%Y-%c-%d %H:%i:%s') create_time from t_user where status=? and account like '%"+searchKey+"%' order by create_time desc limit 25", ConstantsUtil.STATUS_NORMAL);
 		if(rs != null && rs.size() > 0){
 			int id = 0;
 			for(int i = 0; i < rs.size(); i++){

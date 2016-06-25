@@ -485,19 +485,21 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 	public Map<String, Object> sendWord(JSONObject jsonObject, UserBean user, HttpServletRequest request) {
 		logger.info("MoodServiceImpl-->sendWord():jsonObject=" +jsonObject.toString());
 		String content = JsonUtil.getStringValue(jsonObject, "content");
+		//从客户端获取uuid(有图片的情况下)，为空表示无图，有图就有值
+		String uuid = JsonUtil.getStringValue(jsonObject, "uuid");
+				
 		Map<String, Object> message = new HashMap<String, Object>();
 		message.put("isSuccess", false);
 		//过滤掉emoji
 		content = EmojiUtil.filterEmoji(content);
 		
-		if(StringUtil.isNull(content)){
+		
+		//没有图片并且内容为空就报错返回
+		if(StringUtil.isNull(content) && StringUtil.isNull(uuid)){
 			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.某些参数为空.value));
 			message.put("responseCode", EnumUtil.ResponseCode.某些参数为空.value);
 			return message;
 		}
-		
-		//从客户端获取uuid(有图片的情况下)，为空表示无图，有图就有值
-		String uuid = JsonUtil.getStringValue(jsonObject, "uuid");
 		
 		//检测敏感词
 		SensitivewordFilter filter = new SensitivewordFilter();

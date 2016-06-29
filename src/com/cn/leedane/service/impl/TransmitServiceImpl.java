@@ -187,7 +187,7 @@ public class TransmitServiceImpl extends BaseServiceImpl<TransmitBean> implement
 	 */
 	private boolean checkTransmit(String tableName, int tableId, Map<String, Object> message) {
 		
-		List<Map<String, Object>> list = transmitDao.executeSQL("select id, can_transmit from "+tableName +" where id = ? limt 0,1", tableId);
+		List<Map<String, Object>> list = transmitDao.executeSQL("select id, can_transmit from "+tableName +" where id = ? limit 0,1", tableId);
 		//检查该实体数据是否数据存在,防止对不存在的对象添加转发
 		if(list == null || list.size() != 1){
 			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.没有操作实例.value));

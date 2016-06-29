@@ -78,7 +78,7 @@ public interface BaseDao<T extends Serializable> {
 	public boolean delete(T t);
 	
 	/**
-	 * 基础根据ID删除的方法
+	 * 基础根据表ID删除的方法
 	 * @param tableName  表的名称
 	 * @param id 表中的id字段的值
 	 * @return

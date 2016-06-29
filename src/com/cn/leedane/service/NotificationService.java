@@ -37,4 +37,14 @@ public interface NotificationService<T extends Serializable> extends BaseService
 	 */
 	public Map<String, Object> sendBroadcast(JSONObject jo, UserBean user,
 			HttpServletRequest request);
+	
+	/**
+	 * 删除通知
+	 * @param jo
+	 * @param user
+	 * @param request
+	 * @return
+	 */
+	public Map<String, Object> deleteNotification(JSONObject jo, UserBean user, HttpServletRequest request);
+	
 }

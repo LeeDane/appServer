@@ -159,4 +159,36 @@ public class NotificationServiceImpl extends BaseServiceImpl<NotificationBean> i
 		message.put("isSuccess", result);
 		return message;
 	}
+	
+	@Override
+	public Map<String, Object> deleteNotification(JSONObject jo, UserBean user,
+			HttpServletRequest request) {
+		logger.info("NotificationServiceImpl-->deleteNotification():jsonObject=" +jo.toString() +", user=" +user.getAccount());
+		Map<String, Object> message = new HashMap<String, Object>();
+		message.put("isSuccess", false);
+		int nid = JsonUtil.getIntValue(jo, "nid");
+		if(nid < 1){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.操作对象不存在.value));
+			message.put("responseCode", EnumUtil.ResponseCode.操作对象不存在.value);
+			return message;
+		}
+		NotificationBean notificationBean = notificationDao.findById(nid);
+		
+		boolean result = false;
+		if(notificationBean != null){
+			result = notificationDao.delete(notificationBean);
+			if(result){
+				message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.删除通知成功.value));
+			}
+		}else{
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.删除通知失败.value));
+			message.put("responseCode", EnumUtil.ResponseCode.删除通知失败.value);
+			return message;
+		}
+		
+		//保存操作日志
+		operateLogService.saveOperateLog(user, request, null, StringUtil.getStringBufferStr(user.getAccount(),"刪除通知Id为：", nid , StringUtil.getSuccessOrNoStr(result)).toString(), "deleteNotification()", ConstantsUtil.STATUS_NORMAL, 0);
+		message.put("isSuccess", result);
+		return message;
+	}
 }

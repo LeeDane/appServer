@@ -132,13 +132,11 @@ public class TransmitServiceImpl extends BaseServiceImpl<TransmitBean> implement
 			return message;
 		}
 		
-		//检查该实体数据是否数据存在,防止对不存在的对象添加评论
-		if(!recordExists(tableName, tableId)){
-			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.没有操作实例.value));
-			message.put("responseCode", EnumUtil.ResponseCode.没有操作实例.value);
+		//转发权限校验
+		if(!checkTransmit(tableName, tableId, message)){
 			return message;
 		}
-		
+
 		TransmitBean bean = new TransmitBean();
 		bean.setCreateTime(new Date());
 		bean.setCreateUser(user);
@@ -179,6 +177,30 @@ public class TransmitServiceImpl extends BaseServiceImpl<TransmitBean> implement
 		redisUtil.addString(key, count);
 		message.put("isSuccess", result);
 		return message;
+	}
+	
+	/**
+	 * 检验转发是否可以进行下去
+	 * @param tableName
+	 * @param tableId
+	 * @param message
+	 */
+	private boolean checkTransmit(String tableName, int tableId, Map<String, Object> message) {
+		
+		List<Map<String, Object>> list = transmitDao.executeSQL("select id, can_transmit from "+tableName +" where id = ? limt 0,1", tableId);
+		//检查该实体数据是否数据存在,防止对不存在的对象添加转发
+		if(list == null || list.size() != 1){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.没有操作实例.value));
+			message.put("responseCode", EnumUtil.ResponseCode.没有操作实例.value);
+			return false;
+		}
+		
+		boolean canTransmit = StringUtil.changeObjectToBoolean(list.get(0).get("can_transmit"));
+		if(!canTransmit){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.该资源现在不支持转发.value));
+			message.put("responseCode", EnumUtil.ResponseCode.该资源现在不支持转发.value);
+		}
+		return canTransmit;
 	}
 	
 	/**
@@ -329,4 +351,28 @@ public class TransmitServiceImpl extends BaseServiceImpl<TransmitBean> implement
 		return this.transmitDao.getTotalTransmits(userId);
 	}
 	
+	@Override
+	public Map<String, Object> updateTransmitStatus(JSONObject jo, UserBean user,
+			HttpServletRequest request) {
+		logger.info("TransmitServiceImpl-->updateTransmitStatus():jo="+jo.toString());
+		String tableName = JsonUtil.getStringValue(jo, "table_name");
+		int tableId = JsonUtil.getIntValue(jo, "table_id");
+		boolean canTransmit = JsonUtil.getBooleanValue(jo, "can_transmit", true);
+		Map<String, Object> message = new HashMap<String, Object>();
+		message.put("isSuccess", false);
+		
+		boolean result = transmitDao.updateSQL("update "+ tableName + " set can_transmit=? where id=?", canTransmit, tableId);
+		
+		if(result){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.更新转发状态成功.value));
+		}else{
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.更新转发状态失败.value));
+			message.put("responseCode", EnumUtil.ResponseCode.更新转发状态失败.value);
+		}
+		
+		//保存操作日志
+		operateLogService.saveOperateLog(user, request, null, StringUtil.getStringBufferStr(user.getAccount(),"更新表名为：", tableName ,",表ID为：", tableId, "转发状态为", canTransmit, "，结果更新", StringUtil.getSuccessOrNoStr(result)).toString(), "updateTransmitStatus()", ConstantsUtil.STATUS_NORMAL, 0);
+		message.put("isSuccess", result);
+		return message;
+	}
 }

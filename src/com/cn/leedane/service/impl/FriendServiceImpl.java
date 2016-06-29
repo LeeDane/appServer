@@ -264,25 +264,25 @@ public class FriendServiceImpl extends BaseServiceImpl<FriendBean> implements Fr
 		List<Map<String, Object>> rs = new ArrayList<>();
 	
 		if("firstloading".equalsIgnoreCase(method)){
-			sql.append("select id, to_user_id fid, '' introduce, date_format(modify_time,'%Y-%c-%d %H:%i:%s') create_time, status, (case when to_user_remark = '' || to_user_remark = null then (select u.account from t_user u where  u.id = to_user_id and u.status =?) else to_user_remark end ) remark from t_friend where from_user_id =? and status =?");
+			sql.append("select id, "+ ConstantsUtil.STATUS_DISABLE +" status, to_user_id fid, add_introduce introduce, date_format((case when modify_time is null then create_time else modify_time end),'%Y-%c-%d %H:%i:%s') create_time, (case when to_user_remark = '' || to_user_remark = null then (select u.account from t_user u where  u.id = to_user_id and u.status =?) else to_user_remark end ) remark from t_friend where from_user_id =? and status =?");
 			sql.append(" UNION");
-			sql.append(" select id, from_user_id fid, add_introduce introduce, date_format(modify_time,'%Y-%c-%d %H:%i:%s') create_time, status, (case when from_user_remark = '' || from_user_remark = null then (select u.account from t_user u where  u.id = from_user_id and u.status =?) else from_user_remark end ) remark from t_friend where to_user_id = ? and status =?");
+			sql.append(" select id, "+ 4 +" status, from_user_id fid, add_introduce introduce, date_format((case when modify_time is null then create_time else modify_time end),'%Y-%c-%d %H:%i:%s') create_time, (case when from_user_remark = '' || from_user_remark = null then (select u.account from t_user u where  u.id = from_user_id and u.status =?) else from_user_remark end ) remark from t_friend where to_user_id = ? and status =?");
 			sql.append(" order by id desc limit 0,?");
-			rs = friendDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_DISABLE, user.getId(), user.getId(),ConstantsUtil.STATUS_DISABLE, ConstantsUtil.STATUS_NORMAL, user.getId(), user.getId(), ConstantsUtil.STATUS_NORMAL, pageSize);
+			rs = friendDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, user.getId(),ConstantsUtil.STATUS_DISABLE, ConstantsUtil.STATUS_NORMAL, user.getId(), ConstantsUtil.STATUS_DISABLE, pageSize);
 		//下刷新
 		}else if("lowloading".equalsIgnoreCase(method)){
-			sql.append("select id, to_user_id fid, '' introduce, date_format(modify_time,'%Y-%c-%d %H:%i:%s') create_time, status, (case when to_user_remark = '' || to_user_remark = null then (select u.account from t_user u where  u.id = to_user_id and u.status =?) else to_user_remark end ) remark from t_friend where from_user_id =? and status =? and id < ?");
+			sql.append("select id, "+ ConstantsUtil.STATUS_DISABLE +" status, to_user_id fid, add_introduce introduce, date_format((case when modify_time is null then create_time else modify_time end),'%Y-%c-%d %H:%i:%s') create_time, (case when to_user_remark = '' || to_user_remark = null then (select u.account from t_user u where  u.id = to_user_id and u.status =?) else to_user_remark end ) remark from t_friend where from_user_id =? and status =? and id < ?");
 			sql.append(" UNION");
-			sql.append(" select id, from_user_id fid, add_introduce introduce, date_format(modify_time,'%Y-%c-%d %H:%i:%s') create_time, status, (case when from_user_remark = '' || from_user_remark = null then (select u.account from t_user u where  u.id = from_user_id and u.status =?) else from_user_remark end ) remark from t_friend where to_user_id = ? and status =?");
+			sql.append(" select id, "+ 4 +" status, from_user_id fid, add_introduce introduce, date_format((case when modify_time is null then create_time else modify_time end),'%Y-%c-%d %H:%i:%s') create_time, (case when from_user_remark = '' || from_user_remark = null then (select u.account from t_user u where  u.id = from_user_id and u.status =?) else from_user_remark end ) remark from t_friend where to_user_id = ? and status =?");
 			sql.append(" and id < ? order by id desc limit 0,? ");
-			rs = friendDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_DISABLE, user.getId(), user.getId(),ConstantsUtil.STATUS_DISABLE, lastId, ConstantsUtil.STATUS_NORMAL, user.getId(), user.getId(), ConstantsUtil.STATUS_NORMAL, lastId, pageSize);
+			rs = friendDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, user.getId(),ConstantsUtil.STATUS_DISABLE, lastId, ConstantsUtil.STATUS_NORMAL, user.getId(), ConstantsUtil.STATUS_DISABLE, lastId, pageSize);
 		//上刷新
 		}else if("uploading".equalsIgnoreCase(method)){
-			sql.append("select id, to_user_id fid, '' introduce, date_format(modify_time,'%Y-%c-%d %H:%i:%s') create_time, status, (case when to_user_remark = '' || to_user_remark = null then (select u.account from t_user u where  u.id = to_user_id and u.status =?) else to_user_remark end ) remark from t_friend where from_user_id =? and status =? and id > ?");
+			sql.append("select id, "+ ConstantsUtil.STATUS_DISABLE +" status, to_user_id fid, add_introduce introduce, date_format((case when modify_time is null then create_time else modify_time end),'%Y-%c-%d %H:%i:%s') create_time, (case when to_user_remark = '' || to_user_remark = null then (select u.account from t_user u where  u.id = to_user_id and u.status =?) else to_user_remark end ) remark from t_friend where from_user_id =? and status =? and id > ?");
 			sql.append(" UNION");
-			sql.append(" select id, from_user_id fid, add_introduce introduce, date_format(modify_time,'%Y-%c-%d %H:%i:%s') create_time, status, (case when from_user_remark = '' || from_user_remark = null then (select u.account from t_user u where  u.id = from_user_id and u.status =?) else from_user_remark end ) remark from t_friend where to_user_id = ? and status =?");
+			sql.append(" select id, "+ 4 +" status, from_user_id fid, add_introduce introduce, date_format((case when modify_time is null then create_time else modify_time end),'%Y-%c-%d %H:%i:%s') create_time, (case when from_user_remark = '' || from_user_remark = null then (select u.account from t_user u where  u.id = from_user_id and u.status =?) else from_user_remark end ) remark from t_friend where to_user_id = ? and status =?");
 			sql.append(" and id > ? limit 0,? ");
-			rs = friendDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_DISABLE, user.getId(), user.getId(),ConstantsUtil.STATUS_DISABLE, firstId, ConstantsUtil.STATUS_NORMAL, user.getId(), user.getId(), ConstantsUtil.STATUS_NORMAL, firstId, pageSize);
+			rs = friendDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, user.getId(),ConstantsUtil.STATUS_DISABLE, firstId, ConstantsUtil.STATUS_NORMAL, user.getId(), ConstantsUtil.STATUS_DISABLE, firstId, pageSize);
 		}
 		
 		if(rs !=null && rs.size() > 0){

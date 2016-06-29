@@ -5,15 +5,16 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.junit.Test;
-
 import net.sf.json.JSONObject;
+
+import org.junit.Test;
 
 import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.bean.ChatBean;
 import com.cn.leedane.bean.UserBean;
+import com.cn.leedane.message.JPushMessageNotificationImpl;
 import com.cn.leedane.message.JpushCustomMessage;
-import com.cn.leedane.message.notification.Notification;
+import com.cn.leedane.message.notification.MessageNotification;
 import com.cn.leedane.service.UserService;
 import com.cn.leedane.service.impl.ChatServiceImpl;
 
@@ -55,6 +56,15 @@ public class JPushTest extends BaseTest{
 	private UserService<UserBean> userService;
 	
 	/**
+	 * 测试通知
+	 */
+	@Test
+	public void notification() {
+		MessageNotification message= new JPushMessageNotificationImpl();
+		System.out.println(message.sendToAlias("leedane_user_"+1, "hello leedane"));
+	}
+	
+	/**
 	 * 测试发送聊天
 	 */
 	@Test
@@ -62,10 +72,10 @@ public class JPushTest extends BaseTest{
 		UserBean user = userService.findById(1);
 		if(user == null){
 			user = new UserBean();
-			user.setId(1);
+			user.setId(11);
 		}
 		ChatBean chatBean = new ChatBean();
-		chatBean.setId(1104);
+		chatBean.setId(1107);
 		chatBean.setContent("测试内容1");
 		chatBean.setCreateTime(new Date());
 		chatBean.setCreateUser(user);
@@ -75,7 +85,7 @@ public class JPushTest extends BaseTest{
 		
 		Map<String, Object> chatMap = ChatServiceImpl.chatBeanToMap(chatBean);
 		JpushCustomMessage message= new JpushCustomMessage();
-		System.out.println(message.sendToAlias("leedane_user_11", JSONObject.fromObject(chatMap).toString(), "toUserId", "1"));
+		System.out.println(message.sendToAlias("leedane_user_1", JSONObject.fromObject(chatMap).toString(), "toUserId", "1"));
 	}
 	
 }

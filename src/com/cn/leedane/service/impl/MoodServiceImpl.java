@@ -2,7 +2,6 @@ package com.cn.leedane.service.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,9 +21,9 @@ import com.cn.leedane.Utils.DateUtil;
 import com.cn.leedane.Utils.EmojiUtil;
 import com.cn.leedane.Utils.EnumUtil;
 import com.cn.leedane.Utils.EnumUtil.NotificationType;
-import com.cn.leedane.Utils.SensitiveWord.SensitivewordFilter;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
+import com.cn.leedane.Utils.SensitiveWord.SensitivewordFilter;
 import com.cn.leedane.bean.FilePathBean;
 import com.cn.leedane.bean.FriendBean;
 import com.cn.leedane.bean.MoodBean;
@@ -529,6 +528,8 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 		moodBean.setStatus(ConstantsUtil.STATUS_NORMAL);
 		moodBean.setCreateUser(user);
 		moodBean.setUuid(uuid);
+		moodBean.setCanComment(JsonUtil.getBooleanValue(jsonObject, "can_comment", true));
+		moodBean.setCanTransmit(JsonUtil.getBooleanValue(jsonObject, "can_transmit", true));
 		if(!StringUtil.isNull(uuid)){
 			moodBean.setHasImg(true);
 		}
@@ -628,4 +629,5 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 		message.put("message", rs);
 		return message;
 	}
+
 }

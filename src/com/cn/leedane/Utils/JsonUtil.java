@@ -124,6 +124,22 @@ public class JsonUtil {
 	}
 	
 	/**
+	 * 从json对象中获取key对应的值，没有该key返回defaultValue
+	 * @param object json对象
+	 * @param key  键名称
+	 * @return
+	 */
+	public static boolean getBooleanValue(JSONObject object, String key, boolean defaultValue){
+		if(JsonUtil.hasKey(object, key)){
+			if("true".equals(String.valueOf(object.get(key)))){
+				return true;
+			}
+			return false;
+		}
+		return defaultValue;
+	}
+	
+	/**
 	 * 从json对象中获取key对应的值，没有该key返回0
 	 * @param object json对象
 	 * @param key  键名称

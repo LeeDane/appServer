@@ -64,4 +64,14 @@ public interface TransmitService<T extends Serializable> extends BaseService<Tra
 	 * @return
 	 */
 	public int getTotalTransmits(int userId);
+	
+
+	/**
+	 * 更改转发编辑状态
+	 * @param jo
+	 * @param user
+	 * @param request
+	 * @return
+	 */
+	public Map<String, Object> updateTransmitStatus(JSONObject jo, UserBean user, HttpServletRequest request);
 }

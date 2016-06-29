@@ -144,10 +144,8 @@ public class CommentServiceImpl extends BaseServiceImpl<CommentBean> implements 
 			return message;
 		}
 		
-		//检查该实体数据是否数据存在,防止对不存在的对象添加评论
-		if(!recordExists(tableName, tableId)){
-			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.没有操作实例.value));
-			message.put("responseCode", EnumUtil.ResponseCode.没有操作实例.value);
+		//评论权限校验
+		if(!checkComment(tableName, tableId, message)){
 			return message;
 		}
 		
@@ -204,6 +202,30 @@ public class CommentServiceImpl extends BaseServiceImpl<CommentBean> implements 
 		return message;
 	}
 	
+	/**
+	 * 检验评论是否可以进行下去
+	 * @param tableName
+	 * @param tableId
+	 * @param message
+	 */
+	private boolean checkComment(String tableName, int tableId, Map<String, Object> message) {
+		
+		List<Map<String, Object>> list = commentDao.executeSQL("select id, can_comment from "+tableName +" where id = ? limt 0,1", tableId);
+		//检查该实体数据是否数据存在,防止对不存在的对象添加评论
+		if(list == null || list.size() != 1){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.没有操作实例.value));
+			message.put("responseCode", EnumUtil.ResponseCode.没有操作实例.value);
+			return false;
+		}
+		
+		boolean canComment = StringUtil.changeObjectToBoolean(list.get(0).get("can_comment"));
+		if(!canComment){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.该资源现在不支持评论.value));
+			message.put("responseCode", EnumUtil.ResponseCode.该资源现在不支持评论.value);
+		}
+		return canComment;
+	}
+
 	/**
 	 * 根据评论的ID获取评论的创建人ID
 	 * @param commentId
@@ -510,4 +532,28 @@ public class CommentServiceImpl extends BaseServiceImpl<CommentBean> implements 
 		return this.commentDao.getTotalComments(userId);
 	}
 	
+	@Override
+	public Map<String, Object> updateCommentStatus(JSONObject jo, UserBean user,
+			HttpServletRequest request) {
+		logger.info("CommentServiceImpl-->updateCommentStatus():jo="+jo.toString());
+		String tableName = JsonUtil.getStringValue(jo, "table_name");
+		int tableId = JsonUtil.getIntValue(jo, "table_id");
+		boolean canComment = JsonUtil.getBooleanValue(jo, "can_comment", true);
+		Map<String, Object> message = new HashMap<String, Object>();
+		message.put("isSuccess", false);
+		
+		boolean result = commentDao.updateSQL("update "+ tableName + " set can_comment=? where id=?", canComment, tableId);
+		
+		if(result){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.更新评论状态成功.value));
+		}else{
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.更新评论状态失败.value));
+			message.put("responseCode", EnumUtil.ResponseCode.更新评论状态失败.value);
+		}
+		
+		//保存操作日志
+		operateLogService.saveOperateLog(user, request, null, StringUtil.getStringBufferStr(user.getAccount(),"更新表名为：", tableName ,",表ID为：", tableId, "评论状态为", canComment, "，结果更新", StringUtil.getSuccessOrNoStr(result)).toString(), "updateCommentStatus()", ConstantsUtil.STATUS_NORMAL, 0);
+		message.put("isSuccess", result);
+		return message;
+	}
 }

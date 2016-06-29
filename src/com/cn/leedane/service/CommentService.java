@@ -92,4 +92,13 @@ public interface CommentService<T extends Serializable> extends BaseService<Comm
 	 * @return
 	 */
 	public Map<String, Object> deleteComment(JSONObject jo, UserBean user, HttpServletRequest request);
+	
+	/**
+	 * 更改评论编辑状态
+	 * @param jo
+	 * @param user
+	 * @param request
+	 * @return
+	 */
+	public Map<String, Object> updateCommentStatus(JSONObject jo, UserBean user, HttpServletRequest request);
 }

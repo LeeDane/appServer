@@ -89,6 +89,16 @@ public class BlogBean extends RecordTimeBean{
 	 */
 	private String source; 
 	
+	 /**
+     * 是否可以评论(默认可以评论)
+     */
+    private boolean canComment;
+    
+    /**
+     * 是否可以转发(默认可以转发)
+     */
+    private boolean canTransmit;
+	
 	/**
 	 * 该条博客是否被索引了
 	 */
@@ -336,4 +346,20 @@ public class BlogBean extends RecordTimeBean{
 	public void setSolrIndex(boolean isSolrIndex) {
 		this.isSolrIndex = isSolrIndex;
 	}	
+	
+	@Column(name="can_comment", columnDefinition="bit(1) default 1")
+	public boolean isCanComment() {
+		return canComment;
+	}
+	public void setCanComment(boolean canComment) {
+		this.canComment = canComment;
+	}
+	
+	@Column(name="can_transmit", columnDefinition="bit(1) default 1")
+	public boolean isCanTransmit() {
+		return canTransmit;
+	}
+	public void setCanTransmit(boolean canTransmit) {
+		this.canTransmit = canTransmit;
+	}
 }

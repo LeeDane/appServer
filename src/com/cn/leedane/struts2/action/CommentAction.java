@@ -179,4 +179,29 @@ public class CommentAction extends BaseActionContext{
 		message.put("responseCode", EnumUtil.ResponseCode.服务器处理异常.value);
         return SUCCESS;
 	}
+	
+	/**
+	 * 更改评论编辑状态
+	 * {'can_comment':true, 'table_name':'t_mood', 'table_id': 1},所有参数全部必须
+	 * @return
+	 */
+	public String updateCommentStatus(){
+		message.put("isSuccess", resIsSuccess);
+		try {
+			JSONObject jo = HttpUtils.getJsonObjectFromInputStream(params,request);
+			if(jo == null || jo.isEmpty()) {	
+				message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.缺少请求参数.value));
+				message.put("responseCode", EnumUtil.ResponseCode.缺少请求参数.value);
+				return SUCCESS;
+			}
+			message.putAll(commentService.updateCommentStatus(jo, user, request));
+			return SUCCESS;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.服务器处理异常.value));
+		message.put("responseCode", EnumUtil.ResponseCode.服务器处理异常.value);
+        return SUCCESS;
+	}
+	
 }

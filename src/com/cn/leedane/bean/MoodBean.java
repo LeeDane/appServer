@@ -60,6 +60,16 @@ public class MoodBean extends RecordTimeBean{
      * 纬度
      */
     private double latitude;
+    
+    /**
+     * 是否可以评论(默认可以评论)
+     */
+    private boolean canComment;
+    
+    /**
+     * 是否可以转发(默认可以转发)
+     */
+    private boolean canTransmit;
 	
 	/**
 	 * 阅读次数
@@ -231,5 +241,19 @@ public class MoodBean extends RecordTimeBean{
 		this.latitude = latitude;
 	}
 	
+	@Column(name="can_comment", columnDefinition="bit(1) default 1")
+	public boolean isCanComment() {
+		return canComment;
+	}
+	public void setCanComment(boolean canComment) {
+		this.canComment = canComment;
+	}
 	
+	@Column(name="can_transmit", columnDefinition="bit(1) default 1")
+	public boolean isCanTransmit() {
+		return canTransmit;
+	}
+	public void setCanTransmit(boolean canTransmit) {
+		this.canTransmit = canTransmit;
+	}
 }

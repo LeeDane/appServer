@@ -266,12 +266,14 @@ public class NotificationHandler {
 					robotReply = "你在说什么？没听见";
 				}
 				
+				UserBean robotUser = userService.findById(robotId);
+				
 				//保存评论记录
 				CommentBean bean = new CommentBean();
 				bean.setCommentLevel(0);
 				bean.setContent(robotReply);
 				bean.setCreateTime(new Date());
-				bean.setCreateUser(userService.findById(robotId));
+				bean.setCreateUser(robotUser);
 				bean.setPid(pid);
 				bean.setFroms("机器人自动回复");
 				bean.setStatus(ConstantsUtil.STATUS_NORMAL);
@@ -283,7 +285,7 @@ public class NotificationHandler {
 					String notificationContent = robotName +"回复您："+robotReply;
 					Set<Integer> ids = new HashSet<Integer>();
 					ids.add(user.getId());
-					sendNotificationByIds(true, user, ids, notificationContent, NotificationType.艾特我, tableName, tableId, objectBean);
+					sendNotificationByIds(true, robotUser, ids, notificationContent, NotificationType.艾特我, tableName, tableId, objectBean);
 				}
 			}
 		}	

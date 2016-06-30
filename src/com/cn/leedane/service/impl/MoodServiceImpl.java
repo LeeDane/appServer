@@ -600,7 +600,7 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 			return message;
 		}
 		
-		List<Map<String, Object>> rs = moodDao.executeSQL("select id, content, uuid, froms, create_user_id, date_format(create_time,'%Y-%c-%d %H:%i:%s') create_time, has_img , m.can_comment, m.can_transmit from "+DataTableType.心情.value+" where status=? and content like '%"+searchKey+"%' order by create_time desc limit 25", ConstantsUtil.STATUS_NORMAL);
+		List<Map<String, Object>> rs = moodDao.executeSQL("select id, content, uuid, froms, create_user_id, date_format(create_time,'%Y-%c-%d %H:%i:%s') create_time, has_img , can_comment, can_transmit from "+DataTableType.心情.value+" where status=? and content like '%"+searchKey+"%' order by create_time desc limit 25", ConstantsUtil.STATUS_NORMAL);
 		if(rs != null && rs.size() > 0){
 			int createUserId = 0;
 			boolean hasImg;

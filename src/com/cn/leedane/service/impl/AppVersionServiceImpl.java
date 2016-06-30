@@ -15,6 +15,7 @@ import com.cn.leedane.Dao.FilePathDao;
 import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.bean.FilePathBean;
 import com.cn.leedane.bean.OperateLogBean;
 import com.cn.leedane.bean.UserBean;
@@ -63,7 +64,7 @@ public class AppVersionServiceImpl extends BaseServiceImpl<FilePathBean> impleme
 			if(oldFileId > 0){
 				StringBuffer sql = new StringBuffer();
 				sql.append("select f.id, f.file_desc, f.file_version, f.qiniu_path path, lenght");
-				sql.append(" from t_file_path f");
+				sql.append(" from "+DataTableType.文件.value+" f");
 				sql.append(" where f.status=? and f.id >? and f.is_upload_qiniu = ? and f.table_name=? order by f.id desc limit 1");
 				list = filePathDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, oldFileId, true, ConstantsUtil.UPLOAD_APP_VERSION_TABLE_NAME);
 			}else{
@@ -86,7 +87,7 @@ public class AppVersionServiceImpl extends BaseServiceImpl<FilePathBean> impleme
 	 * @return
 	 */
 	private int check(String versionName){
-		String sql = "select id from t_file_path where status = ? and table_name=? and  file_version = ? and is_upload_qiniu = ? limit 1";
+		String sql = "select id from "+DataTableType.文件.value+" where status = ? and table_name=? and  file_version = ? and is_upload_qiniu = ? limit 1";
 		List<Map<String, Object>> list = filePathDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, ConstantsUtil.UPLOAD_APP_VERSION_TABLE_NAME, versionName, true );
 		return list != null && list.size() == 1? StringUtil.changeObjectToInt(list.get(0).get("id")) : 0;
 	}
@@ -99,7 +100,7 @@ public class AppVersionServiceImpl extends BaseServiceImpl<FilePathBean> impleme
 		List<Map<String, Object>>  list = new ArrayList<Map<String,Object>>();
 		StringBuffer sql = new StringBuffer();
 		sql.append("select f.id, f.file_desc, f.file_version, f.qiniu_path path, f.lenght");
-		sql.append(" from t_file_path f");
+		sql.append(" from "+DataTableType.文件.value+" f");
 		sql.append(" where f.status=? and f.is_upload_qiniu = ? and f.table_name=? order by f.id desc limit 1");
 		list = filePathDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, true, ConstantsUtil.UPLOAD_APP_VERSION_TABLE_NAME);
 		return list;

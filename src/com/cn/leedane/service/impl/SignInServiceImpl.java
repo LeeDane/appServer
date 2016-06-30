@@ -18,6 +18,7 @@ import com.cn.leedane.Utils.DateUtil;
 import com.cn.leedane.Utils.EnumUtil;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.bean.OperateLogBean;
 import com.cn.leedane.bean.ScoreBean;
 import com.cn.leedane.bean.SignInBean;
@@ -153,7 +154,7 @@ public class SignInServiceImpl extends BaseServiceImpl<SignInBean> implements Si
 			scoreBean.setDesc("用户签到");
 			scoreBean.setStatus(ConstantsUtil.STATUS_NORMAL);
 			scoreBean.setTableId(signInBean.getId());
-			scoreBean.setTableName("t_sign_in");
+			scoreBean.setTableName(DataTableType.签到.value);
 			isSave = scoreService.save(scoreBean);
 			//标记为已经添加
 			if(isSave && !hasHistorySign){
@@ -198,7 +199,7 @@ public class SignInServiceImpl extends BaseServiceImpl<SignInBean> implements Si
 		StringBuffer sql = new StringBuffer();
 		sql.append("select s.id, s.pid, s.score, s.create_user_id");
 		sql.append(" , date_format(s.create_time,'%Y-%c-%d %H:%i:%s') create_time, s.continuous");
-		sql.append(" from T_SIGN_IN s inner join t_user u on u.id = s.create_user_id where s.create_user_id = ? and s.status = ? and DATE(s.create_time) between ? and ? ");
+		sql.append(" from "+DataTableType.签到.value+" s inner join "+DataTableType.用户.value+" u on u.id = s.create_user_id where s.create_user_id = ? and s.status = ? and DATE(s.create_time) between ? and ? ");
 		sql.append(" order by s.id desc");
 		sql.append(getLimitSQL(pageSize));
 		rs = signInDao.executeSQL(sql.toString(), uid, ConstantsUtil.STATUS_NORMAL, startDate, endDate);

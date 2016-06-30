@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.cn.leedane.Utils.ConstantsUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.bean.TransmitBean;
 import com.cn.leedane.redis.util.RedisUtil;
 import com.cn.leedane.service.TransmitService;
@@ -32,7 +33,7 @@ public class TransmitHandler {
 		int transmitNumber;
 		//转发
 		if(!redisUtil.hasKey(transmitKey)){
-			transmitNumber = transmitService.getTotal("t_transmit", "where table_id = "+tableId+" and table_name='"+tableName+"'");
+			transmitNumber = transmitService.getTotal(DataTableType.转发.value, "where table_id = "+tableId+" and table_name='"+tableName+"'");
 			redisUtil.addString(transmitKey, String.valueOf(transmitNumber));
 		}else{
 			transmitNumber = Integer.parseInt(redisUtil.getString(transmitKey));
@@ -50,7 +51,7 @@ public class TransmitHandler {
 		int transmitNumber;
 		//转发
 		if(!redisUtil.hasKey(transmitKey)){
-			transmitNumber = transmitService.getTotal("t_transmit", "where table_id = "+tableId+" and table_name='"+tableName+"'");
+			transmitNumber = transmitService.getTotal(DataTableType.转发.value, "where table_id = "+tableId+" and table_name='"+tableName+"'");
 			redisUtil.addString(transmitKey, String.valueOf(transmitNumber));
 		}else{
 			transmitNumber = Integer.parseInt(redisUtil.getString(transmitKey));

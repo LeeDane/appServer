@@ -20,6 +20,7 @@ import org.junit.Test;
 import com.cn.leedane.Utils.EnumUtil;
 import com.cn.leedane.Utils.SpringUtils;
 import com.cn.leedane.Utils.StringUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.bean.BlogBean;
 import com.cn.leedane.bean.CrawlBean;
 import com.cn.leedane.bean.UserBean;
@@ -124,7 +125,7 @@ public class CrawlTest extends BaseTest {
 					//从数据库中把插入的数据再次加进索引中
 					/*if(blog.getId() > 0){
 						//List<Map<String, Object>> lists = blogService.loadById(blog.getId());
-						//blogService.searchBlog("select * from t_blog where source = '散文网' and index = false ");
+						//blogService.searchBlog("select * from "+DataTableType.博客.value+" where source = '散文网' and index = false ");
 						Document document = dealListToDocument(blog);
 						try {
 							new LuceneUtil().simpleIndexOne(document);

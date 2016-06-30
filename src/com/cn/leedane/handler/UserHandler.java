@@ -15,6 +15,7 @@ import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.DateUtil;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.bean.UserBean;
 import com.cn.leedane.redis.util.RedisUtil;
 import com.cn.leedane.service.UserService;
@@ -82,7 +83,7 @@ public class UserHandler {
 			userPicPath = redisUtil.getString(userPicKey);
 		}else{
 			//查找数据库，找到用户的头像
-			List<Map<String, Object>> list = userService.executeSQL("select qiniu_path user_pic_path from t_file_path f where is_upload_qiniu=? and f.table_name = 't_user' and f.table_uuid = ? and f.pic_order = 0 "+buildPicSizeSQL("30x30")+" order by id desc limit 1", true, userId);
+			List<Map<String, Object>> list = userService.executeSQL("select qiniu_path user_pic_path from "+DataTableType.文件.value+" f where is_upload_qiniu=? and f.table_name = '"+DataTableType.用户.value+"' and f.table_uuid = ? and f.pic_order = 0 "+buildPicSizeSQL("30x30")+" order by id desc limit 1", true, userId);
 			if(list != null && list.size()>0){
 				userPicPath = StringUtil.changeNotNull(list.get(0).get("user_pic_path"));
 				if(StringUtil.isNotNull(userPicPath))
@@ -107,7 +108,7 @@ public class UserHandler {
 			redisUtil.delete(userPicKey);
 		}
 		//查找数据库，找到用户的头像
-		List<Map<String, Object>> list = userService.executeSQL("select qiniu_path user_pic_path from t_file_path f where is_upload_qiniu=? and f.table_name = 't_user' and f.table_uuid = ? and f.pic_order = 0 "+buildPicSizeSQL("30x30")+" order by id desc limit 1", true, userId);
+		List<Map<String, Object>> list = userService.executeSQL("select qiniu_path user_pic_path from "+DataTableType.文件.value+" f where is_upload_qiniu=? and f.table_name = '"+DataTableType.用户.value+"' and f.table_uuid = ? and f.pic_order = 0 "+buildPicSizeSQL("30x30")+" order by id desc limit 1", true, userId);
 		if(list != null && list.size()>0){
 			userPicPath = StringUtil.changeNotNull(list.get(0).get("user_pic_path"));
 			if(StringUtil.isNotNull(userPicPath))
@@ -126,7 +127,7 @@ public class UserHandler {
 			userInfo = JSONObject.fromObject(redisUtil.getString(userInfoKey));
 		}else{
 			//查找数据库，找到用户的头像
-			List<Map<String, Object>> list = userService.executeSQL("select id, account, email, age, mobile_phone, qq, sex, is_admin, no_login_code, personal_introduction from t_user u where status=? and id=? limit 1", ConstantsUtil.STATUS_NORMAL, userId);
+			List<Map<String, Object>> list = userService.executeSQL("select id, account, email, age, mobile_phone, qq, sex, is_admin, no_login_code, personal_introduction from "+DataTableType.用户.value+" u where status=? and id=? limit 1", ConstantsUtil.STATUS_NORMAL, userId);
 			if(list != null && list.size()>0){
 				userInfo = JSONObject.fromObject(list.get(0));
 				redisUtil.addString(userInfoKey, userInfo.toString());

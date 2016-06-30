@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.JsonUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.bean.MoodBean;
 import com.cn.leedane.bean.TimeLineBean;
 import com.cn.leedane.bean.UserBean;
@@ -252,7 +253,7 @@ public class CircleOfFriendsHandler {
 			StringBuffer sql = new StringBuffer();
 			sql.append("select m.id, m.content, m.froms, m.uuid, m.create_user_id, date_format(m.create_time,'%Y-%c-%d %H:%i:%s') create_time, m.has_img,");
 			sql.append(" m.read_number, m.zan_number, m.comment_number, m.transmit_number, m.share_number, u.account");
-			sql.append(" from t_mood m inner join t_user u on u.id = m.create_user_id where m.status = ? and ");
+			sql.append(" from "+DataTableType.心情.value+" m inner join "+DataTableType.用户.value+" u on u.id = m.create_user_id where m.status = ? and ");
 			sql.append(" m.create_user_id = ?");
 			sql.append(" order by m.id desc");
 			//rs = moodService.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, userId);

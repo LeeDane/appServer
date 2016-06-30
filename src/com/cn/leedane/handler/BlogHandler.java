@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.cn.leedane.Utils.ConstantsUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.Utils.StringUtil;
 import com.cn.leedane.bean.BlogBean;
 import com.cn.leedane.bean.UserBean;
@@ -87,8 +88,8 @@ public class BlogHandler {
 		if(!redisUtil.hasKey(blogKey)){
 			StringBuffer sql = new StringBuffer();
 			sql.append("select b.id, b.img_url, b.title, b.has_img, b.tag, date_format(b.create_time,'%Y-%c-%d %H:%i:%s') create_time");
-			sql.append(" , b.digest, b.froms, b.create_user_id, (select account from t_user where id = b.create_user_id) account");
-			sql.append(" from t_blog b");
+			sql.append(" , b.digest, b.froms, b.create_user_id, (select account from "+DataTableType.用户.value+" where id = b.create_user_id) account");
+			sql.append(" from "+DataTableType.博客.value+" b");
 			sql.append(" where b.id=? ");
 			sql.append(" and b.status = ?");
 			list = blogService.executeSQL(sql.toString(), blogId, ConstantsUtil.STATUS_NORMAL);
@@ -103,10 +104,10 @@ public class BlogHandler {
 		}
 		
 		if(list != null && list.size() == 1 && !onlyContent){
-			list.get(0).put("comment_number", commentHandler.getCommentNumber(blogId, "t_blog"));
-			list.get(0).put("transmit_number", transmitHandler.getTransmitNumber(blogId, "t_blog"));
-			list.get(0).put("zan_number", zanHandler.getZanNumber(blogId, "t_blog"));
-//			list.get(0).put("zan_users", zanHandler.getZanUser(blogId, "t_blog", user, 6));
+			list.get(0).put("comment_number", commentHandler.getCommentNumber(blogId, DataTableType.博客.value));
+			list.get(0).put("transmit_number", transmitHandler.getTransmitNumber(blogId, DataTableType.博客.value));
+			list.get(0).put("zan_number", zanHandler.getZanNumber(blogId, DataTableType.博客.value));
+//			list.get(0).put("zan_users", zanHandler.getZanUser(blogId, DataTableType.博客.value, user, 6));
 //			int createUserId = StringUtil.changeObjectToInt(list.get(0).get("create_user_id"));
 			//暂时没用上图片
 //			if( createUserId > 0)

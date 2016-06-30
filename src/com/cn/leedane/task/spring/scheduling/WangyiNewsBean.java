@@ -15,6 +15,7 @@ import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.EnumUtil;
 import com.cn.leedane.Utils.JsoupUtil;
 import com.cn.leedane.Utils.StringUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.bean.BlogBean;
 import com.cn.leedane.bean.CrawlBean;
 import com.cn.leedane.bean.UserBean;
@@ -86,7 +87,7 @@ public class WangyiNewsBean {
 					if( wangyi != null && wangyi.getContent() != null && !wangyi.getContent().trim().equals("")&& wangyi.getTitle() != null && !wangyi.getTitle().trim().equals("")){
 						
 						//判断是否已经存在相同的信息
-						List<Map<String, Object>> existsBlogs = blogService.executeSQL("select id from t_blog where origin_link != '' and origin_link = ? ", bean.getUrl());
+						List<Map<String, Object>> existsBlogs = blogService.executeSQL("select id from "+DataTableType.博客.value+" where origin_link != '' and origin_link = ? ", bean.getUrl());
 						if(existsBlogs!= null && existsBlogs.size() > 0){
 							continue;
 						}

@@ -6,6 +6,7 @@ import net.sf.json.JSONObject;
 
 import org.junit.Test;
 
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.bean.CollectionBean;
 import com.cn.leedane.bean.UserBean;
 import com.cn.leedane.service.CollectionService;
@@ -27,7 +28,7 @@ public class CollectionTest extends BaseTest {
 	
 	@Test
 	public void add() throws Exception{
-		String str = "{'table_name':'t_mood', 'table_id':1}";
+		String str = "{'table_name':'"+DataTableType.心情.value+"', 'table_id':1}";
 		JSONObject jsonObject = JSONObject.fromObject(str);
 		UserBean user = userService.findById(3);
 		System.out.println(collectionService.addCollect(jsonObject, user, null));
@@ -35,7 +36,7 @@ public class CollectionTest extends BaseTest {
 	
 	@Test
 	public void cancel() throws Exception{
-		String str = "{'table_name':'t_mood', 'table_id':1}";
+		String str = "{'table_name':'"+DataTableType.心情.value+"', 'table_id':1}";
 		JSONObject jsonObject = JSONObject.fromObject(str);
 		UserBean user = userService.findById(1);
 		System.out.println(collectionService.deleteCollection(jsonObject, user, null));

@@ -19,6 +19,7 @@ import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.EnumUtil;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.bean.AttentionBean;
 import com.cn.leedane.bean.OperateLogBean;
 import com.cn.leedane.bean.UserBean;
@@ -74,7 +75,7 @@ public class AttentionServiceImpl extends BaseServiceImpl<AttentionBean> impleme
 	@Override
 	public boolean addAttention(JSONObject jo, UserBean user,
 			HttpServletRequest request) {
-		//{\"table_name\":\"t_mood\", \"table_id\":2334}
+		//{\"table_name\":\""+DataTableType.心情.value+"\", \"table_id\":2334}
 		logger.info("AttentionServiceImpl-->addAttention():jsonObject=" +jo.toString() +", user=" +user.getAccount());
 		String tableName = JsonUtil.getStringValue(jo, "table_name");
 		int tableId = JsonUtil.getIntValue(jo, "table_id");
@@ -153,19 +154,19 @@ public class AttentionServiceImpl extends BaseServiceImpl<AttentionBean> impleme
 		if(toUserId > 0 && toUserId == user.getId()){		
 			if("firstloading".equalsIgnoreCase(method)){
 				sql.append("select a.id, a.table_name, a.table_id, a.create_user_id, u.account, date_format(a.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-				sql.append(" from t_attention a inner join t_user u on u.id = a.create_user_id where a.create_user_id = ? and a.status = ? ");
+				sql.append(" from "+DataTableType.关注.value+" a inner join "+DataTableType.用户.value+" u on u.id = a.create_user_id where a.create_user_id = ? and a.status = ? ");
 				sql.append(" order by a.id desc limit 0,?");
 				rs = attentionDao.executeSQL(sql.toString(), toUserId, ConstantsUtil.STATUS_NORMAL, pageSize);
 			//下刷新
 			}else if("lowloading".equalsIgnoreCase(method)){
 				sql.append("select a.id, a.table_name, a.table_id, a.create_user_id, u.account, date_format(a.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-				sql.append(" from t_attention a inner join t_user u on u.id = a.create_user_id where a.create_user_id = ? and a.status = ?");
+				sql.append(" from "+DataTableType.关注.value+" a inner join "+DataTableType.用户.value+" u on u.id = a.create_user_id where a.create_user_id = ? and a.status = ?");
 				sql.append(" and a.id < ? order by a.id desc limit 0,? ");
 				rs = attentionDao.executeSQL(sql.toString(), toUserId, ConstantsUtil.STATUS_NORMAL, lastId, pageSize);
 			//上刷新
 			}else if("uploading".equalsIgnoreCase(method)){
 				sql.append("select a.id, a.table_name, a.table_id, a.create_user_id, u.account, date_format(a.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-				sql.append(" from t_attention a inner join t_user u on u.id = a.create_user_id where a.create_user_id = ? and a.status = ? ");
+				sql.append(" from "+DataTableType.关注.value+" a inner join "+DataTableType.用户.value+" u on u.id = a.create_user_id where a.create_user_id = ? and a.status = ? ");
 				sql.append(" and a.id > ? limit 0,?  ");
 				rs = attentionDao.executeSQL(sql.toString() , toUserId, ConstantsUtil.STATUS_NORMAL, firstId, pageSize);
 			}
@@ -175,19 +176,19 @@ public class AttentionServiceImpl extends BaseServiceImpl<AttentionBean> impleme
 		/*if(StringUtil.isNotNull(tableName) && toUserId < 1 && tableId > 0){
 			if("firstloading".equalsIgnoreCase(method)){
 				sql.append("select a.id, a.table_name, a.table_id, a.create_user_id, u.account, date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-				sql.append(" from t_attention a inner join t_user u on u.id = a.create_user_id where  a.status = ? and a.table_name = ? and a.table_id = ?");
+				sql.append(" from "+DataTableType.关注.value+" a inner join "+DataTableType.用户.value+" u on u.id = a.create_user_id where  a.status = ? and a.table_name = ? and a.table_id = ?");
 				sql.append(" order by a.id desc limit 0,?");
 				rs = attentionDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, tableName, tableId, pageSize);
 			//下刷新
 			}else if("lowloading".equalsIgnoreCase(method)){
 				sql.append("select a.id, a.table_name, a.table_id, a.create_user_id, u.account, date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-				sql.append(" from t_attention a inner join t_user u on u.id = a.create_user_id where a.status = ? and a.table_name = ? and a.table_id = ?");
+				sql.append(" from "+DataTableType.关注.value+" a inner join "+DataTableType.用户.value+" u on u.id = a.create_user_id where a.status = ? and a.table_name = ? and a.table_id = ?");
 				sql.append(" and a.id < ? order by a.id desc limit 0,? ");
 				rs = attentionDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, tableName, tableId, lastId, pageSize);
 			//上刷新
 			}else if("uploading".equalsIgnoreCase(method)){
 				sql.append("select a.id, a.table_name, a.table_id, a.create_user_id, u.account, date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-				sql.append(" from t_attention a inner join t_user u on u.id = a.create_user_id where a.status = ? and a.table_name = ? and a.table_id = ?");
+				sql.append(" from "+DataTableType.关注.value+" a inner join "+DataTableType.用户.value+" u on u.id = a.create_user_id where a.status = ? and a.table_name = ? and a.table_id = ?");
 				sql.append(" and a.id > ? limit 0,?  ");
 				rs = attentionDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, tableName, tableId, firstId, pageSize);
 			}

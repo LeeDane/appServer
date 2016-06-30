@@ -19,7 +19,7 @@ import com.cn.leedane.Dao.FilePathDao;
 import com.cn.leedane.Dao.TemporaryBase64Dao;
 import com.cn.leedane.Utils.Base64ImageUtil;
 import com.cn.leedane.Utils.ConstantsUtil;
-import com.cn.leedane.Utils.EnumUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
 import com.cn.leedane.bean.FilePathBean;
@@ -88,10 +88,10 @@ public class FilePathServiceImpl extends BaseServiceImpl<FilePathBean> implement
 			for(Map<String, Object> map: contents){
 				bufferContent.append(map.get("content").toString());
 			}
-			boolean isSaveEach = saveEachFile(order, bufferContent.toString(), user, uuid, "t_mood");
+			boolean isSaveEach = saveEachFile(order, bufferContent.toString(), user, uuid, DataTableType.心情.value);
 			if(isSaveEach){
 				//删除temporaryBase64表中相关的数据
-				temporaryBase64Dao.deleteByUuidAndOrder(uuid, order, "T_MOOD");
+				temporaryBase64Dao.deleteByUuidAndOrder(uuid, order, DataTableType.心情.value);
 				return true;
 			}
 		}
@@ -452,7 +452,7 @@ public class FilePathServiceImpl extends BaseServiceImpl<FilePathBean> implement
 
 	@Override
 	public boolean canDownload(int fileOwnerId, String fileName) {
-		List<Map<String, Object>> list = filePathDao.executeSQL("select count(id) from t_file_path where create_user_id = ? and status=? and (path = ? or qiniu_path=? )", fileOwnerId, ConstantsUtil.STATUS_NORMAL, fileName, fileName);
+		List<Map<String, Object>> list = filePathDao.executeSQL("select count(id) from "+DataTableType.文件.value+" where create_user_id = ? and status=? and (path = ? or qiniu_path=? )", fileOwnerId, ConstantsUtil.STATUS_NORMAL, fileName, fileName);
 		return list != null && list.size() > 0;
 	}
 
@@ -477,21 +477,21 @@ public class FilePathServiceImpl extends BaseServiceImpl<FilePathBean> implement
 		//下刷新
 		if(method.equalsIgnoreCase("lowloading")){
 			sql.append("select f.id, f.path, f.is_upload_qiniu, f.table_name, f.table_uuid, date_format(f.create_time,'%Y-%c-%d %H:%i:%s') create_time");
-			sql.append(" from t_file_path f");
+			sql.append(" from "+DataTableType.文件.value+" f");
 			sql.append(" where f.status = ? and f.create_user_id = ? and f.id < ? order by f.id desc limit 0,?");
 			r = filePathDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, user.getId(), lastId, pageSize);
 			
 		//上刷新
 		}else if(method.equalsIgnoreCase("uploading")){
 			sql.append("select f.id, f.path, f.is_upload_qiniu, f.table_name, f.table_uuid, date_format(f.create_time,'%Y-%c-%d %H:%i:%s') create_time");
-			sql.append(" from t_file_path f");
+			sql.append(" from "+DataTableType.文件.value+" f");
 			sql.append(" where f.status = ? and f.create_user_id = ? and f.id > ?  limit 0,?");
 			r = filePathDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, user.getId(), firstId, pageSize);
 			
 		//第一次刷新
 		}else if(method.equalsIgnoreCase("firstloading")){
 			sql.append("select f.id, f.path, f.is_upload_qiniu, f.table_name, f.table_uuid, date_format(f.create_time,'%Y-%c-%d %H:%i:%s') create_time");
-			sql.append(" from t_file_path f");
+			sql.append(" from "+DataTableType.文件.value+" f");
 			sql.append(" where f.status = ? and f.create_user_id = ? order by f.id desc limit 0,?");
 			r = filePathDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, user.getId(), pageSize);
 		}
@@ -503,7 +503,7 @@ public class FilePathServiceImpl extends BaseServiceImpl<FilePathBean> implement
 	@Override
 	public boolean updateUploadQiniu(int fId, String qiniuPath) {
 		logger.info("FilePathServiceImpl-->updateUploadQiniu():文件ID="+fId+",文件路径："+qiniuPath);
-		return filePathDao.update("update t_file_path set qiniu_path=? , is_upload_qiniu=?, modify_time=? where id=? ", qiniuPath, ConstantsUtil.STATUS_NORMAL, new Date(), fId);
+		return filePathDao.update("update "+DataTableType.文件.value+" set qiniu_path=? , is_upload_qiniu=?, modify_time=? where id=? ", qiniuPath, ConstantsUtil.STATUS_NORMAL, new Date(), fId);
 	}
 	
 }

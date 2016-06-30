@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.cn.leedane.Utils.ConstantsUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.Utils.StringUtil;
 import com.cn.leedane.bean.CommentBean;
 import com.cn.leedane.redis.util.RedisUtil;
@@ -40,7 +41,7 @@ public class CommentHandler {
 		//还没有添加到redis中
 		if(StringUtil.isNull(redisUtil.getString(key))){
 			//获取数据库中所有评论的数量
-			List<Map<String, Object>> numbers = commentService.executeSQL("select count(id) number from t_comment where table_name=? and table_id = ?", tableName, tableId);
+			List<Map<String, Object>> numbers = commentService.executeSQL("select count(id) number from "+DataTableType.评论.value+" where table_name=? and table_id = ?", tableName, tableId);
 			count = String.valueOf(StringUtil.changeObjectToInt(numbers.get(0).get("number")));	
 		}else{
 			count = String.valueOf(Integer.parseInt(redisUtil.getString(key)) + 1);
@@ -75,7 +76,7 @@ public class CommentHandler {
 		int commentNumber;
 		//评论
 		if(!redisUtil.hasKey(commentKey)){
-			commentNumber = commentService.getTotal("t_comment", "where table_id = "+tableId+" and table_name='"+tableName+"'");
+			commentNumber = commentService.getTotal(DataTableType.评论.value, "where table_id = "+tableId+" and table_name='"+tableName+"'");
 			redisUtil.addString(commentKey, String.valueOf(commentNumber));
 		}else{
 			commentNumber = Integer.parseInt(redisUtil.getString(commentKey));
@@ -102,7 +103,7 @@ public class CommentHandler {
 		int commentNumber;
 		//评论
 		if(!redisUtil.hasKey(commentKey)){
-			commentNumber = commentService.getTotal("t_comment", "where table_id = "+tableId+" and table_name='"+tableName+"'");
+			commentNumber = commentService.getTotal(DataTableType.评论.value, "where table_id = "+tableId+" and table_name='"+tableName+"'");
 			redisUtil.addString(commentKey, String.valueOf(commentNumber));
 		}else{
 			commentNumber = Integer.parseInt(redisUtil.getString(commentKey));

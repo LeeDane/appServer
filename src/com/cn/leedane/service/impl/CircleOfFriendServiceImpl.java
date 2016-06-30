@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.bean.MoodBean;
 import com.cn.leedane.bean.OperateLogBean;
 import com.cn.leedane.bean.TimeLineBean;
@@ -192,25 +193,25 @@ public class CircleOfFriendServiceImpl implements CircleOfFriendService<TimeLine
 		Map<String, Object> message = new HashMap<String, Object>();
 		message.put("isSuccess", false);
 		if("firstloading".equalsIgnoreCase(method)){
-			sql.append("select m.id table_id, 't_mood' table_name, m.content, m.froms, m.uuid, m.create_user_id, date_format(m.create_time,'%Y-%c-%d %H:%i:%s') create_time, m.has_img,");
+			sql.append("select m.id table_id, '"+DataTableType.心情.value+"' table_name, m.content, m.froms, m.uuid, m.create_user_id, date_format(m.create_time,'%Y-%c-%d %H:%i:%s') create_time, m.has_img,");
 			sql.append(" m.read_number, m.zan_number, m.comment_number, m.transmit_number, m.share_number, u.account");
-			sql.append(" from t_mood m inner join t_user u on u.id = m.create_user_id where m.status = ? and ");
+			sql.append(" from "+DataTableType.心情.value+" m inner join "+DataTableType.用户.value+" u on u.id = m.create_user_id where m.status = ? and ");
 			sql.append(buildCreateUserIdInSQL(fids));
 			sql.append(" order by m.id desc limit 0,?");
 			rs = moodService.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, pageSize);
 		//下刷新
 		}else if("lowloading".equalsIgnoreCase(method)){
-			sql.append("select m.id table_id, 't_mood' table_name, m.content, m.froms, m.uuid, m.create_user_id, date_format(m.create_time,'%Y-%c-%d %H:%i:%s') create_time, m.has_img,");
+			sql.append("select m.id table_id, '"+DataTableType.心情.value+"' table_name, m.content, m.froms, m.uuid, m.create_user_id, date_format(m.create_time,'%Y-%c-%d %H:%i:%s') create_time, m.has_img,");
 			sql.append(" m.read_number, m.zan_number, m.comment_number, m.transmit_number, m.share_number, u.account");
-			sql.append(" from t_mood m inner join t_user u on u.id = m.create_user_id where m.status = ? and ");
+			sql.append(" from "+DataTableType.心情.value+" m inner join "+DataTableType.用户.value+" u on u.id = m.create_user_id where m.status = ? and ");
 			sql.append(buildCreateUserIdInSQL(fids));
 			sql.append(" and m.id < ? order by m.id desc limit 0,? ");
 			rs = moodService.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, lastId, pageSize);
 		//上刷新
 		}else if("uploading".equalsIgnoreCase(method)){
-			sql.append("select m.id table_id, 't_mood' table_name, m.content, m.froms, m.uuid, m.create_user_id, date_format(m.create_time,'%Y-%c-%d %H:%i:%s') create_time, m.has_img,");
+			sql.append("select m.id table_id, '"+DataTableType.心情.value+"' table_name, m.content, m.froms, m.uuid, m.create_user_id, date_format(m.create_time,'%Y-%c-%d %H:%i:%s') create_time, m.has_img,");
 			sql.append(" m.read_number, m.zan_number, m.comment_number, m.transmit_number, m.share_number, u.account");
-			sql.append(" from t_mood m inner join t_user u on u.id = m.create_user_id where m.status = ? and ");
+			sql.append(" from "+DataTableType.心情.value+" m inner join "+DataTableType.用户.value+" u on u.id = m.create_user_id where m.status = ? and ");
 			sql.append(buildCreateUserIdInSQL(fids));
 			sql.append(" and m.id > ? limit 0,?  ");
 			rs = moodService.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, firstId, pageSize);
@@ -239,16 +240,16 @@ public class CircleOfFriendServiceImpl implements CircleOfFriendService<TimeLine
 					}else{
 						rs.get(i).put("account", "本人");
 					}
-					rs.get(i).put("zan_users", zanHandler.getZanUser(moodId, "t_mood", user, 6));
-					rs.get(i).put("comment_number", commentHandler.getCommentNumber(moodId, "t_mood"));
-					rs.get(i).put("transmit_number", transmitHandler.getTransmitNumber(moodId, "t_mood"));
-					rs.get(i).put("zan_number", zanHandler.getZanNumber(moodId, "t_mood"));
+					rs.get(i).put("zan_users", zanHandler.getZanUser(moodId, DataTableType.心情.value, user, 6));
+					rs.get(i).put("comment_number", commentHandler.getCommentNumber(moodId, DataTableType.心情.value));
+					rs.get(i).put("transmit_number", transmitHandler.getTransmitNumber(moodId, DataTableType.心情.value));
+					rs.get(i).put("zan_number", zanHandler.getZanNumber(moodId, DataTableType.心情.value));
 				}
 				
 				//有图片的获取图片的路径
 				if(hasImg && !StringUtil.isNull(uuid)){
-					//System.out.println("图片地："+moodHandler.getMoodImg("t_mood", uuid, picSize));
-					rs.get(i).put("imgs", moodHandler.getMoodImg("t_mood", uuid, picSize));
+					//System.out.println("图片地："+moodHandler.getMoodImg(DataTableType.心情.value, uuid, picSize));
+					rs.get(i).put("imgs", moodHandler.getMoodImg(DataTableType.心情.value, uuid, picSize));
 				}
 			}	
 		}

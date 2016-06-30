@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.cn.leedane.Dao.TemporaryBase64Dao;
 import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.JsonUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.bean.TemporaryBase64Bean;
 import com.cn.leedane.bean.UserBean;
 import com.cn.leedane.log.LogAnnotation;
@@ -48,7 +49,7 @@ public class TemporaryBase64ServiceImpl extends BaseServiceImpl<TemporaryBase64B
 		base64Bean.setCreateUser(user);
 		base64Bean.setEnd(end);
 		base64Bean.setOrder(order);
-		base64Bean.setTableName("T_MOOD");
+		base64Bean.setTableName(DataTableType.心情.value);
 		base64Bean.setStart(ConstantsUtil.STATUS_NORMAL);
 		base64Bean.setStart(start);
 		base64Bean.setUuid(uuid);

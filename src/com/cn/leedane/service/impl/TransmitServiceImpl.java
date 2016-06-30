@@ -19,6 +19,8 @@ import com.cn.leedane.Dao.TransmitDao;
 import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.EmojiUtil;
 import com.cn.leedane.Utils.EnumUtil;
+import com.cn.leedane.Utils.FilterUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.Utils.EnumUtil.NotificationType;
 import com.cn.leedane.Utils.SensitiveWord.SensitivewordFilter;
 import com.cn.leedane.Utils.JsonUtil;
@@ -111,24 +113,13 @@ public class TransmitServiceImpl extends BaseServiceImpl<TransmitBean> implement
 				
 		boolean result = false;
 		
-		//过滤掉emoji
-		content = EmojiUtil.filterEmoji(content);
+		//进行敏感词过滤和emoji过滤
+		if(FilterUtil.filter(content, message))
+			return message;
 		
 		if(StringUtil.isNull(tableName) || tableId < 1 || StringUtil.isNull(content)){
 			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.某些参数为空.value));
 			message.put("responseCode", EnumUtil.ResponseCode.某些参数为空.value);
-			return message;
-		}
-		
-		//检测敏感词
-		SensitivewordFilter filter = new SensitivewordFilter();
-		long beginTime = System.currentTimeMillis();
-		Set<String> set = filter.getSensitiveWord(content, 1);
-		if(set.size() > 0){
-			message.put("message", "有敏感词"+set.size()+"个："+set.toString());
-			message.put("responseCode", EnumUtil.ResponseCode.系统检测到有敏感词.value);
-			long endTime = System.currentTimeMillis();
-			System.out.println("总共消耗时间为：" + (endTime - beginTime));
 			return message;
 		}
 		
@@ -169,7 +160,7 @@ public class TransmitServiceImpl extends BaseServiceImpl<TransmitBean> implement
 		//还没有添加到redis中
 		if(StringUtil.isNull(redisUtil.getString(key))){
 			//获取数据库中所有转发的数量
-			List<Map<String, Object>> numbers = transmitDao.executeSQL("select count(id) number from t_transmit where table_name=? and table_id = ?", tableName, tableId);
+			List<Map<String, Object>> numbers = transmitDao.executeSQL("select count(id) number from "+DataTableType.转发.value+" where table_name=? and table_id = ?", tableName, tableId);
 			count = String.valueOf(StringUtil.changeObjectToInt(numbers.get(0).get("number")) +1);	
 		}else{
 			count = String.valueOf(Integer.parseInt(redisUtil.getString(key)) + 1);
@@ -281,19 +272,19 @@ public class TransmitServiceImpl extends BaseServiceImpl<TransmitBean> implement
 		if(StringUtil.isNull(tableName) && toUserId > 0 && tableId < 1){		
 			if("firstloading".equalsIgnoreCase(method)){
 				sql.append("select t.id, t.froms, t.content, t.table_name, t.table_id, t.create_user_id, u.account, date_format(t.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-				sql.append(" from t_transmit t inner join t_user u on u.id = t.create_user_id where t.create_user_id = ? and t.status = ? ");
+				sql.append(" from "+DataTableType.转发.value+" t inner join "+DataTableType.用户.value+" u on u.id = t.create_user_id where t.create_user_id = ? and t.status = ? ");
 				sql.append(" order by t.id desc limit 0,?");
 				rs = transmitDao.executeSQL(sql.toString(), toUserId, ConstantsUtil.STATUS_NORMAL, pageSize);
 			//下刷新
 			}else if("lowloading".equalsIgnoreCase(method)){
 				sql.append("select t.id, t.froms, t.content, t.table_name, t.table_id, t.create_user_id, u.account, date_format(t.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-				sql.append(" from t_transmit t inner join t_user u on u.id = t.create_user_id where t.create_user_id = ? and t.status = ? ");
+				sql.append(" from "+DataTableType.转发.value+" t inner join "+DataTableType.用户.value+" u on u.id = t.create_user_id where t.create_user_id = ? and t.status = ? ");
 				sql.append(" and t.id < ? order by t.id desc limit 0,? ");
 				rs = transmitDao.executeSQL(sql.toString(), toUserId, ConstantsUtil.STATUS_NORMAL, lastId, pageSize);
 			//上刷新
 			}else if("uploading".equalsIgnoreCase(method)){
 				sql.append("select t.id, t.froms, t.content, t.table_name, t.table_id, t.create_user_id, u.account, date_format(t.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-				sql.append(" from t_transmit t inner join t_user u on u.id = t.create_user_id where t.create_user_id = ? and t.status = ? ");
+				sql.append(" from "+DataTableType.转发.value+" t inner join "+DataTableType.用户.value+" u on u.id = t.create_user_id where t.create_user_id = ? and t.status = ? ");
 				sql.append(" and t.id > ? limit 0,?  ");
 				rs = transmitDao.executeSQL(sql.toString() , toUserId, ConstantsUtil.STATUS_NORMAL, firstId, pageSize);
 			}
@@ -303,19 +294,19 @@ public class TransmitServiceImpl extends BaseServiceImpl<TransmitBean> implement
 		if(StringUtil.isNotNull(tableName) && toUserId < 1 && tableId > 0){
 			if("firstloading".equalsIgnoreCase(method)){
 				sql.append("select t.id, t.froms, t.content, t.table_name, t.table_id, t.create_user_id, u.account, date_format(t.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-				sql.append(" from t_transmit t inner join t_user u on u.id = t.create_user_id where  t.status = ? and t.table_name = ? and t.table_id = ? ");
+				sql.append(" from "+DataTableType.转发.value+" t inner join "+DataTableType.用户.value+" u on u.id = t.create_user_id where  t.status = ? and t.table_name = ? and t.table_id = ? ");
 				sql.append(" order by t.id desc limit 0,?");
 				rs = transmitDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, tableName, tableId, pageSize);
 			//下刷新
 			}else if("lowloading".equalsIgnoreCase(method)){
 				sql.append("select t.id, t.froms, t.content, t.table_name, t.table_id, t.create_user_id, u.account, date_format(t.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-				sql.append(" from t_transmit t inner join t_user u on u.id = t.create_user_id where t.status = ? and t.table_name = ? and t.table_id = ?");
+				sql.append(" from "+DataTableType.转发.value+" t inner join "+DataTableType.用户.value+" u on u.id = t.create_user_id where t.status = ? and t.table_name = ? and t.table_id = ?");
 				sql.append(" and t.id < ? order by t.id desc limit 0,? ");
 				rs = transmitDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, tableName, tableId, lastId, pageSize);
 			//上刷新
 			}else if("uploading".equalsIgnoreCase(method)){
 				sql.append("select t.id, t.froms, t.content, t.table_name, t.table_id, t.create_user_id, u.account, date_format(t.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-				sql.append(" from t_transmit t inner join t_user u on u.id = t.create_user_id where t.status = ? and t.table_name = ? and t.table_id = ?");
+				sql.append(" from "+DataTableType.转发.value+" t inner join "+DataTableType.用户.value+" u on u.id = t.create_user_id where t.status = ? and t.table_name = ? and t.table_id = ?");
 				sql.append(" and t.id > ? limit 0,?  ");
 				rs = transmitDao.executeSQL(sql.toString() , ConstantsUtil.STATUS_NORMAL, tableName, tableId, firstId, pageSize);
 			}

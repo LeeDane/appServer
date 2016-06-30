@@ -26,6 +26,7 @@ import com.cn.leedane.Utils.EnumUtil;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.MD5Util;
 import com.cn.leedane.Utils.StringUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.bean.FilePathBean;
 import com.cn.leedane.bean.OperateLogBean;
 import com.cn.leedane.bean.ScoreBean;
@@ -211,7 +212,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 		scoreBean.setDesc("用户注册");
 		scoreBean.setStatus(ConstantsUtil.STATUS_NORMAL);
 		scoreBean.setTableId(u.getId());
-		scoreBean.setTableName("t_user");
+		scoreBean.setTableName(DataTableType.用户.value);
 		boolean isSave = scoreService.save(scoreBean);
 		//标记为已经添加
 		if(isSave){
@@ -370,7 +371,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 		if(StringUtil.isNull(base64))
 			return false;
 		
-		return filePathService.saveEachFile(0, base64, user, String.valueOf(user.getId()), "t_user");
+		return filePathService.saveEachFile(0, base64, user, String.valueOf(user.getId()), DataTableType.用户.value);
 	}
 
 	@Override
@@ -379,8 +380,8 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 		logger.info("UserServiceImpl-->获取用户头像路径:jo="+jo.toString()+",user_Account="+user.getAccount());
 		int uid = JsonUtil.getIntValue(jo, "uid");
 		String size = JsonUtil.getStringValue(jo, "pic_size");
-		String sql = "select (case when is_upload_qiniu = 1 then qiniu_path else path end) path from t_file_path where pic_size = ? and table_name = ? and table_uuid = ? and status = ?";
-		List<Map<String, Object>> list = filePathDao.executeSQL(sql, size, "t_user", uid, ConstantsUtil.STATUS_NORMAL);
+		String sql = "select (case when is_upload_qiniu = 1 then qiniu_path else path end) path from "+DataTableType.文件.value+" where pic_size = ? and table_name = ? and table_uuid = ? and status = ?";
+		List<Map<String, Object>> list = filePathDao.executeSQL(sql, size, DataTableType.用户.value, uid, ConstantsUtil.STATUS_NORMAL);
 		
 		if(list != null && list.size() > 0){
 			return String.valueOf(list.get(0).get("path"));
@@ -402,7 +403,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 			message.put("responseCode", EnumUtil.ResponseCode.某些参数为空.value);
 			return message;
 		}
-		result = userDao.executeSQL("select id from t_user where account = ?", account).size() >0;
+		result = userDao.executeSQL("select id from "+DataTableType.用户.value+" where account = ?", account).size() >0;
 		if(result){
 			message.put("isSuccess", result);
 		}else{
@@ -421,7 +422,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 		if(StringUtil.isNull(mobilePhone)){
 			return false;
 		}
-		return userDao.executeSQL("select id from t_user where mobile_phone = ?", mobilePhone).size() >0;
+		return userDao.executeSQL("select id from "+DataTableType.用户.value+" where mobile_phone = ?", mobilePhone).size() >0;
 	}
 	
 	@Override
@@ -435,7 +436,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 		if(StringUtil.isNull(email)){
 			return result;
 		}
-		return userDao.executeSQL("select id from t_user where email = ?", email).size() >0;
+		return userDao.executeSQL("select id from "+DataTableType.用户.value+" where email = ?", email).size() >0;
 	}
 
 	@Override
@@ -673,12 +674,12 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 
 	@Override
 	public List<Map<String, Object>> getAllUserId() {
-		return this.userDao.executeSQL("select id from t_user");
+		return this.userDao.executeSQL("select id from "+DataTableType.用户.value);
 	}
 
 	@Override
 	public int getUserIdByName(String username) {
-		List<Map<String, Object>> list = this.userDao.executeSQL("select id from t_user where status=? and account=? limit 1", ConstantsUtil.STATUS_NORMAL, username);
+		List<Map<String, Object>> list = this.userDao.executeSQL("select id from "+DataTableType.用户.value+" where status=? and account=? limit 1", ConstantsUtil.STATUS_NORMAL, username);
 		return list != null && list.size() == 1? StringUtil.changeObjectToInt(list.get(0).get("id")) : 0;
 	}
 
@@ -744,7 +745,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 		}
 		
 		//检查账号是否被占用
-		if(userDao.executeSQL("select id from t_user where account = ?", account).size() > 0){
+		if(userDao.executeSQL("select id from "+DataTableType.用户.value+" where account = ?", account).size() > 0){
 			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.该用户已被占用.value));
 			message.put("responseCode", EnumUtil.ResponseCode.该用户已被占用.value);
 			return message;
@@ -804,7 +805,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 		}
 		
 		
-		List<Map<String, Object>> rs = userDao.executeSQL("select id, account, personal_introduction introduction, date_format(birth_day,'%Y-%c-%d') birth_day, mobile_phone phone, sex, email, qq, date_format(register_time,'%Y-%c-%d %H:%i:%s') create_time from t_user where status=? and account like '%"+searchKey+"%' order by create_time desc limit 25", ConstantsUtil.STATUS_NORMAL);
+		List<Map<String, Object>> rs = userDao.executeSQL("select id, account, personal_introduction introduction, date_format(birth_day,'%Y-%c-%d') birth_day, mobile_phone phone, sex, email, qq, date_format(register_time,'%Y-%c-%d %H:%i:%s') create_time from "+DataTableType.用户.value+" where status=? and account like '%"+searchKey+"%' order by create_time desc limit 25", ConstantsUtil.STATUS_NORMAL);
 		if(rs != null && rs.size() > 0){
 			int id = 0;
 			for(int i = 0; i < rs.size(); i++){

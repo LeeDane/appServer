@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.DateUtil;
 import com.cn.leedane.Utils.StringUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.bean.BlogBean;
 import com.cn.leedane.bean.MoodBean;
 import com.cn.leedane.bean.UserBean;
@@ -107,7 +108,7 @@ public class SolrIndex extends BaseScheduling{
 	 * @return
 	 */
 	private List<BlogBean> getNoIndexBlogList(){
-		List<Map<String, Object>> list = blogService.executeSQL("select b.id, b.title, b.content, b.digest from t_blog b where b.status=? and b.is_solr_index = ? order by b.id desc limit 0,?", ConstantsUtil.STATUS_NORMAL, false, MAX_SIZE);
+		List<Map<String, Object>> list = blogService.executeSQL("select b.id, b.title, b.content, b.digest from "+DataTableType.博客.value+" b where b.status=? and b.is_solr_index = ? order by b.id desc limit 0,?", ConstantsUtil.STATUS_NORMAL, false, MAX_SIZE);
 		List<BlogBean> blogs = new ArrayList<BlogBean>();
 		if(list != null && list.size()> 0){
 			BlogBean blogBean;
@@ -128,7 +129,7 @@ public class SolrIndex extends BaseScheduling{
 	 * @return
 	 */
 	private List<MoodBean> getNoIndexMoodList(){
-		List<Map<String, Object>> list = moodService.executeSQL("select m.id, m.content from t_mood m where m.status=? and m.is_solr_index=? order by m.id desc limit 0,?", ConstantsUtil.STATUS_NORMAL, false, MAX_SIZE);
+		List<Map<String, Object>> list = moodService.executeSQL("select m.id, m.content from "+DataTableType.心情.value+" m where m.status=? and m.is_solr_index=? order by m.id desc limit 0,?", ConstantsUtil.STATUS_NORMAL, false, MAX_SIZE);
 		List<MoodBean> moods = new ArrayList<MoodBean>();
 		if(list != null && list.size()> 0){
 			MoodBean moodBean;
@@ -147,7 +148,7 @@ public class SolrIndex extends BaseScheduling{
 	 * @return
 	 */
 	private List<UserBean> getNoIndexUserList(){
-		List<Map<String, Object>> list = userService.executeSQL("select u.id, u.account, u.china_name, u.real_name, u.mobile_phone, u.id_card, u.email from t_user u where u.status=? and u.is_solr_index=? order by u.id desc limit 0,?", ConstantsUtil.STATUS_NORMAL, false, MAX_SIZE);
+		List<Map<String, Object>> list = userService.executeSQL("select u.id, u.account, u.china_name, u.real_name, u.mobile_phone, u.id_card, u.email from "+DataTableType.用户.value+" u where u.status=? and u.is_solr_index=? order by u.id desc limit 0,?", ConstantsUtil.STATUS_NORMAL, false, MAX_SIZE);
 		List<UserBean> users = new ArrayList<UserBean>();
 		if(list != null && list.size()> 0){
 			UserBean userBean;

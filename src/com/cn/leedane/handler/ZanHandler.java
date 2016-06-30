@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.StringUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.bean.UserBean;
 import com.cn.leedane.bean.ZanBean;
 import com.cn.leedane.redis.util.RedisUtil;
@@ -106,7 +107,7 @@ public class ZanHandler {
 			redisUtil.addSet(zanUserKey, setToArray(sets));
 		}else{
 			String[] array;
-			List<Map<String, Object>> results = zanService.executeSQL("select u.id, u.account from t_zan z inner join t_user u on z.create_user_id = u.id where z.table_name=? and z.table_id = ?", tableName, tableId);
+			List<Map<String, Object>> results = zanService.executeSQL("select u.id, u.account from "+DataTableType.赞.value+" z inner join "+DataTableType.用户.value+" u on z.create_user_id = u.id where z.table_name=? and z.table_id = ?", tableName, tableId);
 			
 			if(results != null && results.size() > 0){
 				int size = results.size();
@@ -137,7 +138,7 @@ public class ZanHandler {
 		//赞
 		if(!redisUtil.hasKey(zanUserKey)){
 			String[] array;
-			List<Map<String, Object>> results = zanService.executeSQL("select u.id, u.account from t_zan z inner join t_user u on z.create_user_id = u.id where z.table_name=? and z.table_id = ?", tableName, tableId);
+			List<Map<String, Object>> results = zanService.executeSQL("select u.id, u.account from "+DataTableType.赞.value+" z inner join "+DataTableType.用户.value+" u on z.create_user_id = u.id where z.table_name=? and z.table_id = ?", tableName, tableId);
 			
 			if(results != null && results.size() > 0){
 				int size = results.size();
@@ -189,7 +190,7 @@ public class ZanHandler {
 	private int getCurrentZanNumber(int tableId, String tableName){
 		int zanNumber = 0;
 		//获取数据库中所有赞的数量
-		List<Map<String, Object>> numbers = zanService.executeSQL("select count(id) number from t_zan where table_name=? and table_id = ?", tableName, tableId);
+		List<Map<String, Object>> numbers = zanService.executeSQL("select count(id) number from "+DataTableType.赞.value+" where table_name=? and table_id = ?", tableName, tableId);
 		if(numbers != null){
 			zanNumber = StringUtil.changeObjectToInt(numbers.get(0).get("number"));	
 		}
@@ -212,7 +213,7 @@ public class ZanHandler {
 		StringBuffer returnValue = new StringBuffer();
 		//赞用户
 		if(!redisUtil.hasKey(zanUserKey)){
-			List<Map<String, Object>> rs = zanService.executeSQL("select u.id, u.account from t_zan z inner join t_user u on z.create_user_id = u.id where z.table_name=? and z.table_id = ?", tableName, tableId);
+			List<Map<String, Object>> rs = zanService.executeSQL("select u.id, u.account from "+DataTableType.赞.value+" z inner join "+DataTableType.用户.value+" u on z.create_user_id = u.id where z.table_name=? and z.table_id = ?", tableName, tableId);
 			if(rs != null && rs.size()> 0){
 				String[] userArray = new String[rs.size()];
 				for(int i = 0; i < rs.size(); i++){

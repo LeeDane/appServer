@@ -20,7 +20,9 @@ import com.cn.leedane.Exception.ErrorException;
 import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.EmojiUtil;
 import com.cn.leedane.Utils.EnumUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.Utils.EnumUtil.NotificationType;
+import com.cn.leedane.Utils.FilterUtil;
 import com.cn.leedane.Utils.SensitiveWord.SensitivewordFilter;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
@@ -113,7 +115,7 @@ public class CommentServiceImpl extends BaseServiceImpl<CommentBean> implements 
 	@Override
 	public Map<String, Object> add(JSONObject jo, UserBean user,
 			HttpServletRequest request){
-		// {\"table_name\":\"t_mood\", \"table_id\":123
+		// {\"table_name\":\""+DataTableType.心情.value+"\", \"table_id\":123
 		//, \"content\":\"我同意\" ,\"level\": 1, \"pid\":23, \"from\":\"Android客户端\"}
 		logger.info("CommentServiceImpl-->add():jsonObject=" +jo.toString() +", user=" +user.getAccount());
 		String tableName = JsonUtil.getStringValue(jo, "table_name");
@@ -123,20 +125,9 @@ public class CommentServiceImpl extends BaseServiceImpl<CommentBean> implements 
 		Map<String, Object> message = new HashMap<String, Object>();
 		message.put("isSuccess", false);
 		
-		//检测敏感词
-		SensitivewordFilter filter = new SensitivewordFilter();
-		long beginTime = System.currentTimeMillis();
-		Set<String> set = filter.getSensitiveWord(content, 1);
-		if(set.size() > 0){
-			message.put("message", "有敏感词"+set.size()+"个："+set.toString());
-			message.put("responseCode", EnumUtil.ResponseCode.系统检测到有敏感词.value);
-			long endTime = System.currentTimeMillis();
-			System.out.println("总共消耗时间为：" + (endTime - beginTime));
+		//进行敏感词过滤和emoji过滤
+		if(FilterUtil.filter(content, message))
 			return message;
-		}
-		
-		//过滤掉emoji
-		content = EmojiUtil.filterEmoji(content);
 		
 		if(StringUtil.isNull(tableName) || tableId < 1 || StringUtil.isNull(content)){
 			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.某些参数为空.value));
@@ -233,7 +224,7 @@ public class CommentServiceImpl extends BaseServiceImpl<CommentBean> implements 
 	 */
 	private int getCommentCreateUserId(int commentId){
 		int createUserId = 0;
-		List<Map<String, Object>> list = commentDao.executeSQL("select create_user_id from t_comment where status=? and id=? limit 1", ConstantsUtil.STATUS_NORMAL, commentId);
+		List<Map<String, Object>> list = commentDao.executeSQL("select create_user_id from "+DataTableType.评论.value+" where status=? and id=? limit 1", ConstantsUtil.STATUS_NORMAL, commentId);
 		if(list != null && list.size() == 1){
 			createUserId = StringUtil.changeObjectToInt(list.get(0).get("create_user_id"));
 		}
@@ -262,7 +253,7 @@ public class CommentServiceImpl extends BaseServiceImpl<CommentBean> implements 
 			if("firstloading".equalsIgnoreCase(method)){
 				sql.append("select c.id, c.pid, c.froms, c.content, c.table_id, c.table_name, c.create_user_id, u.account");
 				sql.append(", date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time,c.comment_level, c.table_id ");
-				sql.append("  from T_COMMENT c inner join t_user u on u.id = c.create_user_id");
+				sql.append("  from "+DataTableType.评论.value+" c inner join "+DataTableType.用户.value+" u on u.id = c.create_user_id");
 				sql.append(" where c.create_user_id =? and c.status = ? ");
 				sql.append(" order by c.id desc limit 0,?");
 				rs = commentDao.executeSQL(sql.toString(), toUserId, ConstantsUtil.STATUS_NORMAL, pageSize);
@@ -270,7 +261,7 @@ public class CommentServiceImpl extends BaseServiceImpl<CommentBean> implements 
 			}else if("lowloading".equalsIgnoreCase(method)){
 				sql.append("select c.id, c.pid, c.froms, c.content, c.table_id, c.table_name, c.create_user_id, u.account");
 				sql.append(", date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time,c.comment_level, c.table_id ");
-				sql.append("  from T_COMMENT c inner join t_user u on u.id = c.create_user_id");
+				sql.append("  from "+DataTableType.评论.value+" c inner join "+DataTableType.用户.value+" u on u.id = c.create_user_id");
 				sql.append(" where c.create_user_id =? and c.status = ? ");
 				sql.append(" and c.id < ? order by c.id desc limit 0,? ");
 				rs = commentDao.executeSQL(sql.toString(), toUserId, ConstantsUtil.STATUS_NORMAL, lastId, pageSize);
@@ -278,7 +269,7 @@ public class CommentServiceImpl extends BaseServiceImpl<CommentBean> implements 
 			}else if("uploading".equalsIgnoreCase(method)){
 				sql.append("select c.id, c.pid, c.froms, c.content, c.table_id, c.table_name, c.create_user_id, u.account");
 				sql.append(", date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time,c.comment_level, c.table_id ");
-				sql.append("  from T_COMMENT c inner join t_user u on u.id = c.create_user_id");
+				sql.append("  from "+DataTableType.评论.value+" c inner join "+DataTableType.用户.value+" u on u.id = c.create_user_id");
 				sql.append(" where c.create_user_id =? and c.status = ? ");
 				sql.append(" and c.id > ? limit 0,?  ");
 				rs = commentDao.executeSQL(sql.toString(), toUserId, ConstantsUtil.STATUS_NORMAL, firstId, pageSize);
@@ -290,7 +281,7 @@ public class CommentServiceImpl extends BaseServiceImpl<CommentBean> implements 
 			if("firstloading".equalsIgnoreCase(method)){
 				sql.append("select c.id, c.pid, c.froms, c.content, c.table_id, c.table_name, c.create_user_id, u.account");
 				sql.append(", date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time,c.comment_level, c.table_id ");
-				sql.append("  from T_COMMENT c inner join t_user u on u.id = c.create_user_id");
+				sql.append("  from "+DataTableType.评论.value+" c inner join "+DataTableType.用户.value+" u on u.id = c.create_user_id");
 				sql.append(" where c.table_name = ? and c.table_id = ? and c.status = ?");
 				sql.append(" order by c.id desc limit 0,?");
 				rs = commentDao.executeSQL(sql.toString(), tableName, tableId, ConstantsUtil.STATUS_NORMAL, pageSize);
@@ -298,7 +289,7 @@ public class CommentServiceImpl extends BaseServiceImpl<CommentBean> implements 
 			}else if("lowloading".equalsIgnoreCase(method)){			
 				sql.append("select c.id, c.pid, c.froms, c.content, c.table_id, c.table_name, c.create_user_id, u.account ");
 				sql.append(", date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time,c.comment_level, c.table_id ");
-				sql.append("  from T_COMMENT c inner join t_user u on u.id = c.create_user_id ");
+				sql.append("  from "+DataTableType.评论.value+" c inner join "+DataTableType.用户.value+" u on u.id = c.create_user_id ");
 				sql.append(" where c.table_name = ? and c.table_id = ? and c.status = ?");
 				sql.append(" and c.id < ? order by c.id desc limit 0,?");
 				rs = commentDao.executeSQL(sql.toString(), tableName, tableId, ConstantsUtil.STATUS_NORMAL, lastId, pageSize);
@@ -306,7 +297,7 @@ public class CommentServiceImpl extends BaseServiceImpl<CommentBean> implements 
 			}else if("uploading".equalsIgnoreCase(method)){
 				sql.append("select c.id, c.pid, c.froms, c.content, c.table_id, c.table_name, c.create_user_id, u.account");
 				sql.append(", date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time,c.comment_level, c.table_id ");
-				sql.append("  from T_COMMENT c inner join t_user u on u.id = c.create_user_id ");
+				sql.append("  from "+DataTableType.评论.value+" c inner join "+DataTableType.用户.value+" u on u.id = c.create_user_id ");
 				sql.append(" where c.table_name = ? and c.table_id = ? and c.status = ?");
 				sql.append(" and c.id > ? limit 0,?");
 				rs = commentDao.executeSQL(sql.toString(), tableName, tableId, ConstantsUtil.STATUS_NORMAL, firstId, pageSize);
@@ -405,7 +396,7 @@ public class CommentServiceImpl extends BaseServiceImpl<CommentBean> implements 
 		if("firstloading".equalsIgnoreCase(method)){
 			sql.append("select c.id, c.content, c.table_id, c.table_name, c.create_user_id, u.account ");
 			sql.append(", date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time,c.comment_level, c.table_id, c.pid ");
-			sql.append("  from T_COMMENT c inner join t_user u on u.id = c.create_user_id ");
+			sql.append("  from "+DataTableType.评论.value+" c inner join "+DataTableType.用户.value+" u on u.id = c.create_user_id ");
 			sql.append(" where c.table_name = ? and c.table_id = ? and c.status = ? and c.cid = ? ");
 			sql.append(" order by c.id desc");
 			sql.append(getLimitSql(pageSize));
@@ -415,7 +406,7 @@ public class CommentServiceImpl extends BaseServiceImpl<CommentBean> implements 
 		}else if("lowloading".equalsIgnoreCase(method)){			
 			sql.append("select c.id, c.content, c.table_id, c.table_name, c.create_user_id, u.account ");
 			sql.append(", date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time,c.comment_level, c.table_id, c.pid ");
-			sql.append("  from T_COMMENT c inner join t_user u on u.id = c.create_user_id ");
+			sql.append("  from "+DataTableType.评论.value+" c inner join "+DataTableType.用户.value+" u on u.id = c.create_user_id ");
 			sql.append(" where c.table_name = ? and c.table_id = ? and c.status = ? and c.cid = ? ");
 			sql.append(" and c.id < ? order by c.id desc");
 			sql.append(getLimitSql(pageSize));
@@ -425,7 +416,7 @@ public class CommentServiceImpl extends BaseServiceImpl<CommentBean> implements 
 		}else if("uploading".equalsIgnoreCase(method)){
 			sql.append("select c.id, c.content, c.table_id, c.table_name, c.create_user_id, u.account ");
 			sql.append(", date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time,c.comment_level, c.table_id, c.pid ");
-			sql.append("  from T_COMMENT c inner join t_user u on u.id = c.create_user_id ");
+			sql.append("  from "+DataTableType.评论.value+" c inner join "+DataTableType.用户.value+" u on u.id = c.create_user_id ");
 			sql.append(" where c.table_name = ? and c.table_id = ? and c.status = ? and c.pid = ? ");
 			sql.append(" and c.id > ? ");
 			sql.append(getLimitSql(pageSize));
@@ -462,7 +453,7 @@ public class CommentServiceImpl extends BaseServiceImpl<CommentBean> implements 
 		sql.append(" and table_id = '" + tableId +"'");
 		sql.append(" and status = " +ConstantsUtil.STATUS_NORMAL);
 		int count = 0;
-		count = commentDao.getTotal("t_comment", sql.toString());
+		count = commentDao.getTotal(DataTableType.评论.value, sql.toString());
 		//保存操作日志
 		operateLogService.saveOperateLog(user, request, null, StringUtil.getStringBufferStr(user.getAccount(),"查看表：",tableName,"，表id为：",tableId,"，查询得到的总数是：", count, "条").toString(), "getCountByObject()", ConstantsUtil.STATUS_NORMAL, 0);
 				
@@ -479,7 +470,7 @@ public class CommentServiceImpl extends BaseServiceImpl<CommentBean> implements 
 		StringBuffer sql = new StringBuffer();
 		sql.append(" where create_user_id = " + uid + " and status = " +ConstantsUtil.STATUS_NORMAL);
 		int count = 0;
-		count = commentDao.getTotal("t_comment", sql.toString());
+		count = commentDao.getTotal(DataTableType.评论.value, sql.toString());
 		//保存操作日志
 		operateLogService.saveOperateLog(user, request, null, StringUtil.getStringBufferStr(user.getAccount(),"查询用户ID为：", uid, "得到其评论总数是：", count, "条").toString(), "getCountByUser()", ConstantsUtil.STATUS_NORMAL, 0);
 				

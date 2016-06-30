@@ -8,6 +8,7 @@ import net.sf.json.JSONObject;
 
 import org.junit.Test;
 
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.bean.CommentBean;
 import com.cn.leedane.bean.OperateLogBean;
 import com.cn.leedane.bean.UserBean;
@@ -38,7 +39,7 @@ public class CommentTest extends BaseTest {
 		long start = System.currentTimeMillis();
 		UserBean user = userService.loadById(1);
 		
-		String str = "{\"table_name\":\"t_mood\", \"table_id\":1104, \"content\":\"谢谢，你也是！\", \"cid\":0}";
+		String str = "{\"table_name\":\""+DataTableType.心情.value+"\", \"table_id\":1104, \"content\":\"谢谢，你也是！\", \"cid\":0}";
 		
 		JSONObject jo = JSONObject.fromObject(str);
 		try {
@@ -54,7 +55,7 @@ public class CommentTest extends BaseTest {
 	public void getCommentByLimit(){
 		UserBean user = userService.loadById(1);
 		
-		String str = "{\"table_name\":\"t_mood\", \"table_id\":1,\"pageSize\":5,\"first_id\": 2, \"last_id\":2, \"method\":\"firstloading\"}";
+		String str = "{\"table_name\":\""+DataTableType.心情.value+"\", \"table_id\":1,\"pageSize\":5,\"first_id\": 2, \"last_id\":2, \"method\":\"firstloading\"}";
 		JSONObject jo = JSONObject.fromObject(str);
 		try {
 			List<Map<String, Object>> ls = commentService.getCommentsByLimit(jo, user, null);
@@ -74,7 +75,7 @@ public class CommentTest extends BaseTest {
 	public void getOneCommentItemsByLimit(){
 		UserBean user = userService.loadById(1);
 		
-		String str = "{\"table_name\":\"t_mood\", \"cid\":1, \"table_id\":1,\"first_id\": 2, \"last_id\":2, \"method\":\"firstloading\"}";
+		String str = "{\"table_name\":\""+DataTableType.心情.value+"\", \"cid\":1, \"table_id\":1,\"first_id\": 2, \"last_id\":2, \"method\":\"firstloading\"}";
 		JSONObject jo = JSONObject.fromObject(str);
 		try {
 			List<Map<String, Object>> ls = commentService.getOneCommentItemsByLimit(jo, user, null);
@@ -93,7 +94,7 @@ public class CommentTest extends BaseTest {
 	public void getCommentsCount(){
 		UserBean user = userService.loadById(1);
 		
-		String str = "{\"table_name\":\"t_mood\", \"table_id\":1}";
+		String str = "{\"table_name\":\""+DataTableType.心情.value+"\", \"table_id\":1}";
 		JSONObject jo = JSONObject.fromObject(str);
 		try {
 			int count = commentService.getCountByObject(jo, user, null);

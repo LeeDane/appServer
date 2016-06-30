@@ -25,7 +25,7 @@ public class ChatAction extends BaseActionContext{
 	}
 	
 	/**
-	 * 分页获取聊天历史列表(两个人的聊天)
+	 * 发送聊天信息
 	 * @return
 	 */
 	public String send() {

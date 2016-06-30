@@ -4,6 +4,7 @@ import javax.annotation.Resource;
 import org.apache.log4j.Logger;
 
 import com.cn.leedane.Dao.ChatBgUserDao;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.bean.ChatBgUserBean;
 import com.cn.leedane.bean.OperateLogBean;
 import com.cn.leedane.service.ChatBgUserService;
@@ -36,6 +37,6 @@ public class ChatBgUserServiceImpl extends BaseServiceImpl<ChatBgUserBean> imple
 	@Override
 	public boolean exists(int userId, int chatBgTableId) {
 		logger.info("ChatBgUserServiceImpl-->exists():userId="+userId+",chatBgTableId="+chatBgTableId);
-		return chatBgUserDao.executeSQL("select id from t_chat_bg_user where create_user_id=? and chat_bg_table_id=?", userId, chatBgTableId).size() > 0;
+		return chatBgUserDao.executeSQL("select id from "+DataTableType.聊天背景与用户.value+" where create_user_id=? and chat_bg_table_id=?", userId, chatBgTableId).size() > 0;
 	}
 }

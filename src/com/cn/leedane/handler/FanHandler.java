@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.cn.leedane.Utils.ConstantsUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.bean.FanBean;
 import com.cn.leedane.bean.UserBean;
 import com.cn.leedane.redis.util.RedisUtil;
@@ -53,7 +54,7 @@ public class FanHandler {
 		long count = 1;
 		//关注
 		if(!redisUtil.hasKey(attentionIDKey)){
-			String sql = "select id, to_user_id from t_fan f where status=? and create_user_id=? order by id";
+			String sql = "select id, to_user_id from "+DataTableType.粉丝.value+" f where status=? and create_user_id=? order by id";
 			List<Map<String, Object>> list = fanService.executeSQL(sql, ConstantsUtil.STATUS_NORMAL, user.getId());
 			if(list != null && list.size() > 0){
 				for(Map<String, Object> map: list){
@@ -84,7 +85,7 @@ public class FanHandler {
 		scoreMembers.clear();
 		//处理对方的粉丝列表
 		if(!redisUtil.hasKey(fanIDKey)){
-			String sql = "select id, create_user_id from t_fan f where status=? and to_user_id=? order by id";
+			String sql = "select id, create_user_id from "+DataTableType.粉丝.value+" f where status=? and to_user_id=? order by id";
 			List<Map<String, Object>> list = fanService.executeSQL(sql, ConstantsUtil.STATUS_NORMAL, user.getId());
 			if(list != null && list.size() > 0){
 				for(Map<String, Object> map: list){
@@ -123,7 +124,7 @@ public class FanHandler {
 		if(!redisUtil.hasKey(attentionIDKey)){
 			Map<Double, String> scoreMembers = new HashMap<Double, String>();
 			long count = 1;
-			String sql = "select id, to_user_id from t_fan f where status=? and create_user_id=? order by id";
+			String sql = "select id, to_user_id from "+DataTableType.粉丝.value+" f where status=? and create_user_id=? order by id";
 			List<Map<String, Object>> list = fanService.executeSQL(sql, ConstantsUtil.STATUS_NORMAL, toUserId);
 			if(list != null && list.size() > 0){
 				for(Map<String, Object> map: list){
@@ -241,7 +242,7 @@ public class FanHandler {
 		if(!redisUtil.hasKey(fanIDKey)){
 			Map<Double, String> scoreMembers = new HashMap<Double, String>();
 			long count = 1;
-			String sql = "select id, create_user_id from t_fan f where status=? and to_user_id=? order by id";
+			String sql = "select id, create_user_id from "+DataTableType.粉丝.value+" f where status=? and to_user_id=? order by id";
 			List<Map<String, Object>> list = fanService.executeSQL(sql, ConstantsUtil.STATUS_NORMAL, toUserId);
 			if(list != null && list.size() > 0){
 				for(Map<String, Object> map: list){
@@ -269,7 +270,7 @@ public class FanHandler {
 		long count = 1;
 		//关注
 		if(!redisUtil.hasKey(fanIDKey)){
-			String sql = "select id, to_user_id from t_fan f where status=? and create_user_id=? order by id";
+			String sql = "select id, to_user_id from "+DataTableType.粉丝.value+" f where status=? and create_user_id=? order by id";
 			List<Map<String, Object>> list = fanService.executeSQL(sql, ConstantsUtil.STATUS_NORMAL, user.getId());
 			if(list != null && list.size() > 0){
 				for(Map<String, Object> map: list){

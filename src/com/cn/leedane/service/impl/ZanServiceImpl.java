@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.cn.leedane.Dao.ZanDao;
 import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.EnumUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.Utils.EnumUtil.NotificationType;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
@@ -159,19 +160,19 @@ public class ZanServiceImpl extends BaseServiceImpl<ZanBean> implements ZanServi
 		if(StringUtil.isNull(tableName) && toUserId > 0){		
 			if("firstloading".equalsIgnoreCase(method)){
 				sql.append("select z.id, z.froms, z.content, z.table_name, z.table_id, z.create_user_id, u.account, date_format(z.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-				sql.append(" from t_zan z inner join t_user u on u.id = z.create_user_id where z.create_user_id = ? and z.status = ? ");
+				sql.append(" from "+DataTableType.赞.value+" z inner join "+DataTableType.用户.value+" u on u.id = z.create_user_id where z.create_user_id = ? and z.status = ? ");
 				sql.append(" order by z.id desc limit 0,?");
 				rs = zanDao.executeSQL(sql.toString(), toUserId, ConstantsUtil.STATUS_NORMAL, pageSize);
 			//下刷新
 			}else if("lowloading".equalsIgnoreCase(method)){
 				sql.append("select z.id, z.froms, z.content, z.table_name, z.table_id, z.create_user_id, u.account, date_format(z.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-				sql.append(" from t_zan z inner join t_user u on u.id = z.create_user_id where z.create_user_id = ? and z.status = ? ");
+				sql.append(" from "+DataTableType.赞.value+" z inner join "+DataTableType.用户.value+" u on u.id = z.create_user_id where z.create_user_id = ? and z.status = ? ");
 				sql.append(" and z.id < ? order by z.id desc limit 0,? ");
 				rs = zanDao.executeSQL(sql.toString(), toUserId, ConstantsUtil.STATUS_NORMAL, lastId, pageSize);
 			//上刷新
 			}else if("uploading".equalsIgnoreCase(method)){
 				sql.append("select z.id, z.froms, z.content, z.table_name, z.table_id, z.create_user_id, u.account, date_format(z.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-				sql.append(" from t_zan z inner join t_user u on u.id = z.create_user_id where z.create_user_id = ? and z.status = ? ");
+				sql.append(" from "+DataTableType.赞.value+" z inner join "+DataTableType.用户.value+" u on u.id = z.create_user_id where z.create_user_id = ? and z.status = ? ");
 				sql.append(" and z.id > ? limit 0,?  ");
 				rs = zanDao.executeSQL(sql.toString() , toUserId, ConstantsUtil.STATUS_NORMAL, firstId, pageSize);
 			}
@@ -181,19 +182,19 @@ public class ZanServiceImpl extends BaseServiceImpl<ZanBean> implements ZanServi
 		if(StringUtil.isNotNull(tableName) && toUserId < 1 && tableId > 0){
 			if("firstloading".equalsIgnoreCase(method)){
 				sql.append("select z.id, z.froms, z.content, z.table_name, z.table_id, z.create_user_id, u.account, date_format(z.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-				sql.append(" from t_zan z inner join t_user u on u.id = z.create_user_id where z.status = ? and z.table_name = ? and z.table_d = ?");
+				sql.append(" from "+DataTableType.赞.value+" z inner join "+DataTableType.用户.value+" u on u.id = z.create_user_id where z.status = ? and z.table_name = ? and z.table_d = ?");
 				sql.append(" order by z.id desc limit 0,?");
 				rs = zanDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, tableName, tableId, pageSize);
 			//下刷新
 			}else if("lowloading".equalsIgnoreCase(method)){
 				sql.append("select z.id, z.froms, z.content, z.table_name, z.table_id, z.create_user_id, u.account, date_format(z.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-				sql.append(" from t_zan z inner join t_user u on u.id = z.create_user_id where z.status = ? and z.table_name = ? and z.table_d = ?");
+				sql.append(" from "+DataTableType.赞.value+" z inner join "+DataTableType.用户.value+" u on u.id = z.create_user_id where z.status = ? and z.table_name = ? and z.table_d = ?");
 				sql.append(" and z.id < ? order by z.id desc limit 0,? ");
 				rs = zanDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, tableName, tableId, lastId, pageSize);
 			//上刷新
 			}else if("uploading".equalsIgnoreCase(method)){
 				sql.append("select z.id, z.froms, z.content, z.table_name, z.table_id, z.create_user_id, u.account, date_format(z.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-				sql.append(" from t_zan z inner join t_user u on u.id = z.create_user_id where z.status = ? and z.table_name = ? and z.table_d = ?");
+				sql.append(" from "+DataTableType.赞.value+" z inner join "+DataTableType.用户.value+" u on u.id = z.create_user_id where z.status = ? and z.table_name = ? and z.table_d = ?");
 				sql.append(" and z.id > ? limit 0,?  ");
 				rs = zanDao.executeSQL(sql.toString() , ConstantsUtil.STATUS_NORMAL, tableName, tableId, firstId, pageSize);
 			}
@@ -282,7 +283,7 @@ public class ZanServiceImpl extends BaseServiceImpl<ZanBean> implements ZanServi
 			message.put("responseCode", EnumUtil.ResponseCode.操作对象不存在.value);
 		}
 		
-		List<Map<String, Object>> rs = zanDao.executeSQL("select z.id, u.id create_user_id, date_format(z.create_time,'%Y-%c-%d %H:%i:%s') create_time  from t_zan z inner join t_user u on z.create_user_id = u.id where z.table_name=? and z.table_id = ?", tableName, tableId);
+		List<Map<String, Object>> rs = zanDao.executeSQL("select z.id, u.id create_user_id, date_format(z.create_time,'%Y-%c-%d %H:%i:%s') create_time  from "+DataTableType.赞.value+" z inner join "+DataTableType.用户.value+" u on z.create_user_id = u.id where z.table_name=? and z.table_id = ?", tableName, tableId);
 		if(rs != null && rs.size() > 0){
 			int createUserId ;
 			String[] userArray = new String[rs.size()];

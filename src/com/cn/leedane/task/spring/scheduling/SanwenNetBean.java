@@ -22,6 +22,7 @@ import com.cn.leedane.Utils.DateUtil;
 import com.cn.leedane.Utils.EnumUtil;
 import com.cn.leedane.Utils.JsoupUtil;
 import com.cn.leedane.Utils.StringUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.bean.BlogBean;
 import com.cn.leedane.bean.CrawlBean;
 import com.cn.leedane.bean.UserBean;
@@ -134,7 +135,7 @@ public class SanwenNetBean {
 					
 					if(!StringUtil.isNull(content) && !StringUtil.isNull(title)){
 						//判断是否已经存在相同的信息
-						List<Map<String, Object>> existsBlogs = blogService.executeSQL("select id from t_blog where origin_link = ? ", url);
+						List<Map<String, Object>> existsBlogs = blogService.executeSQL("select id from "+DataTableType.博客.value+" where origin_link = ? ", url);
 						if(existsBlogs!= null && existsBlogs.size() > 0){
 							return true;
 						}

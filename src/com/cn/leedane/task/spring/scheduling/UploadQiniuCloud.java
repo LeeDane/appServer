@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.StringUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.bean.FilePathBean;
 import com.cn.leedane.handler.CloudStoreHandler;
 import com.cn.leedane.service.FilePathService;
@@ -50,7 +51,7 @@ public class UploadQiniuCloud {
 					requestTimeOut = Long.parseLong(StringUtil.changeNotNull(properties.get("qiniuRequestTimeOut")));
 				}*/
 				
-				List<Map<String, Object>> filePathBeans = filePathService.executeSQL("select * from t_file_path where is_upload_qiniu = 0 and table_name <> 't_mood'");
+				List<Map<String, Object>> filePathBeans = filePathService.executeSQL("select * from "+DataTableType.文件.value+" where is_upload_qiniu = 0 and table_name <> '"+DataTableType.心情.value+"'");
 
 				if(filePathBeans != null && filePathBeans.size() > 0){		
 					List<Map<String, Object>> fileBeans = cloudStoreHandler.executeUpload(filePathBeans);

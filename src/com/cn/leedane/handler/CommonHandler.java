@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.StringUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.bean.UserBean;
 
 /**
@@ -52,9 +53,9 @@ public class CommonHandler {
 			return content;
 		}
 		List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
-		if(tableName.equalsIgnoreCase("t_mood")){
+		if(tableName.equalsIgnoreCase(DataTableType.心情.value)){
 			list = moodHandler.getMoodDetail(tableId, user, true);
-		}else if(tableName.equalsIgnoreCase("t_blog")){
+		}else if(tableName.equalsIgnoreCase(DataTableType.博客.value)){
 			list = blogHandler.getBlogDetail(tableId, user, true);
 		}
 		String account = null;

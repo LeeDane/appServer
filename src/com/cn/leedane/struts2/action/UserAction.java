@@ -22,6 +22,7 @@ import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.MD5Util;
 import com.cn.leedane.Utils.SpringUtils;
 import com.cn.leedane.Utils.StringUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.bean.FriendBean;
 import com.cn.leedane.bean.UserBean;
 import com.cn.leedane.cache.SystemCache;
@@ -543,7 +544,7 @@ public class UserAction extends BaseActionContext {
 				}
 			}
 			sort = sort == null || sort.equals("") ? " " : sort + " ";
-			int total = userService.total("t_user", "id", " where status=1 ");
+			int total = userService.total(DataTableType.用户.value, "id", " where status=1 ");
 			ls = userService.find4MoreUser(sort + "limit ?,?", s, l);
 			buildGetAllUserResp(ls,total);
 		}

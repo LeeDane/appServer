@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import com.cn.leedane.Dao.FilePathDao;
 import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.StringUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.bean.FilePathBean;
 import com.cn.leedane.bean.MoodBean;
 import com.cn.leedane.bean.UserBean;
@@ -95,9 +96,9 @@ public class MoodHandler {
 		if(!redisUtil.hasKey(moodKey)){
 			StringBuffer sql = new StringBuffer();
 			sql.append("select m.create_user_id, m.froms, m.content, m.has_img, m.can_comment, m.can_transmit, date_format(m.create_time,'%Y-%c-%d %H:%i:%s') create_time,location,longitude,latitude");
-			//sql.append(" ,(case when has_img = 1 then (select qiniu_path from t_file_path where status = ? and table_name='t_mood' and table_uuid = m.uuid and pic_size=?) else '' end) path");
+			//sql.append(" ,(case when has_img = 1 then (select qiniu_path from "+DataTableType.文件.value+" where status = ? and table_name='"+DataTableType.心情.value+"' and table_uuid = m.uuid and pic_size=?) else '' end) path");
 			sql.append(" ,uuid");
-			sql.append(" from t_mood m");
+			sql.append(" from "+DataTableType.心情.value+" m");
 			sql.append(" where m.id=? ");
 			sql.append(" and m.status = ?");
 			list = moodService.executeSQL(sql.toString(), moodId, ConstantsUtil.STATUS_NORMAL);
@@ -119,10 +120,10 @@ public class MoodHandler {
 		}
 		
 		if(list != null && list.size() == 1 && !onlyContent){
-			list.get(0).put("comment_number", commentHandler.getCommentNumber(moodId, "t_mood"));
-			list.get(0).put("transmit_number", transmitHandler.getTransmitNumber(moodId, "t_mood"));
-			list.get(0).put("zan_number", zanHandler.getZanNumber(moodId, "t_mood"));
-			list.get(0).put("zan_users", zanHandler.getZanUser(moodId, "t_mood", user, 6));
+			list.get(0).put("comment_number", commentHandler.getCommentNumber(moodId, DataTableType.心情.value));
+			list.get(0).put("transmit_number", transmitHandler.getTransmitNumber(moodId, DataTableType.心情.value));
+			list.get(0).put("zan_number", zanHandler.getZanNumber(moodId, DataTableType.心情.value));
+			list.get(0).put("zan_users", zanHandler.getZanUser(moodId, DataTableType.心情.value, user, 6));
 			int createUserId = StringUtil.changeObjectToInt(list.get(0).get("create_user_id"));
 			if( createUserId > 0)
 				//填充图片信息
@@ -158,7 +159,7 @@ public class MoodHandler {
 		if(!redisUtil.hasKey(moodImgsKey)){
 			StringBuffer sql = new StringBuffer();
 			sql.append("select qiniu_path, pic_size, pic_order, width, height, lenght ");
-			sql.append(" from t_file_path");
+			sql.append(" from "+DataTableType.文件.value);
 			sql.append(" where status = ? and table_name=? and table_uuid = ? and is_upload_qiniu=? order by pic_order,id");
 			list = moodService.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, tableName, tableUuid, true);
 			if(list != null && list.size() > 0){
@@ -190,7 +191,7 @@ public class MoodHandler {
 			List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
 			StringBuffer sql = new StringBuffer();
 			sql.append("select qiniu_path, pic_size, pic_order, width, height, lenght ");
-			sql.append(" from t_file_path");
+			sql.append(" from "+DataTableType.文件.value);
 			sql.append(" where status = ? and table_name=? and table_uuid = ? and is_upload_qiniu=? and pic_size =? order by pic_order,id limit 1");
 			list = filePathDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, tableName, tableUuid, true, picSize);
 			

@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.cn.leedane.Dao.CollectionDao;
 import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.EnumUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
 import com.cn.leedane.bean.CollectionBean;
@@ -74,7 +75,7 @@ public class CollectionServiceImpl extends BaseServiceImpl<CollectionBean> imple
 	@Override
 	public boolean addCollect(JSONObject jo, UserBean user,
 			HttpServletRequest request) {
-		//{\"table_name\":\"t_mood\", \"table_id\":123}
+		//{\"table_name\":\""+DataTableType.心情.value+"\", \"table_id\":123}
 		logger.info("CollectionServiceImpl-->addCollect():jsonObject=" +jo.toString() +", user=" +user.getAccount());
 		String tableName = JsonUtil.getStringValue(jo, "table_name");
 		int tableId = JsonUtil.getIntValue(jo, "table_id");
@@ -148,19 +149,19 @@ public class CollectionServiceImpl extends BaseServiceImpl<CollectionBean> imple
 		if(toUserId > 0 && toUserId == user.getId()){		
 			if("firstloading".equalsIgnoreCase(method)){
 				sql.append("select c.id, c.table_name, c.table_id, c.create_user_id, u.account, date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-				sql.append(" from t_collection c inner join t_user u on u.id = c.create_user_id where c.create_user_id = ? and c.status = ? ");
+				sql.append(" from "+DataTableType.收藏.value+" c inner join "+DataTableType.用户.value+" u on u.id = c.create_user_id where c.create_user_id = ? and c.status = ? ");
 				sql.append(" order by c.id desc limit 0,?");
 				rs = collectionDao.executeSQL(sql.toString(), toUserId, ConstantsUtil.STATUS_NORMAL, pageSize);
 			//下刷新
 			}else if("lowloading".equalsIgnoreCase(method)){
 				sql.append("select c.id, c.table_name, c.table_id, c.create_user_id, u.account, date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-				sql.append(" from t_collection c inner join t_user u on u.id = c.create_user_id where c.create_user_id = ? and c.status = ?");
+				sql.append(" from "+DataTableType.收藏.value+" c inner join "+DataTableType.用户.value+" u on u.id = c.create_user_id where c.create_user_id = ? and c.status = ?");
 				sql.append(" and c.id < ? order by c.id desc limit 0,? ");
 				rs = collectionDao.executeSQL(sql.toString(), toUserId, ConstantsUtil.STATUS_NORMAL, lastId, pageSize);
 			//上刷新
 			}else if("uploading".equalsIgnoreCase(method)){
 				sql.append("select c.id, c.table_name, c.table_id, c.create_user_id, u.account, date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-				sql.append(" from t_collection c inner join t_user u on u.id = c.create_user_id where c.create_user_id = ? and c.status = ? ");
+				sql.append(" from "+DataTableType.收藏.value+" c inner join "+DataTableType.用户.value+" u on u.id = c.create_user_id where c.create_user_id = ? and c.status = ? ");
 				sql.append(" and c.id > ? limit 0,?  ");
 				rs = collectionDao.executeSQL(sql.toString() , toUserId, ConstantsUtil.STATUS_NORMAL, firstId, pageSize);
 			}
@@ -170,19 +171,19 @@ public class CollectionServiceImpl extends BaseServiceImpl<CollectionBean> imple
 		if(StringUtil.isNotNull(tableName) && toUserId < 1 && tableId > 0){
 			if("firstloading".equalsIgnoreCase(method)){
 				sql.append("select c.id, c.table_name, c.table_id, c.create_user_id, u.account, date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-				sql.append(" from t_collection c inner join t_user u on u.id = c.create_user_id where c.status = ? and c.table_name = ? and c.table_id =? ");
+				sql.append(" from "+DataTableType.收藏.value+" c inner join "+DataTableType.用户.value+" u on u.id = c.create_user_id where c.status = ? and c.table_name = ? and c.table_id =? ");
 				sql.append(" order by c.id desc limit 0,?");
 				rs = collectionDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, tableName, tableId, pageSize);
 			//下刷新
 			}else if("lowloading".equalsIgnoreCase(method)){
 				sql.append("select c.id, c.table_name, c.table_id, c.create_user_id, u.account, date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-				sql.append(" from t_collection c inner join t_user u on u.id = c.create_user_id where c.status = ? and c.table_name = ? and c.table_id =? ");
+				sql.append(" from "+DataTableType.收藏.value+" c inner join "+DataTableType.用户.value+" u on u.id = c.create_user_id where c.status = ? and c.table_name = ? and c.table_id =? ");
 				sql.append(" and c.id < ? order by c.id desc limit 0,? ");
 				rs = collectionDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, tableName, tableId, lastId, pageSize);
 			//上刷新
 			}else if("uploading".equalsIgnoreCase(method)){
 				sql.append("select c.id, c.table_name, c.table_id, c.create_user_id, u.account, date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-				sql.append(" from t_collection c inner join t_user u on u.id = c.create_user_id where c.status = ? and c.table_name = ? and c.table_id =? ");
+				sql.append(" from "+DataTableType.收藏.value+" c inner join "+DataTableType.用户.value+" u on u.id = c.create_user_id where c.status = ? and c.table_name = ? and c.table_id =? ");
 				sql.append(" and c.id > ? limit 0,?  ");
 				rs = collectionDao.executeSQL(sql.toString() , ConstantsUtil.STATUS_NORMAL, tableName, tableId, firstId, pageSize);
 			}

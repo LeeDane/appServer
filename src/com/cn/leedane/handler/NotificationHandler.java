@@ -107,7 +107,7 @@ public class NotificationHandler {
 	 * @param notificationType
 	 * @param tableName
 	 * @param tableId
-	 * @param objectBean
+	 * @param objectBean ids没有机器人的Id的时候可以为空
 	 */
 	public void sendNotificationByIds(boolean notifyMySelf, final UserBean user, Set<Integer> ids, String content, NotificationType notificationType, String tableName, int tableId, final Object objectBean){
 		final int robotId = StringUtil.changeObjectToInt(systemCache.getCache("leedane-robot-id"));

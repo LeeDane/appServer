@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 import com.cn.leedane.Dao.ChatBgDao;
 import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.EnumUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
 import com.cn.leedane.bean.ChatBgBean;
@@ -109,7 +110,7 @@ public class ChatBgServiceImpl extends BaseServiceImpl<ChatBgBean> implements Ch
 		if("firstloading".equalsIgnoreCase(method)){
 			sql = new StringBuffer();
 			sql.append("select c.id, c.create_user_id, c.path, c.chat_bg_desc, c.type, c.score, date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-			sql.append(" from t_chat_bg c");
+			sql.append(" from "+DataTableType.聊天背景.value+" c");
 			sql.append(" where c.status=? ");
 			sql.append(buildChatBgTypeSql(type));
 			sql.append(" order by c.id desc limit 0,?");
@@ -118,7 +119,7 @@ public class ChatBgServiceImpl extends BaseServiceImpl<ChatBgBean> implements Ch
 		}else if("lowloading".equalsIgnoreCase(method)){
 			sql = new StringBuffer();
 			sql.append("select c.id, c.create_user_id, c.path, c.chat_bg_desc, c.type, c.score, date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-			sql.append(" from t_chat_bg c");
+			sql.append(" from "+DataTableType.聊天背景.value+" c");
 			sql.append(" where c.status=? ");
 			sql.append(buildChatBgTypeSql(type));
 			sql.append(" and c.id < ? order by c.id desc limit 0,? ");
@@ -127,7 +128,7 @@ public class ChatBgServiceImpl extends BaseServiceImpl<ChatBgBean> implements Ch
 		}else if("uploading".equalsIgnoreCase(method)){
 			sql = new StringBuffer();
 			sql.append("select c.id, c.create_user_id, c.path, c.chat_bg_desc, c.type, c.score, date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-			sql.append(" from t_chat_bg c");
+			sql.append(" from "+DataTableType.聊天背景.value+" c");
 			sql.append(" where c.status=? ");
 			sql.append(buildChatBgTypeSql(type));
 			sql.append(" and c.id > ? limit 0,? ");
@@ -189,7 +190,7 @@ public class ChatBgServiceImpl extends BaseServiceImpl<ChatBgBean> implements Ch
 		}
 		
 		//检查是否有数据存在
-		if(this.chatBgDao.executeSQL("select id from t_chat_bg where create_user_id = ? and path=?", user.getId(), path).size() > 0 ){
+		if(this.chatBgDao.executeSQL("select id from "+DataTableType.聊天背景.value+" where create_user_id = ? and path=?", user.getId(), path).size() > 0 ){
 			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.需要添加的记录已经存在.value));
 			message.put("responseCode", EnumUtil.ResponseCode.需要添加的记录已经存在.value);
 			return message;
@@ -326,7 +327,7 @@ public class ChatBgServiceImpl extends BaseServiceImpl<ChatBgBean> implements Ch
 		scoreBean.setDesc("扣除下载聊天背景积分");
 		scoreBean.setStatus(ConstantsUtil.STATUS_NORMAL);
 		scoreBean.setTableId(chatBg.getId());
-		scoreBean.setTableName("t_chat_bg");
+		scoreBean.setTableName(DataTableType.聊天背景.value);
 		result = scoreService.save(scoreBean);
 		if(result){
 			//增加用户下载资源积分
@@ -338,7 +339,7 @@ public class ChatBgServiceImpl extends BaseServiceImpl<ChatBgBean> implements Ch
 			scoreBean1.setDesc("聊天背景资源被下载奖励");
 			scoreBean1.setStatus(ConstantsUtil.STATUS_NORMAL);
 			scoreBean1.setTableId(chatBg.getId());
-			scoreBean1.setTableName("t_chat_bg");
+			scoreBean1.setTableName(DataTableType.聊天背景.value);
 			result = scoreService.save(scoreBean1);
 		}
 		return result;

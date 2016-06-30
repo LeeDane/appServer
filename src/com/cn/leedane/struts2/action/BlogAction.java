@@ -24,6 +24,7 @@ import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.JsoupUtil;
 import com.cn.leedane.Utils.SpringUtils;
 import com.cn.leedane.Utils.StringUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.bean.BlogBean;
 import com.cn.leedane.bean.UserBean;
 import com.cn.leedane.cache.SystemCache;
@@ -235,7 +236,7 @@ public class BlogAction extends BaseActionContext{
 			if(method.equalsIgnoreCase("lowloading")){
 				sql.append("select b.id, b.img_url, b.title, b.has_img, b.tag, date_format(b.create_time,'%Y-%c-%d %H:%i:%s') create_time");
 				sql.append(" , b.digest, b.froms, b.create_user_id, u.account ");
-				sql.append(" from t_blog b inner join t_user u on b.create_user_id = u.id ");
+				sql.append(" from "+DataTableType.博客.value+" b inner join "+DataTableType.用户.value+" u on b.create_user_id = u.id ");
 				sql.append(" where b.status = ? and b.img_url != '' and b.id < ? order by b.id desc limit 0,?");
 				r = blogService.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, lastId, pageSize);
 				
@@ -243,7 +244,7 @@ public class BlogAction extends BaseActionContext{
 			}else if(method.equalsIgnoreCase("uploading")){
 				sql.append("select b.id, b.img_url, b.title, b.has_img, b.tag, date_format(b.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
 				sql.append(" , b.digest, b.froms, b.create_user_id, u.account ");
-				sql.append(" from t_blog b inner join t_user u on b.create_user_id = u.id ");
+				sql.append(" from "+DataTableType.博客.value+" b inner join "+DataTableType.用户.value+" u on b.create_user_id = u.id ");
 				sql.append(" where b.status = ? and b.img_url != '' and b.id > ?  limit 0,?");
 				r = blogService.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, firstId, pageSize);
 				
@@ -251,7 +252,7 @@ public class BlogAction extends BaseActionContext{
 			}else if(method.equalsIgnoreCase("firstloading")){
 				sql.append("select b.id, b.img_url, b.title, b.has_img, b.tag, date_format(b.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
 				sql.append(" , b.digest, b.froms, b.create_user_id, u.account ");
-				sql.append(" from t_blog b inner join t_user u on b.create_user_id = u.id ");
+				sql.append(" from "+DataTableType.博客.value+" b inner join "+DataTableType.用户.value+" u on b.create_user_id = u.id ");
 				sql.append(" where b.status = ? and b.img_url != ''  order by b.id desc limit 0,?");
 				r = blogService.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, pageSize);
 			}else{
@@ -292,7 +293,7 @@ public class BlogAction extends BaseActionContext{
 			
 			if(blog_id < 1) return SUCCESS;
 			//int blog_id = 1;
-			String sql = "select content, read_number from t_blog where status = ? and id = ?";
+			String sql = "select content, read_number from "+DataTableType.博客.value+" where status = ? and id = ?";
 			List<Map<String,Object>> r = blogService.executeSQL(sql, ConstantsUtil.STATUS_NORMAL, blog_id);				
 			if(r.size() == 1){
 				Map<String,Object> map = r.get(0);
@@ -418,12 +419,12 @@ public class BlogAction extends BaseActionContext{
 			System.out.println("执行的方式是："+method +",获取的数量:"+num);
 			//普通获取，取最新的图片信息，按照create_time倒序排列
 			if(method.equalsIgnoreCase("simple")){
-				sql = "select id,img_url,title from t_blog where status = " + ConstantsUtil.STATUS_NORMAL + " and img_url != '' order by create_time desc,id desc limit 0,?";
+				sql = "select id,img_url,title from "+DataTableType.博客.value+" where status = " + ConstantsUtil.STATUS_NORMAL + " and img_url != '' order by create_time desc,id desc limit 0,?";
 				r = blogService.executeSQL(sql, num);
 				
 			//按照热度，取最热门的图片信息，按照id倒序排序
 			}else if(method.equalsIgnoreCase("hostest")){
-				sql = "select id,img_url,title from t_blog where status = " + ConstantsUtil.STATUS_NORMAL + "  and img_url != '' and NOW() < DATE_ADD(create_time,INTERVAL 7 DAY) order by (comment_number*0.45 + transmit_number*0.25 + share_number*0.2 + zan_number*0.1 + read_number*0.1) desc,id desc limit 0,?";
+				sql = "select id,img_url,title from "+DataTableType.博客.value+" where status = " + ConstantsUtil.STATUS_NORMAL + "  and img_url != '' and NOW() < DATE_ADD(create_time,INTERVAL 7 DAY) order by (comment_number*0.45 + transmit_number*0.25 + share_number*0.2 + zan_number*0.1 + read_number*0.1) desc,id desc limit 0,?";
 				r = blogService.executeSQL(sql, num);	
 			}else{
 				message.put("isSuccess", resIsSuccess);

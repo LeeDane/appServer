@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -16,11 +15,11 @@ import org.apache.log4j.Logger;
 import com.cn.leedane.Dao.ChatDao;
 import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.DateUtil;
-import com.cn.leedane.Utils.EmojiUtil;
 import com.cn.leedane.Utils.EnumUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
+import com.cn.leedane.Utils.FilterUtil;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
-import com.cn.leedane.Utils.SensitiveWord.SensitivewordFilter;
 import com.cn.leedane.bean.ChatBean;
 import com.cn.leedane.bean.OperateLogBean;
 import com.cn.leedane.bean.UserBean;
@@ -95,18 +94,18 @@ public class ChatServiceImpl extends BaseServiceImpl<ChatBean> implements ChatSe
 	
 		if("firstloading".equalsIgnoreCase(method)){
 			sql.append("select c.id, c.create_user_id, c.to_user_id, date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time, c.type, c.content");
-			sql.append(" from t_chat c where ((c.create_user_id = ? and c.to_user_id =?) or (c.to_user_id =? and c.create_user_id = ?))");
+			sql.append(" from "+DataTableType.聊天.value+" c where ((c.create_user_id = ? and c.to_user_id =?) or (c.to_user_id =? and c.create_user_id = ?))");
 			sql.append(" order by c.id desc limit 0,?");
 			rs = chatDao.executeSQL(sql.toString(), user.getId(), toUserId,  user.getId(), toUserId,pageSize);
 		//上刷新
 		}else if("uploading".equalsIgnoreCase(method)){
 			sql.append("select c.id, c.create_user_id, c.to_user_id , date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time, c.type, c.content");
-			sql.append(" from t_chat c where ((c.create_user_id = ? and c.to_user_id =?) or (c.to_user_id =? and c.create_user_id = ?))");
+			sql.append(" from "+DataTableType.聊天.value+" c where ((c.create_user_id = ? and c.to_user_id =?) or (c.to_user_id =? and c.create_user_id = ?))");
 			sql.append(" and c.id < ? order by c.id desc limit 0,? ");
 			rs = chatDao.executeSQL(sql.toString(), user.getId(), toUserId, user.getId(), toUserId, firstId, pageSize);
 		}else if("lowloading".equalsIgnoreCase(method)){
 			sql.append("select c.id, c.create_user_id, c.to_user_id , date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time, c.type, c.content");
-			sql.append(" from t_chat c where ((c.create_user_id = ? and c.to_user_id =?) or (c.to_user_id =? and c.create_user_id = ?))");
+			sql.append(" from "+DataTableType.聊天.value+" c where ((c.create_user_id = ? and c.to_user_id =?) or (c.to_user_id =? and c.create_user_id = ?))");
 			sql.append(" and c.id > ? order by c.id desc limit 0,? ");
 			rs = chatDao.executeSQL(sql.toString(), user.getId(), toUserId, user.getId(), toUserId, lastId, pageSize);
 		}
@@ -132,26 +131,16 @@ public class ChatServiceImpl extends BaseServiceImpl<ChatBean> implements ChatSe
 		}
 		String content = JsonUtil.getStringValue(jo, "content"); //聊天内容
 		
-		//过滤掉emoji
-		content = EmojiUtil.filterEmoji(content);
+		//进行敏感词过滤和emoji过滤
+		if(FilterUtil.filter(content, message))
+			return message;
+		
 		if(StringUtil.isNull(content)){
 			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.聊天内容不能为空.value));
 			message.put("responseCode", EnumUtil.ResponseCode.聊天内容不能为空.value);
 			return message;
 		}
 			
-		//检测敏感词
-		SensitivewordFilter filter = new SensitivewordFilter();
-		long beginTime = System.currentTimeMillis();
-		Set<String> set = filter.getSensitiveWord(content, 1);
-		if(set.size() > 0){
-			message.put("message", "有敏感词"+set.size()+"个："+set.toString());
-			message.put("responseCode", EnumUtil.ResponseCode.系统检测到有敏感词.value);
-			long endTime = System.currentTimeMillis();
-			System.out.println("总共消耗时间为：" + (endTime - beginTime));
-			return message;
-		}
-		
 		int type = JsonUtil.getIntValue(jo, "type", 0); //聊天类型
 		ChatBean chatBean = new ChatBean();
 		chatBean.setContent(content);

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.cn.leedane.Utils.BaseActionContext;
 import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.StringUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.bean.BlogBean;
 import com.cn.leedane.bean.FilePathBean;
 import com.cn.leedane.bean.SignInBean;
@@ -51,12 +52,12 @@ public class BatchDealAction extends BaseActionContext {
 		}*/
 		
 		for(int i = 1504;i > 0; i--){
-			List<Map<String, Object>> blogs = blogService.executeSQL("select id, digest from t_blog where id=?", i);
+			List<Map<String, Object>> blogs = blogService.executeSQL("select id, digest from "+DataTableType.博客.value+" where id=?", i);
 			if(!blogs.isEmpty() && blogs.size() >0){
 				List<BlogBean> blogs2 = blogService.executeHQL("BlogBean", "where digest = '"+StringUtil.changeNotNull(blogs.get(0).get("digest"))+"' and id != "+StringUtil.changeObjectToInt(blogs.get(0).get("id")));
 				if(blogs2.size() > 0){
 					for(BlogBean blog2: blogs2){
-						blogService.executeSQL("delete from t_blog where id = ?", blog2.getId());
+						blogService.executeSQL("delete from "+DataTableType.博客.value+" where id = ?", blog2.getId());
 					}
 				}
 			}
@@ -79,7 +80,7 @@ public class BatchDealAction extends BaseActionContext {
 	 */
 	public String upload10() {
 		try {
-			List<Map<String, Object>> paths = filePathService.executeSQL("select * from t_file_path where is_upload_qiniu = 0 and table_name <> 't_mood' order by id desc limit 10");
+			List<Map<String, Object>> paths = filePathService.executeSQL("select * from "+DataTableType.文件.value+" where is_upload_qiniu = 0 and table_name <> '"+DataTableType.心情.value+"' order by id desc limit 10");
 			if(paths != null && paths.size() > 0){	
 				List<Map<String,Object>> fileBeans = cloudStoreHandler.executeUpload(paths);
 				if(fileBeans != null && fileBeans.size() >0){

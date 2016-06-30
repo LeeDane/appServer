@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import com.cn.leedane.Dao.ReportDao;
 import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.EnumUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
 import com.cn.leedane.bean.OperateLogBean;
@@ -107,7 +108,7 @@ public class ReportServiceImpl extends BaseServiceImpl<ReportBean> implements Re
 		int tableId = JsonUtil.getIntValue(jo, "table_id");
 			
 		try {
-			return reportDao.updateSQL("delete from t_report where table_id = ? and table_name = ? and create_user_id=?", tableId, tableName, user.getId());
+			return reportDao.updateSQL("delete from "+DataTableType.举报.value+" where table_id = ? and table_name = ? and create_user_id=?", tableId, tableName, user.getId());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

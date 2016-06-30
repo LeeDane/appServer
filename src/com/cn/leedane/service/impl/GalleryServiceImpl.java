@@ -18,6 +18,7 @@ import com.cn.leedane.Utils.EnumUtil;
 import com.cn.leedane.Utils.FileUtil;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.bean.GalleryBean;
 import com.cn.leedane.bean.OperateLogBean;
 import com.cn.leedane.bean.UserBean;
@@ -165,7 +166,7 @@ public class GalleryServiceImpl extends BaseServiceImpl<GalleryBean> implements 
 		if("firstloading".equalsIgnoreCase(method)){
 			sql.append("select g.id, g.path, g.width, g.height, g.length, g.create_user_id, date_format(g.create_time,'%Y-%c-%d %H:%i:%s') create_time");
 			sql.append(" , g.gallery_desc, u.account");
-			sql.append(" from t_gallery g inner join t_user u on u.id = g.create_user_id where g.status = ? ");
+			sql.append(" from "+DataTableType.图库.value+" g inner join "+DataTableType.用户.value+" u on u.id = g.create_user_id where g.status = ? ");
 			sql.append(" and g.create_user_id = ?");
 			sql.append(" order by g.id desc limit 0,?");
 			rs = galleryDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, uid, pageSize);
@@ -173,7 +174,7 @@ public class GalleryServiceImpl extends BaseServiceImpl<GalleryBean> implements 
 		}else if("lowloading".equalsIgnoreCase(method)){
 			sql.append("select g.id, g.path, g.width, g.height, g.length, g.create_user_id, date_format(g.create_time,'%Y-%c-%d %H:%i:%s') create_time");
 			sql.append(" , g.gallery_desc, u.account");
-			sql.append(" from t_gallery g inner join t_user u on u.id = g.create_user_id where g.status = ? ");
+			sql.append(" from "+DataTableType.图库.value+" g inner join "+DataTableType.用户.value+" u on u.id = g.create_user_id where g.status = ? ");
 			sql.append(" and g.create_user_id = ?");
 			sql.append(" and g.id < ? order by g.id desc limit 0,? ");
 			rs = galleryDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, uid, lastId, pageSize);
@@ -181,7 +182,7 @@ public class GalleryServiceImpl extends BaseServiceImpl<GalleryBean> implements 
 		}else if("uploading".equalsIgnoreCase(method)){
 			sql.append("select g.id, g.path, g.width, g.height, g.length, g.create_user_id, date_format(g.create_time,'%Y-%c-%d %H:%i:%s') create_time");
 			sql.append(" , g.gallery_desc, u.account");
-			sql.append(" from t_gallery g inner join t_user u on u.id = g.create_user_id where g.status = ? ");
+			sql.append(" from "+DataTableType.图库.value+" g inner join "+DataTableType.用户.value+" u on u.id = g.create_user_id where g.status = ? ");
 			sql.append(" and g.create_user_id = ?");
 			sql.append(" and g.id > ? limit 0,?  ");
 			rs = galleryDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, uid, firstId, pageSize);

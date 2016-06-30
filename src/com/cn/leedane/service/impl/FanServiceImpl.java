@@ -17,6 +17,7 @@ import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.EnumUtil;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.bean.FanBean;
 import com.cn.leedane.bean.OperateLogBean;
 import com.cn.leedane.bean.UserBean;
@@ -105,7 +106,7 @@ public class FanServiceImpl extends BaseServiceImpl<FanBean> implements FanServi
 		if("firstloading".equalsIgnoreCase(method)){
 			sql = new StringBuffer();
 			sql.append("select f.id, f.create_user_id, f.to_user_id user_id, f.user_remark remark, date_format(f.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-			sql.append(" from t_fan f");
+			sql.append(" from "+DataTableType.粉丝.value+" f");
 			sql.append(" where f.status=? and f.create_user_id=? ");
 			sql.append(" order by f.id desc limit 0,?");
 			rs = fanDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, toUserId, pageSize);
@@ -113,7 +114,7 @@ public class FanServiceImpl extends BaseServiceImpl<FanBean> implements FanServi
 		}else if("lowloading".equalsIgnoreCase(method)){
 			sql = new StringBuffer();
 			sql.append("select f.id, f.create_user_id, f.to_user_id user_id, f.user_remark remark, date_format(f.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-			sql.append(" from t_fan f");
+			sql.append(" from "+DataTableType.粉丝.value+" f");
 			sql.append(" where f.status=? and f.create_user_id=? ");
 			sql.append(" and f.id < ? order by f.id desc limit 0,? ");
 			rs = fanDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, toUserId, lastId, pageSize);
@@ -121,7 +122,7 @@ public class FanServiceImpl extends BaseServiceImpl<FanBean> implements FanServi
 		}else if("uploading".equalsIgnoreCase(method)){
 			sql = new StringBuffer();
 			sql.append("select f.id, f.create_user_id, f.to_user_id user_id, f.user_remark remark, date_format(f.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-			sql.append(" from t_fan f");
+			sql.append(" from "+DataTableType.粉丝.value+" f");
 			sql.append(" where f.status=? and f.create_user_id=? ");
 			sql.append(" and f.id > ? limit 0,? ");
 			rs = fanDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, toUserId,firstId, pageSize);
@@ -173,7 +174,7 @@ public class FanServiceImpl extends BaseServiceImpl<FanBean> implements FanServi
 		if("firstloading".equalsIgnoreCase(method)){
 			sql = new StringBuffer();
 			sql.append("select f.id, f.create_user_id, f.to_user_id user_id, f.user_remark remark, date_format(f.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-			sql.append(" from t_fan f");
+			sql.append(" from "+DataTableType.粉丝.value+" f");
 			sql.append(" where f.status=? and f.create_user_id=? ");
 			sql.append(" order by f.id desc limit 0,?");
 			rs = fanDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, toUserId, pageSize);
@@ -181,7 +182,7 @@ public class FanServiceImpl extends BaseServiceImpl<FanBean> implements FanServi
 		}else if("lowloading".equalsIgnoreCase(method)){
 			sql = new StringBuffer();
 			sql.append("select f.id, f.create_user_id, f.to_user_id user_id, f.user_remark remark, date_format(f.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-			sql.append(" from t_fan f");
+			sql.append(" from "+DataTableType.粉丝.value+" f");
 			sql.append(" where f.status=? and f.create_user_id=? ");
 			sql.append(" and f.id < ? order by f.id desc limit 0,? ");
 			rs = fanDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, toUserId, lastId, pageSize);
@@ -189,7 +190,7 @@ public class FanServiceImpl extends BaseServiceImpl<FanBean> implements FanServi
 		}else if("uploading".equalsIgnoreCase(method)){
 			sql = new StringBuffer();
 			sql.append("select f.id, f.create_user_id, f.to_user_id user_id, f.user_remark remark, date_format(f.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-			sql.append(" from t_fan f");
+			sql.append(" from "+DataTableType.粉丝.value+" f");
 			sql.append(" where f.status=? and f.create_user_id=? ");
 			sql.append(" and f.id > ? limit 0,? ");
 			rs = fanDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, toUserId,firstId, pageSize);
@@ -240,7 +241,7 @@ public class FanServiceImpl extends BaseServiceImpl<FanBean> implements FanServi
 		if("firstloading".equalsIgnoreCase(method)){
 			sql = new StringBuffer();
 			sql.append("select f.id, f.create_user_id user_id, f.to_user_id, date_format(f.create_time,'%Y-%c-%d %H:%i:%s') create_time");
-			sql.append(" from t_fan f");
+			sql.append(" from "+DataTableType.粉丝.value+" f");
 			sql.append(" where f.status=? and f.to_user_id=? ");
 			sql.append(" order by f.id desc limit 0,?");
 			rs = fanDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, toUserId, pageSize);
@@ -248,7 +249,7 @@ public class FanServiceImpl extends BaseServiceImpl<FanBean> implements FanServi
 		}else if("lowloading".equalsIgnoreCase(method)){
 			sql = new StringBuffer();
 			sql.append("select f.id, f.create_user_id user_id, f.to_user_id, date_format(f.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-			sql.append(" from t_fan f");
+			sql.append(" from "+DataTableType.粉丝.value+" f");
 			sql.append(" where f.status=? and f.to_user_id=? ");
 			sql.append(" and f.id < ? order by f.id desc limit 0,? ");
 			rs = fanDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, toUserId, lastId, pageSize);
@@ -256,7 +257,7 @@ public class FanServiceImpl extends BaseServiceImpl<FanBean> implements FanServi
 		}else if("uploading".equalsIgnoreCase(method)){
 			sql = new StringBuffer();
 			sql.append("select f.id, f.create_user_id user_id, f.to_user_id, date_format(f.create_time,'%Y-%c-%d %H:%i:%s') create_time");
-			sql.append(" from t_fan f");
+			sql.append(" from "+DataTableType.粉丝.value+" f");
 			sql.append(" where f.status=? and f.to_user_id=? ");
 			sql.append(" and f.id > ? limit 0,? ");
 			rs = fanDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, toUserId,firstId, pageSize);
@@ -307,7 +308,7 @@ public class FanServiceImpl extends BaseServiceImpl<FanBean> implements FanServi
 		if("firstloading".equalsIgnoreCase(method)){
 			sql = new StringBuffer();
 			sql.append("select f.id, f.create_user_id user_id, f.to_user_id, date_format(f.create_time,'%Y-%c-%d %H:%i:%s') create_time");
-			sql.append(" from t_fan f");
+			sql.append(" from "+DataTableType.粉丝.value+" f");
 			sql.append(" where f.status=? and f.to_user_id=? ");
 			sql.append(" order by f.id desc limit 0,?");
 			rs = fanDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, toUserId, pageSize);
@@ -315,7 +316,7 @@ public class FanServiceImpl extends BaseServiceImpl<FanBean> implements FanServi
 		}else if("lowloading".equalsIgnoreCase(method)){
 			sql = new StringBuffer();
 			sql.append("select f.id, f.create_user_id user_id, f.to_user_id, date_format(f.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-			sql.append(" from t_fan f");
+			sql.append(" from "+DataTableType.粉丝.value+" f");
 			sql.append(" where f.status=? and f.to_user_id=? ");
 			sql.append(" and f.id < ? order by f.id desc limit 0,? ");
 			rs = fanDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, toUserId, lastId, pageSize);
@@ -323,7 +324,7 @@ public class FanServiceImpl extends BaseServiceImpl<FanBean> implements FanServi
 		}else if("uploading".equalsIgnoreCase(method)){
 			sql = new StringBuffer();
 			sql.append("select f.id, f.create_user_id user_id, f.to_user_id, date_format(f.create_time,'%Y-%c-%d %H:%i:%s') create_time");
-			sql.append(" from t_fan f");
+			sql.append(" from "+DataTableType.粉丝.value+" f");
 			sql.append(" where f.status=? and f.to_user_id=? ");
 			sql.append(" and f.id > ? limit 0,? ");
 			rs = fanDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, toUserId,firstId, pageSize);
@@ -444,7 +445,7 @@ public class FanServiceImpl extends BaseServiceImpl<FanBean> implements FanServi
 	 * @return
 	 */
 	private boolean cheakIsAddFan(int id, int toUserId) {
-		return this.fanDao.executeSQL("select id from t_fan where create_user_id=? and to_user_id =? and status=?", id, toUserId, ConstantsUtil.STATUS_NORMAL).size() > 0;
+		return this.fanDao.executeSQL("select id from "+DataTableType.粉丝.value+" where create_user_id=? and to_user_id =? and status=?", id, toUserId, ConstantsUtil.STATUS_NORMAL).size() > 0;
 	}
 
 	@Override
@@ -467,7 +468,7 @@ public class FanServiceImpl extends BaseServiceImpl<FanBean> implements FanServi
 			return message;
 		}
 		
-		boolean isFan = fanDao.executeSQL("select id from t_fan where status=? and create_user_id=? and to_user_id=?", ConstantsUtil.STATUS_NORMAL, user.getId(), toUserId).size() > 0;
+		boolean isFan = fanDao.executeSQL("select id from "+DataTableType.粉丝.value+" where status=? and create_user_id=? and to_user_id=?", ConstantsUtil.STATUS_NORMAL, user.getId(), toUserId).size() > 0;
 		if(isFan){
 			message.put("message", "已关注");
 			message.put("isSuccess", true);

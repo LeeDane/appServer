@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 
 import com.cn.leedane.Dao.UploadDao;
 import com.cn.leedane.Utils.ConstantsUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.bean.OperateLogBean;
 import com.cn.leedane.bean.UploadBean;
 import com.cn.leedane.bean.UserBean;
@@ -54,7 +55,7 @@ public class UploadServiceImpl extends BaseServiceImpl<UploadBean> implements Up
 	public boolean cancel(UploadBean upload, UserBean user, HttpServletRequest request) {
 		logger.info("UploadServiceImpl-->cancel():upload=" +upload.toString() +", user=" +user.getAccount());
 		try {
-			boolean result = uploadDao.updateSQL("delete from t_upload where table_uuid = ? and table_name = ? and f_order = ? and create_user_id = ? and serial_number= ? ", upload.getTableUuid(), upload.getTableName(), upload.getOrder(), user.getId(), upload.getSerialNumber());
+			boolean result = uploadDao.updateSQL("delete from "+DataTableType.上传.value+" where table_uuid = ? and table_name = ? and f_order = ? and create_user_id = ? and serial_number= ? ", upload.getTableUuid(), upload.getTableName(), upload.getOrder(), user.getId(), upload.getSerialNumber());
 				if(result){
 					File file = new File(upload.getPath());
 					if(file.exists()){
@@ -77,7 +78,7 @@ public class UploadServiceImpl extends BaseServiceImpl<UploadBean> implements Up
 		List<Map<String, Object>> rs = new ArrayList<Map<String,Object>>();
 		
 		sql.append("select l.id, l.path, l.serial_number");
-		sql.append(" from t_upload l inner join t_user u on u.id = l.create_user_id where l.create_user_id = ? and l.status=? ");
+		sql.append(" from "+DataTableType.上传.value+" l inner join "+DataTableType.用户.value+" u on u.id = l.create_user_id where l.create_user_id = ? and l.status=? ");
 		sql.append(" and l.table_name=? and l.table_uuid=? and l.f_order=? ");
 		sql.append(" order by l.serial_number");
 		rs = uploadDao.executeSQL(sql.toString(), user.getId(), ConstantsUtil.STATUS_NORMAL, tableName, tableUuid, order);

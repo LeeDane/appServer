@@ -2,8 +2,10 @@ package com.cn.leedane.service.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -15,6 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.cn.leedane.Dao.NotificationDao;
 import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.EnumUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
+import com.cn.leedane.Utils.EnumUtil.NotificationType;
+import com.cn.leedane.Utils.FilterUtil;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
 import com.cn.leedane.bean.NotificationBean;
@@ -99,19 +104,19 @@ public class NotificationServiceImpl extends BaseServiceImpl<NotificationBean> i
 		//分页查找该用户的通知列表
 		if("firstloading".equalsIgnoreCase(method)){
 			sql.append("select n.id, n.from_user_id, n.to_user_id, n.content, n.type, n.extra, n.create_time, n.table_name, n.table_id, n.is_push_error, n.is_read");
-			sql.append(" from t_notification n where n.to_user_id = ? and n.status = ? and n.type=?");
+			sql.append(" from "+DataTableType.通知.value+" n where n.to_user_id = ? and n.status = ? and n.type=?");
 			sql.append(" order by n.id desc limit 0,?");
 			rs = notificationDao.executeSQL(sql.toString(), user.getId(), ConstantsUtil.STATUS_NORMAL, type, pageSize);
 		//下刷新
 		}else if("lowloading".equalsIgnoreCase(method)){
 			sql.append("select n.id, n.from_user_id, n.to_user_id, n.content, n.type, n.extra, n.create_time, n.table_name, n.table_id, n.is_push_error, n.is_read");
-			sql.append(" from t_notification n where n.to_user_id = ? and n.status = ? and n.type=?");
+			sql.append(" from "+DataTableType.通知.value+" n where n.to_user_id = ? and n.status = ? and n.type=?");
 			sql.append(" and n.id < ? order by n.id desc limit 0,? ");
 			rs = notificationDao.executeSQL(sql.toString(), user.getId(), ConstantsUtil.STATUS_NORMAL, type, lastId, pageSize);
 		//上刷新
 		}else if("uploading".equalsIgnoreCase(method)){
 			sql.append("select n.id, n.from_user_id, n.to_user_id, n.content, n.type, n.extra, n.create_time, n.table_name, n.table_id, n.is_push_error, n.is_read");
-			sql.append(" from t_notification n where n.to_user_id = ? and n.status = ? and n.type=?");
+			sql.append(" from "+DataTableType.通知.value+" n where n.to_user_id = ? and n.status = ? and n.type=?");
 			sql.append(" and n.id > ? limit 0,? ");
 			rs = notificationDao.executeSQL(sql.toString(), user.getId(), ConstantsUtil.STATUS_NORMAL, type, firstId, pageSize);
 		}

@@ -18,12 +18,12 @@ import com.cn.leedane.Dao.FilePathDao;
 import com.cn.leedane.Dao.MoodDao;
 import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.DateUtil;
-import com.cn.leedane.Utils.EmojiUtil;
 import com.cn.leedane.Utils.EnumUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.Utils.EnumUtil.NotificationType;
+import com.cn.leedane.Utils.FilterUtil;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
-import com.cn.leedane.Utils.SensitiveWord.SensitivewordFilter;
 import com.cn.leedane.bean.FilePathBean;
 import com.cn.leedane.bean.FriendBean;
 import com.cn.leedane.bean.MoodBean;
@@ -157,8 +157,10 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 		Map<String, Object> message = new HashMap<String, Object>();
 		message.put("isSuccess", false);
 		
-		//过滤掉emoji
-		content = EmojiUtil.filterEmoji(content);
+		//进行敏感词过滤和emoji过滤
+		if(FilterUtil.filter(content, message))
+			return message;
+		
 		if(StringUtil.isNull(content)){
 			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.某些参数为空.value));
 			message.put("responseCode", EnumUtil.ResponseCode.某些参数为空.value);
@@ -189,7 +191,7 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 			String[] base64s = base64Str.split("&&");
 
 			for(int i=0; i < base64s.length; i++){
-				filePathService.saveEachFile(i, base64s[i], user, uuid, "t_mood");
+				filePathService.saveEachFile(i, base64s[i], user, uuid, DataTableType.心情.value);
 			}
 			moodBean.setHasImg(true);
 		}
@@ -231,8 +233,8 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 			return message;
 		}
 		try {
-			//moodDao.executeSQL("update t_mood set status = ? where id = ? ", status, mid);
-			result = moodDao.updateSQL("update t_mood set status = ? where id = ? ", status, mid);
+			//moodDao.executeSQL("update "+DataTableType.心情.value+" set status = ? where id = ? ", status, mid);
+			result = moodDao.updateSQL("update "+DataTableType.心情.value+" set status = ? where id = ? ", status, mid);
 			if(status == ConstantsUtil.STATUS_NORMAL){
 				//通过观察者的模式发送消息通知
 				Watched watched = new ConcreteWatched();       
@@ -267,14 +269,14 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 		String tableUuid = moodBean.getUuid();
 		//有图片的先删掉图片
 		if(moodBean != null && moodBean.isHasImg()){
-			List<Map<String, Object>> list = filePathDao.executeSQL("select f.id from t_file_path f where f.table_uuid = ? and f.table_name=?", moodBean.getUuid(), "t_mood");
+			List<Map<String, Object>> list = filePathDao.executeSQL("select f.id from "+DataTableType.文件.value+" f where f.table_uuid = ? and f.table_name=?", moodBean.getUuid(), DataTableType.心情.value);
 		
 			if(list != null && list.size() >0){
 				int fid = 0;
 				for(Map<String, Object> map: list){
 					fid = StringUtil.changeObjectToInt(map.get("id"));
 					if(fid >0)
-						filePathDao.deleteById("t_file_path", fid);
+						filePathDao.deleteById(DataTableType.文件.value, fid);
 				}
 				
 			}
@@ -286,7 +288,7 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 		this.operateLogService.saveOperateLog(user, request, new Date(), subject, "deleteMood()", 1 , 0);
 	
 		if(result){
-			moodHandler.delete(mid, "t_mood", tableUuid);
+			moodHandler.delete(mid, DataTableType.心情.value, tableUuid);
 			//同时删除朋友圈的数据
 			circleOfFriendsHandler.deleteMyAndFansTimeLine(user, EnumUtil.DataTableType.心情.value, mid);
 			message.put("isSuccess", result);
@@ -317,7 +319,7 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 		if("firstloading".equalsIgnoreCase(method)){
 			sql.append("select m.id, m.content, m.froms, m.uuid, m.create_user_id, date_format(m.create_time,'%Y-%c-%d %H:%i:%s') create_time, m.has_img, m.can_comment, m.can_transmit,");
 			sql.append(" m.read_number, m.location, m.longitude, m.latitude, m.zan_number, m.comment_number, m.transmit_number, m.share_number, u.account");
-			sql.append(" from t_mood m inner join t_user u on u.id = m.create_user_id where m.status = ? and ");
+			sql.append(" from "+DataTableType.心情.value+" m inner join "+DataTableType.用户.value+" u on u.id = m.create_user_id where m.status = ? and ");
 			sql.append(" m.create_user_id = ?");
 			sql.append(" order by m.id desc limit 0,?");
 			rs = moodDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, toUserId, pageSize);
@@ -325,7 +327,7 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 		}else if("lowloading".equalsIgnoreCase(method)){
 			sql.append("select m.id, m.content, m.froms, m.uuid, m.create_user_id, date_format(m.create_time,'%Y-%c-%d %H:%i:%s') create_time, m.has_img, m.can_comment, m.can_transmit,");
 			sql.append(" m.read_number, m.location, m.longitude, m.latitude, m.zan_number, m.comment_number, m.transmit_number, m.share_number, u.account");
-			sql.append(" from t_mood m inner join t_user u on u.id = m.create_user_id where m.status = ? and ");
+			sql.append(" from "+DataTableType.心情.value+" m inner join "+DataTableType.用户.value+" u on u.id = m.create_user_id where m.status = ? and ");
 			sql.append(" m.create_user_id = ?");
 			sql.append(" and m.id < ? order by m.id desc limit 0,? ");
 			rs = moodDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, toUserId, lastId, pageSize);
@@ -333,7 +335,7 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 		}else if("uploading".equalsIgnoreCase(method)){
 			sql.append("select m.id, m.content, m.froms, m.uuid, m.create_user_id, date_format(m.create_time,'%Y-%c-%d %H:%i:%s') create_time, m.has_img, m.can_comment, m.can_transmit,");
 			sql.append(" m.read_number, m.location, m.longitude, m.latitude, m.zan_number, m.comment_number, m.transmit_number, m.share_number, u.account");
-			sql.append(" from t_mood m inner join t_user u on u.id = m.create_user_id where m.status = ? and ");
+			sql.append(" from "+DataTableType.心情.value+" m inner join "+DataTableType.用户.value+" u on u.id = m.create_user_id where m.status = ? and ");
 			sql.append(" m.create_user_id = ?");
 			sql.append(" and m.id > ? limit 0,?  ");
 			rs = moodDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, toUserId, firstId, pageSize);
@@ -349,15 +351,15 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 				uuid = StringUtil.changeNotNull(rs.get(i).get("uuid"));
 				moodId = StringUtil.changeObjectToInt(rs.get(i).get("id"));
 				
-				rs.get(i).put("zan_users", zanHandler.getZanUser(moodId, "t_mood", user, 6));
-				rs.get(i).put("comment_number", commentHandler.getCommentNumber(moodId, "t_mood"));
-				rs.get(i).put("transmit_number", transmitHandler.getTransmitNumber(moodId, "t_mood"));
-				rs.get(i).put("zan_number", zanHandler.getZanNumber(moodId, "t_mood"));
+				rs.get(i).put("zan_users", zanHandler.getZanUser(moodId, DataTableType.心情.value, user, 6));
+				rs.get(i).put("comment_number", commentHandler.getCommentNumber(moodId, DataTableType.心情.value));
+				rs.get(i).put("transmit_number", transmitHandler.getTransmitNumber(moodId, DataTableType.心情.value));
+				rs.get(i).put("zan_number", zanHandler.getZanNumber(moodId, DataTableType.心情.value));
 				
 				
 				//有图片的获取图片的路径
 				if(hasImg && !StringUtil.isNull(uuid)){
-					rs.get(i).put("imgs", moodHandler.getMoodImg("t_mood", uuid, picSize));
+					rs.get(i).put("imgs", moodHandler.getMoodImg(DataTableType.心情.value, uuid, picSize));
 				}
 			}	
 		}
@@ -389,7 +391,7 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 		Map<String, Object> message = new HashMap<String, Object>();
 		message.put("isSuccess", false);
 		//检查uuid是否已经存在了
-		if(moodDao.executeSQL("select id from T_MOOD where table_uuid =? ", uuid).size() > 0){
+		if(moodDao.executeSQL("select id from "+DataTableType.心情.value+" where table_uuid =? ", uuid).size() > 0){
 			String oldUUid = uuid;
 			uuid = UUID.randomUUID().toString() + System.currentTimeMillis();
 			filePathDao.updateBatchFilePath(new String[]{oldUUid}, new String[]{uuid});
@@ -439,7 +441,7 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 		StringBuffer sql = new StringBuffer();
 		sql.append(" where create_user_id = " + uid + " and status = " +ConstantsUtil.STATUS_NORMAL);
 		int count = 0;
-		count = moodDao.getTotal("t_mood", sql.toString());
+		count = moodDao.getTotal(DataTableType.心情.value, sql.toString());
 		//保存操作日志
 		operateLogService.saveOperateLog(user, request, null, StringUtil.getStringBufferStr(user.getAccount(),"查询用户ID为：", uid, "得到其已经发表成功的心情总数是：", count, "条").toString(), "getCountByUser()", ConstantsUtil.STATUS_NORMAL, 0);
 				
@@ -489,26 +491,16 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 				
 		Map<String, Object> message = new HashMap<String, Object>();
 		message.put("isSuccess", false);
-		//过滤掉emoji
-		content = EmojiUtil.filterEmoji(content);
+		
+		//进行敏感词过滤和emoji过滤
+		if(FilterUtil.filter(content, message))
+			return message;
 		
 		
 		//没有图片并且内容为空就报错返回
 		if(StringUtil.isNull(content) && StringUtil.isNull(uuid)){
 			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.某些参数为空.value));
 			message.put("responseCode", EnumUtil.ResponseCode.某些参数为空.value);
-			return message;
-		}
-		
-		//检测敏感词
-		SensitivewordFilter filter = new SensitivewordFilter();
-		long beginTime = System.currentTimeMillis();
-		Set<String> set = filter.getSensitiveWord(content, 1);
-		if(set.size() > 0){
-			message.put("message", "有敏感词"+set.size()+"个:"+set.toString());
-			message.put("responseCode", EnumUtil.ResponseCode.系统检测到有敏感词.value);
-			long endTime = System.currentTimeMillis();
-			System.out.println("总共消耗时间为：" + (endTime - beginTime));
 			return message;
 		}
 		
@@ -557,7 +549,7 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 			Set<String> usernames = StringUtil.getAtUserName(content);
 			if(usernames.size() > 0){
 				//String str = "{from_user_remark}在发表的心情中@您,点击查看详情";
-				notificationHandler.sendNotificationByNames(false, user, usernames, content, NotificationType.艾特我, "t_mood", moodBean.getId(), moodBean);
+				notificationHandler.sendNotificationByNames(false, user, usernames, content, NotificationType.艾特我, DataTableType.心情.value, moodBean.getId(), moodBean);
 			}
 			message.put("isSuccess", result);
 		}else{
@@ -608,7 +600,7 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 			return message;
 		}
 		
-		List<Map<String, Object>> rs = moodDao.executeSQL("select id, content, uuid, froms, create_user_id, date_format(create_time,'%Y-%c-%d %H:%i:%s') create_time, has_img , m.can_comment, m.can_transmit from t_mood where status=? and content like '%"+searchKey+"%' order by create_time desc limit 25", ConstantsUtil.STATUS_NORMAL);
+		List<Map<String, Object>> rs = moodDao.executeSQL("select id, content, uuid, froms, create_user_id, date_format(create_time,'%Y-%c-%d %H:%i:%s') create_time, has_img , m.can_comment, m.can_transmit from "+DataTableType.心情.value+" where status=? and content like '%"+searchKey+"%' order by create_time desc limit 25", ConstantsUtil.STATUS_NORMAL);
 		if(rs != null && rs.size() > 0){
 			int createUserId = 0;
 			boolean hasImg;
@@ -621,7 +613,7 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 				rs.get(i).putAll(userHandler.getBaseUserInfo(createUserId));
 				//有图片的获取图片的路径
 				if(hasImg && !StringUtil.isNull(uuid)){
-					rs.get(i).put("imgs", moodHandler.getMoodImg("t_mood", uuid, ConstantsUtil.DEFAULT_PIC_SIZE));
+					rs.get(i).put("imgs", moodHandler.getMoodImg(DataTableType.心情.value, uuid, ConstantsUtil.DEFAULT_PIC_SIZE));
 				}
 			}
 		}

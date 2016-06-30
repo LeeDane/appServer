@@ -15,6 +15,7 @@ import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.DateUtil;
 import com.cn.leedane.Utils.SpringUtils;
 import com.cn.leedane.Utils.StringUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.bean.BlogBean;
 import com.cn.leedane.bean.MoodBean;
 import com.cn.leedane.handler.MoodHandler;
@@ -110,7 +111,7 @@ public class SearchXMLService extends BaseXMLWechatService {
 		StringBuffer blogSql = new StringBuffer();
 		blogSql.append("select b.id, b.img_url, b.title, b.has_img, b.tag, date_format(b.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
 		blogSql.append(" , b.digest, b.froms, b.create_user_id, u.account ");
-		blogSql.append(" from t_blog b inner join t_user u on b.create_user_id = u.id ");
+		blogSql.append(" from "+DataTableType.博客.value+" b inner join "+DataTableType.用户.value+" u on b.create_user_id = u.id ");
 		blogSql.append(" where b.status = ? and img_url != '' and ((b.content like '%"+search+"%') or (b.title like '%"+search+"%')) limit 10");
 		List<Map<String, Object>> blogs = blogService.executeSQL(blogSql.toString(), ConstantsUtil.STATUS_NORMAL);
 		
@@ -121,7 +122,7 @@ public class SearchXMLService extends BaseXMLWechatService {
 				searchBean.setCreateTime(DateUtil.DateToString(DateUtil.stringToDate(StringUtil.changeNotNull(map.get("create_time"))), "yyyyMMddHHmmss"));
 				searchBean.setDescription(StringUtil.changeNotNull(map.get("account"))+":"+StringUtil.changeNotNull(map.get("digest")));
 				searchBean.setPicUrl(StringUtil.changeNotNull(map.get("img_url")));
-				searchBean.setTableName("t_blog");
+				searchBean.setTableName(DataTableType.博客.value);
 				searchBean.setTitle(StringUtil.changeNotNull(map.get("title")));
 				searchBeans.add(searchBean);
 			}
@@ -130,7 +131,7 @@ public class SearchXMLService extends BaseXMLWechatService {
 		StringBuffer moodSql = new StringBuffer();
 		moodSql.append("select m.id, m.content, m.froms, m.uuid, m.create_user_id, date_format(m.create_time,'%Y-%c-%d %H:%i:%s') create_time, m.has_img,");
 		moodSql.append(" m.read_number, m.zan_number, m.comment_number, m.transmit_number, m.share_number, u.account");
-		moodSql.append(" from t_mood m inner join t_user u on u.id = m.create_user_id where m.status = ? and ");
+		moodSql.append(" from "+DataTableType.心情.value+" m inner join "+DataTableType.用户.value+" u on u.id = m.create_user_id where m.status = ? and ");
 		moodSql.append(" m.content like '%"+search+"%' limit 10");
 		List<Map<String, Object>> Moods = moodService.executeSQL(moodSql.toString(), ConstantsUtil.STATUS_NORMAL);
 		
@@ -141,8 +142,8 @@ public class SearchXMLService extends BaseXMLWechatService {
 				searchBean.setCreateTime(DateUtil.DateToString(DateUtil.stringToDate(StringUtil.changeNotNull(map.get("create_time"))), "yyyyMMddHHmmss"));
 				searchBean.setDescription(StringUtil.changeNotNull(map.get("account"))+":"+StringUtil.changeNotNull(map.get("content")));
 				//获取图片
-				searchBean.setPicUrl(moodHandler.getMoodImg("t_mood", StringUtil.changeNotNull(map.get("uuid")), "120x120"));
-				searchBean.setTableName("t_mood");
+				searchBean.setPicUrl(moodHandler.getMoodImg("+DataTableType.心情.value+", StringUtil.changeNotNull(map.get("uuid")), "120x120"));
+				searchBean.setTableName(DataTableType.心情.value);
 				searchBean.setTitle(StringUtil.changeNotNull(map.get("account"))+":" +StringUtil.changeNotNull(map.get("content")));
 				searchBeans.add(searchBean);
 			}
@@ -170,7 +171,7 @@ public class SearchXMLService extends BaseXMLWechatService {
 				news.setTitle(StringUtil.changeNotNull(bean.getTitle()));
 				news.setDescription(StringUtil.changeNotNull(bean.getTitle()));
 				news.setPicUrl(StringUtil.changeNotNull(bean.getPicUrl()));
-				if(bean.getTableName().equalsIgnoreCase("t_blog"))
+				if(bean.getTableName().equalsIgnoreCase(DataTableType.博客.value))
 					news.setUrl(bean.getClickUrl());
 				
 				newsList.add(news);

@@ -19,6 +19,7 @@ import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.DateUtil;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.bean.OperateLogBean;
 import com.cn.leedane.bean.UserBean;
 import com.cn.leedane.service.OperateLogService;
@@ -90,19 +91,19 @@ public class OperateLogServiceImpl extends BaseServiceImpl<OperateLogBean> imple
 		//查找该用户所有的积分历史列表(该用户必须是登录用户)
 		if("firstloading".equalsIgnoreCase(method)){
 			sql.append("select o.id, o.method, o.browser, o.ip, o.status, date_format(o.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-			sql.append(" from t_operate_log o where o.create_user_id = ? and (method ='手机号码登录' or method='账号登录')");
+			sql.append(" from "+DataTableType.操作日志.value+" o where o.create_user_id = ? and (method ='手机号码登录' or method='账号登录')");
 			sql.append(" order by o.id desc limit 0,?");
 			rs = operateLogDao.executeSQL(sql.toString(), user.getId(), pageSize);
 		//下刷新
 		}else if("lowloading".equalsIgnoreCase(method)){
 			sql.append("select o.id, o.method, o.browser, o.ip, o.status, date_format(o.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-			sql.append(" from t_operate_log o where o.create_user_id = ? and (method ='手机号码登录' or method='账号登录')");
+			sql.append(" from "+DataTableType.操作日志.value+" o where o.create_user_id = ? and (method ='手机号码登录' or method='账号登录')");
 			sql.append(" and o.id < ? order by o.id desc limit 0,? ");
 			rs = operateLogDao.executeSQL(sql.toString(), user.getId(), lastId, pageSize);
 		//上刷新
 		}else if("uploading".equalsIgnoreCase(method)){
 			sql.append("select o.id, o.method, o.browser, o.ip, o.status, date_format(o.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
-			sql.append(" from t_operate_log o where o.create_user_id = ? and (method ='手机号码登录' or method='账号登录')");
+			sql.append(" from "+DataTableType.操作日志.value+" o where o.create_user_id = ? and (method ='手机号码登录' or method='账号登录')");
 			sql.append(" and o.id > ? limit 0,?  ");
 			rs = operateLogDao.executeSQL(sql.toString() , user.getId(), firstId, pageSize);
 		}

@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import com.cn.leedane.Utils.SpringUtils;
 import com.cn.leedane.Utils.StringUtil;
+import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.bean.OperateLogBean;
 import com.cn.leedane.bean.UserBean;
 import com.cn.leedane.cache.SystemCache;
@@ -61,7 +62,7 @@ public class OperateLogTest extends BaseTest {
 	
 	@Test
 	public void getlimits(){
-		System.out.println(operateLogService.getlimits("t_operate_log", " order by id desc ", 5, 1));
+		System.out.println(operateLogService.getlimits(DataTableType.操作日志.value, " order by id desc ", 5, 1));
 	}
 	
 	

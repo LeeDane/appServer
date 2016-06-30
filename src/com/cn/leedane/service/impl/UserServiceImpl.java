@@ -767,6 +767,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 		user.setChinaName(account);
 		user.setStatus(ConstantsUtil.STATUS_NORMAL);
 		user.setMobilePhone(phone);
+		user.setRegisterTime(new Date());
 		int firstScore = 0;
 		if(systemCache != null){
 			firstScore = StringUtil.changeObjectToInt(systemCache.getCache("first-sign-in"));

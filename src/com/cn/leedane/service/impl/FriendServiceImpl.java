@@ -144,6 +144,8 @@ public class FriendServiceImpl extends BaseServiceImpl<FriendBean> implements Fr
 		}else{
 			friendBean.setToUserRemark(toUser.getAccount());
 		}
+		//因为from_user_remark字段不能为空，所以暂时给一个""值
+		friendBean.setFromUserRemark("");
 		if(!friendDao.save(friendBean)){
 			message.put("message", "添加好友失败"); 
 			return message;	
@@ -159,14 +161,33 @@ public class FriendServiceImpl extends BaseServiceImpl<FriendBean> implements Fr
 	public Map<String, Object> addAgree(JSONObject jo, UserBean user,
 			HttpServletRequest request) {
 		logger.info("FriendServiceImpl-->addAgree():jo="+jo.toString());
-		int friendId = JsonUtil.getIntValue(jo, "friendId");
+		int fid = JsonUtil.getIntValue(jo, "fid");
 		Map<String, Object> message = new HashMap<String, Object>();
 		message.put("isSuccess", false);
-		if(friendId == 0){
-			message.put("message", "找不到该关系记录"); 
+		if(fid == 0){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.缺少请求参数.value));
+			message.put("responseCode", EnumUtil.ResponseCode.缺少请求参数.value);
 			return message;	
 		}
-		FriendBean friendBean = friendDao.findById(friendId);
+		FriendBean friendBean = friendDao.findById(fid);
+		if(friendBean == null){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.好友关系不存在.value));
+			message.put("responseCode", EnumUtil.ResponseCode.好友关系不存在.value);
+			return message;		
+		}
+		
+		if(friendBean.getStatus() != ConstantsUtil.STATUS_DISABLE){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.好友关系不是待确认状态.value));
+			message.put("responseCode", EnumUtil.ResponseCode.好友关系不是待确认状态.value);
+			return message;	
+		}
+		
+		if(friendBean.getStatus() == ConstantsUtil.STATUS_NORMAL){
+			message.put("isSuccess", true);
+			message.put("message", "恭喜，TA已经是好友"); 
+			return message;	
+		}
+		
 		friendBean.setStatus(ConstantsUtil.STATUS_NORMAL);
 		friendBean.setModifyUser(user);
 		friendBean.setModifyTime(new Date());
@@ -184,10 +205,10 @@ public class FriendServiceImpl extends BaseServiceImpl<FriendBean> implements Fr
 		
 		//更新redis的朋友关系
 		message.put("isSuccess", friendHandler.addFriends(friendBean.getToUserId(), friendBean.getFromUserId(), friendBean.getToUserRemark(), friendBean.getFromUserRemark()));
-		message.put("message", "恭喜，你们已经是好友"); 
+		message.put("message", "恭喜，TA已经是好友"); 
 		
 		//保存操作日志
-		operateLogService.saveOperateLog(user, request, null, user.getAccount()+"同意好友关系"+friendId, "addAgree()", ConstantsUtil.STATUS_NORMAL, 0);
+		operateLogService.saveOperateLog(user, request, null, user.getAccount()+"同意好友关系"+fid, "addAgree()", ConstantsUtil.STATUS_NORMAL, 0);
 		return message;
 	}
 
@@ -265,23 +286,23 @@ public class FriendServiceImpl extends BaseServiceImpl<FriendBean> implements Fr
 		List<Map<String, Object>> rs = new ArrayList<>();
 	
 		if("firstloading".equalsIgnoreCase(method)){
-			sql.append("select id, "+ ConstantsUtil.STATUS_DISABLE +" status, to_user_id fid, add_introduce introduce, date_format((case when modify_time is null then create_time else modify_time end),'%Y-%c-%d %H:%i:%s') create_time, (case when to_user_remark = '' || to_user_remark = null then (select u.account from "+DataTableType.用户.value+" u where  u.id = to_user_id and u.status =?) else to_user_remark end ) remark from "+DataTableType.好友.value+" where from_user_id =? and status =?");
+			sql.append("select id, "+ 4 +" status, to_user_id fid, add_introduce introduce, date_format((case when modify_time is null then create_time else modify_time end),'%Y-%c-%d %H:%i:%s') create_time, (case when to_user_remark = '' || to_user_remark = null then (select u.account from "+DataTableType.用户.value+" u where  u.id = to_user_id and u.status =?) else to_user_remark end ) remark from "+DataTableType.好友.value+" where from_user_id =? and status =?");
 			sql.append(" UNION");
-			sql.append(" select id, "+ 4 +" status, from_user_id fid, add_introduce introduce, date_format((case when modify_time is null then create_time else modify_time end),'%Y-%c-%d %H:%i:%s') create_time, (case when from_user_remark = '' || from_user_remark = null then (select u.account from "+DataTableType.用户.value+" u where  u.id = from_user_id and u.status =?) else from_user_remark end ) remark from "+DataTableType.好友.value+" where to_user_id = ? and status =?");
+			sql.append(" select id, "+ ConstantsUtil.STATUS_DISABLE +" status, from_user_id fid, add_introduce introduce, date_format((case when modify_time is null then create_time else modify_time end),'%Y-%c-%d %H:%i:%s') create_time, (case when from_user_remark = '' || from_user_remark = null then (select u.account from "+DataTableType.用户.value+" u where  u.id = from_user_id and u.status =?) else from_user_remark end ) remark from "+DataTableType.好友.value+" where to_user_id = ? and status =?");
 			sql.append(" order by id desc limit 0,?");
 			rs = friendDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, user.getId(),ConstantsUtil.STATUS_DISABLE, ConstantsUtil.STATUS_NORMAL, user.getId(), ConstantsUtil.STATUS_DISABLE, pageSize);
 		//下刷新
 		}else if("lowloading".equalsIgnoreCase(method)){
-			sql.append("select id, "+ ConstantsUtil.STATUS_DISABLE +" status, to_user_id fid, add_introduce introduce, date_format((case when modify_time is null then create_time else modify_time end),'%Y-%c-%d %H:%i:%s') create_time, (case when to_user_remark = '' || to_user_remark = null then (select u.account from "+DataTableType.用户.value+" u where  u.id = to_user_id and u.status =?) else to_user_remark end ) remark from "+DataTableType.好友.value+" where from_user_id =? and status =? and id < ?");
+			sql.append("select id, "+ 4 +" status, to_user_id fid, add_introduce introduce, date_format((case when modify_time is null then create_time else modify_time end),'%Y-%c-%d %H:%i:%s') create_time, (case when to_user_remark = '' || to_user_remark = null then (select u.account from "+DataTableType.用户.value+" u where  u.id = to_user_id and u.status =?) else to_user_remark end ) remark from "+DataTableType.好友.value+" where from_user_id =? and status =? and id < ?");
 			sql.append(" UNION");
-			sql.append(" select id, "+ 4 +" status, from_user_id fid, add_introduce introduce, date_format((case when modify_time is null then create_time else modify_time end),'%Y-%c-%d %H:%i:%s') create_time, (case when from_user_remark = '' || from_user_remark = null then (select u.account from "+DataTableType.用户.value+" u where  u.id = from_user_id and u.status =?) else from_user_remark end ) remark from "+DataTableType.好友.value+" where to_user_id = ? and status =?");
+			sql.append(" select id, "+ ConstantsUtil.STATUS_DISABLE +" status, from_user_id fid, add_introduce introduce, date_format((case when modify_time is null then create_time else modify_time end),'%Y-%c-%d %H:%i:%s') create_time, (case when from_user_remark = '' || from_user_remark = null then (select u.account from "+DataTableType.用户.value+" u where  u.id = from_user_id and u.status =?) else from_user_remark end ) remark from "+DataTableType.好友.value+" where to_user_id = ? and status =?");
 			sql.append(" and id < ? order by id desc limit 0,? ");
 			rs = friendDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, user.getId(),ConstantsUtil.STATUS_DISABLE, lastId, ConstantsUtil.STATUS_NORMAL, user.getId(), ConstantsUtil.STATUS_DISABLE, lastId, pageSize);
 		//上刷新
 		}else if("uploading".equalsIgnoreCase(method)){
-			sql.append("select id, "+ ConstantsUtil.STATUS_DISABLE +" status, to_user_id fid, add_introduce introduce, date_format((case when modify_time is null then create_time else modify_time end),'%Y-%c-%d %H:%i:%s') create_time, (case when to_user_remark = '' || to_user_remark = null then (select u.account from "+DataTableType.用户.value+" u where  u.id = to_user_id and u.status =?) else to_user_remark end ) remark from "+DataTableType.好友.value+" where from_user_id =? and status =? and id > ?");
+			sql.append("select id, "+ 4 +" status, to_user_id fid, add_introduce introduce, date_format((case when modify_time is null then create_time else modify_time end),'%Y-%c-%d %H:%i:%s') create_time, (case when to_user_remark = '' || to_user_remark = null then (select u.account from "+DataTableType.用户.value+" u where  u.id = to_user_id and u.status =?) else to_user_remark end ) remark from "+DataTableType.好友.value+" where from_user_id =? and status =? and id > ?");
 			sql.append(" UNION");
-			sql.append(" select id, "+ 4 +" status, from_user_id fid, add_introduce introduce, date_format((case when modify_time is null then create_time else modify_time end),'%Y-%c-%d %H:%i:%s') create_time, (case when from_user_remark = '' || from_user_remark = null then (select u.account from "+DataTableType.用户.value+" u where  u.id = from_user_id and u.status =?) else from_user_remark end ) remark from "+DataTableType.好友.value+" where to_user_id = ? and status =?");
+			sql.append(" select id, "+ ConstantsUtil.STATUS_DISABLE +" status, from_user_id fid, add_introduce introduce, date_format((case when modify_time is null then create_time else modify_time end),'%Y-%c-%d %H:%i:%s') create_time, (case when from_user_remark = '' || from_user_remark = null then (select u.account from "+DataTableType.用户.value+" u where  u.id = from_user_id and u.status =?) else from_user_remark end ) remark from "+DataTableType.好友.value+" where to_user_id = ? and status =?");
 			sql.append(" and id > ? limit 0,? ");
 			rs = friendDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, user.getId(),ConstantsUtil.STATUS_DISABLE, firstId, ConstantsUtil.STATUS_NORMAL, user.getId(), ConstantsUtil.STATUS_DISABLE, firstId, pageSize);
 		}

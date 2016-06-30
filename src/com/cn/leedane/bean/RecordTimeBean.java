@@ -7,6 +7,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 
+import org.apache.struts2.json.annotations.JSON;
+
 /**
  * 记录时间的基类
  * @author LeeDane
@@ -39,6 +41,7 @@ public abstract class RecordTimeBean extends StatusBean{
 	private UserBean modifyUser; 
 	
 	@Column(name="create_time")
+	@JSON(format = "yyyy-MM-dd HH:mm:ss")
 	public Date getCreateTime() {
 		return createTime;
 	}
@@ -55,6 +58,7 @@ public abstract class RecordTimeBean extends StatusBean{
 		this.createUser = createUser;
 	}
 	@Column(name="modify_time")
+	@JSON(format = "yyyy-MM-dd HH:mm:ss")
 	public Date getModifyTime() {
 		return modifyTime;
 	}

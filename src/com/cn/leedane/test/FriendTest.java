@@ -32,7 +32,7 @@ public class FriendTest extends BaseTest {
 	
 	@Test
 	public void agreeFriends(){
-		String str = "{\"friendId\":9, \"from_user_remark\":\"小羊\"}";
+		String str = "{\"fid\":9, \"from_user_remark\":\"小羊\"}";
 		JSONObject jsonObject = JSONObject.fromObject(str);
 		UserBean user = userService.findById(1);
 		friendService.addAgree(jsonObject, user, null);

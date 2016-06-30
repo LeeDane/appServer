@@ -75,7 +75,7 @@ public class ToolAction extends BaseActionContext {
 				return SUCCESS;
 			}
 			
-			String toUserId = JsonUtil.getStringValue(jo, "to_user_id");//接收邮件的用户的Id
+			String toUserId = JsonUtil.getStringValue(jo, "to_user_id");//接收邮件的用户的Id，必须
 			String content = JsonUtil.getStringValue(jo, "content"); //邮件的内容，必须
 			String object = JsonUtil.getStringValue(jo, "object"); //邮件的标题，必须
 			if(StringUtil.isNull(toUserId) || StringUtil.isNull(content) || StringUtil.isNull(object)){

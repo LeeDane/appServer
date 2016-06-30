@@ -71,7 +71,7 @@ public class CommonHandler {
 			content = ConstantsUtil.SOURCE_DELETE_TIP;
 		}
 		
-		System.out.println("tableName:"+tableName+",tableId:"+tableId+",content:"+content);
+		//System.out.println("tableName:"+tableName+",tableId:"+tableId+",content:"+content);
 		return content;
 	}
 	

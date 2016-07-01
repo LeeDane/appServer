@@ -52,12 +52,13 @@ public interface FriendService <T extends Serializable> extends BaseService<Frie
 	public List<Map<String, Object>> getToFromFriends(int uid);
 	
 	/**
-	 * 根据用户id删除指定好友信息
-	 * @param uid
-	 * @param friends
+	 * 根据关系id删除好友关系信息
+	 * @param jo
+	 * @param user
+	 * @param request
 	 * @return
 	 */
-	public boolean deleteFriends(int uid, int ... friends);
+	public Map<String, Object> deleteFriends(JSONObject jo, UserBean user, HttpServletRequest request);
 	
 	/**
 	 * 判断两人是否是朋友的关系（判断两人的正式好友记录）

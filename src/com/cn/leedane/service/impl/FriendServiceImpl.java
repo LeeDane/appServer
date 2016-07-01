@@ -92,9 +92,39 @@ public class FriendServiceImpl extends BaseServiceImpl<FriendBean> implements Fr
 	}
 
 	@Override
-	public boolean deleteFriends(int uid, int... friends) {
-		logger.info("FriendServiceImpl-->deleteFriends():uid="+uid+",friends="+friends);
-		return this.friendDao.deleteFriends(uid, friends);
+	public Map<String, Object> deleteFriends(JSONObject jo, UserBean user, HttpServletRequest request) {
+		logger.info("FriendServiceImpl-->deleteFriends():jo="+jo.toString());
+		
+		Map<String, Object> message = new HashMap<String, Object>();
+		message.put("isSuccess", false);
+		int fid = JsonUtil.getIntValue(jo, "fid");
+		if(fid < 1) {
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.某些参数为空.value));
+			message.put("responseCode", EnumUtil.ResponseCode.某些参数为空.value);
+			return message;			
+		}
+				
+		FriendBean friendBean = friendDao.findById(fid);
+		int toUserId = friendBean.getFromUserId();
+		int fromUserId = friendBean.getFromUserId();
+		boolean result = false;
+		if(friendBean != null){
+			result = friendDao.delete(friendBean);
+		}
+		if(result){
+			//清空redis用户的缓存
+			friendHandler.delete(fromUserId, toUserId);
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.操作成功.value));
+		}else{
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.数据库删除数据失败.value));
+			message.put("responseCode", EnumUtil.ResponseCode.数据库删除数据失败.value);
+		}
+		message.put("isSuccess", result);
+		String subject = user.getAccount()+"解除关系ID为"+fid+"的好友关系"+StringUtil.getSuccessOrNoStr(result);
+		//保存操作日志
+		operateLogService.saveOperateLog(user, request, null, subject, "deleteFriends()", ConstantsUtil.STATUS_NORMAL, 0);
+		
+		return message;
 	}
 
 	@Override
@@ -191,12 +221,14 @@ public class FriendServiceImpl extends BaseServiceImpl<FriendBean> implements Fr
 		friendBean.setStatus(ConstantsUtil.STATUS_NORMAL);
 		friendBean.setModifyUser(user);
 		friendBean.setModifyTime(new Date());
+		String fromUserRemark = null;
 		if(StringUtil.isNotNull(JsonUtil.getStringValue(jo, "from_user_remark"))){
-			friendBean.setFromUserRemark(JsonUtil.getStringValue(jo, "from_user_remark"));
+			fromUserRemark = JsonUtil.getStringValue(jo, "from_user_remark");
 		}else{
-			friendBean.setFromUserRemark(user.getAccount());
+			fromUserRemark = userHandler.getUserName(friendBean.getFromUserId());	
 		}
 			
+		friendBean.setFromUserRemark(fromUserRemark);
 		 
 		if(!friendDao.save(friendBean)){
 			message.put("message", "同意好友关系失败，请稍后重试"); 

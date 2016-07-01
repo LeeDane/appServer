@@ -125,7 +125,7 @@ public class ConstantsUtil {
 	/**
 	 * 发送邮箱用户默认的邮件地址
 	 */
-	public static final String DEFAULT_USER_FROM_QQPSW = "qq19901107";
+	public static final String DEFAULT_USER_FROM_QQPSW = "irqcnluikwnubejg";
 	
 	/**
 	 * 极光推送Master Secret

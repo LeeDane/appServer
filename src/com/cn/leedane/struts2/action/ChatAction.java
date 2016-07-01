@@ -69,4 +69,50 @@ public class ChatAction extends BaseActionContext{
 		message.put("responseCode", EnumUtil.ResponseCode.服务器处理异常.value);
         return SUCCESS;
 	}
+	
+	/**
+	 * 更新聊天信息为已读状态
+	 * @return
+	 */
+	public String updateRead() {
+		try {
+			message.put("isSuccess", false);
+			JSONObject jo = HttpUtils.getJsonObjectFromInputStream(params, request);  
+			if(jo == null || jo.isEmpty()) {	
+				message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.缺少请求参数.value));
+				message.put("responseCode", EnumUtil.ResponseCode.缺少请求参数.value);
+				return SUCCESS;
+			}
+			message.putAll(chatService.updateRead(jo, user, request));
+			return SUCCESS;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}     
+        message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.服务器处理异常.value));
+		message.put("responseCode", EnumUtil.ResponseCode.服务器处理异常.value);
+        return SUCCESS;
+	}
+	
+	/**
+	 * 获取用户全部未读的信息
+	 * @return
+	 */
+	public String noReadList() {
+		try {
+			message.put("isSuccess", false);
+			JSONObject jo = HttpUtils.getJsonObjectFromInputStream(params, request);  
+			if(jo == null || jo.isEmpty()) {	
+				message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.缺少请求参数.value));
+				message.put("responseCode", EnumUtil.ResponseCode.缺少请求参数.value);
+				return SUCCESS;
+			}
+			message.putAll(chatService.noReadList(jo, user, request));
+			return SUCCESS;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}     
+        message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.服务器处理异常.value));
+		message.put("responseCode", EnumUtil.ResponseCode.服务器处理异常.value);
+        return SUCCESS;
+	}
 }

@@ -914,4 +914,18 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 		
 		return message;
 	}
+	
+	@Override
+	public UserBean findUserBeanByWeixinName(String fromUserName) {
+		logger.info("UserServiceImpl-->findUserBeanByWeixinName():fromUserName="+fromUserName);
+		List<UserBean> users = null;
+		
+		if(StringUtil.isNull(fromUserName)){
+			return null;
+		}
+		
+		users = userDao.executeHQL("UserBean", "where wechat_user_name='"+fromUserName+"'");
+
+		return users != null && users.size() > 0 ? users.get(0): null;
+	}
 }

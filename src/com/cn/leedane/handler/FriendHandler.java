@@ -14,7 +14,6 @@ import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.StringUtil;
 import com.cn.leedane.bean.CommentBean;
 import com.cn.leedane.bean.FriendBean;
-import com.cn.leedane.bean.UserBean;
 import com.cn.leedane.redis.util.RedisUtil;
 import com.cn.leedane.service.CommentService;
 import com.cn.leedane.service.FriendService;
@@ -96,11 +95,14 @@ public class FriendHandler {
 	
 	/**
 	 * 删除好友关系
-	 * @param user
+	 * @param fromUserId
 	 * @param toUserId
 	 */
-	public void delete(UserBean user, int toUserId){
-		
+	public void delete(int fromUserId, int toUserId){
+		redisUtil.delete(getFriendKey(fromUserId));
+		redisUtil.delete(getFriendKey(toUserId));
+		redisUtil.delete(getFriendIdsKey(fromUserId));
+		redisUtil.delete(getFriendIdsKey(toUserId));
 	}
 
 	

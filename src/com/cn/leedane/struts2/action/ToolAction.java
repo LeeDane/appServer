@@ -79,8 +79,8 @@ public class ToolAction extends BaseActionContext {
 			String content = JsonUtil.getStringValue(jo, "content"); //邮件的内容，必须
 			String object = JsonUtil.getStringValue(jo, "object"); //邮件的标题，必须
 			if(StringUtil.isNull(toUserId) || StringUtil.isNull(content) || StringUtil.isNull(object)){
-				message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.参数存在或为空.value));
-				message.put("responseCode", EnumUtil.ResponseCode.参数存在或为空.value);
+				message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.参数不存在或为空.value));
+				message.put("responseCode", EnumUtil.ResponseCode.参数不存在或为空.value);
 				return SUCCESS;
 			}
 			

@@ -26,8 +26,8 @@ public class FriendTest extends BaseTest {
 	private UserService<UserBean> userService;
 	@Test
 	public void deleteFriends(){
-		boolean delete = friendService.deleteFriends(3, 4, 2);
-		System.out.println("detete:" +delete);
+		/*boolean delete = friendService.deleteFriends(3, 4, 2);
+		System.out.println("detete:" +delete);*/
 	}
 	
 	@Test

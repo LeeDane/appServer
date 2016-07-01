@@ -318,4 +318,11 @@ public interface UserService <T extends Serializable> extends BaseService<UserBe
 	 * @return
 	 */
 	public Map<String, Object> updatePassword(JSONObject jo, UserBean user, HttpServletRequest request);
+
+	/**
+	 * 通过微信用户名找到leedane系统绑定的用户对象
+	 * @param fromUserName
+	 * @return
+	 */
+	public UserBean findUserBeanByWeixinName(String fromUserName);
 }

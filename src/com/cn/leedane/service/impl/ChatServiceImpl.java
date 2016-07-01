@@ -93,18 +93,18 @@ public class ChatServiceImpl extends BaseServiceImpl<ChatBean> implements ChatSe
 		}
 	
 		if("firstloading".equalsIgnoreCase(method)){
-			sql.append("select c.id, c.create_user_id, c.to_user_id, date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time, c.type, c.content");
+			sql.append("select c.id, c.is_read, c.create_user_id, c.to_user_id, date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time, c.type, c.content");
 			sql.append(" from "+DataTableType.聊天.value+" c where ((c.create_user_id = ? and c.to_user_id =?) or (c.to_user_id =? and c.create_user_id = ?))");
 			sql.append(" order by c.id desc limit 0,?");
 			rs = chatDao.executeSQL(sql.toString(), user.getId(), toUserId,  user.getId(), toUserId,pageSize);
 		//上刷新
 		}else if("uploading".equalsIgnoreCase(method)){
-			sql.append("select c.id, c.create_user_id, c.to_user_id , date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time, c.type, c.content");
+			sql.append("select c.id, c.is_read, c.create_user_id, c.to_user_id , date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time, c.type, c.content");
 			sql.append(" from "+DataTableType.聊天.value+" c where ((c.create_user_id = ? and c.to_user_id =?) or (c.to_user_id =? and c.create_user_id = ?))");
 			sql.append(" and c.id < ? order by c.id desc limit 0,? ");
 			rs = chatDao.executeSQL(sql.toString(), user.getId(), toUserId, user.getId(), toUserId, firstId, pageSize);
 		}else if("lowloading".equalsIgnoreCase(method)){
-			sql.append("select c.id, c.create_user_id, c.to_user_id , date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time, c.type, c.content");
+			sql.append("select c.id, c.is_read, c.create_user_id, c.to_user_id , date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time, c.type, c.content");
 			sql.append(" from "+DataTableType.聊天.value+" c where ((c.create_user_id = ? and c.to_user_id =?) or (c.to_user_id =? and c.create_user_id = ?))");
 			sql.append(" and c.id > ? order by c.id desc limit 0,? ");
 			rs = chatDao.executeSQL(sql.toString(), user.getId(), toUserId, user.getId(), toUserId, lastId, pageSize);
@@ -149,6 +149,9 @@ public class ChatServiceImpl extends BaseServiceImpl<ChatBean> implements ChatSe
 		chatBean.setStatus(ConstantsUtil.STATUS_NORMAL);
 		chatBean.setToUserId(toUserId);
 		chatBean.setType(type);
+		if(toUserId == user.getId()){//对于自己发的，标记为已读
+			chatBean.setRead(true);
+		}
 		
 		boolean result = chatDao.save(chatBean);
 		//保存操作日志
@@ -181,6 +184,62 @@ public class ChatServiceImpl extends BaseServiceImpl<ChatBean> implements ChatSe
 		chat.put("create_time", DateUtil.DateToString(chatBean.getCreateTime()));
 		chat.put("type", chatBean.getType());
 		chat.put("content", chatBean.getContent());
+		chat.put("is_read", chatBean.isRead());
 		return chat;
+	}
+
+
+	@Override
+	public Map<String, Object> updateRead(JSONObject jo, UserBean user,
+			HttpServletRequest request) {
+		logger.info("ChatServiceImpl-->updateRead():jo="+jo.toString());
+		Map<String, Object> message = new HashMap<String, Object>();
+		message.put("isSuccess", false);
+		String cids = JsonUtil.getStringValue(jo, "cids"); //聊天信息ID
+		if(StringUtil.isNull(cids)){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.参数不存在或为空.value));
+			message.put("responseCode", EnumUtil.ResponseCode.参数不存在或为空.value);
+			return message;
+		}
+		
+		String[] cidArray = cids.split(",");
+		ChatBean chatBean = null;
+		boolean result = false;
+		for(String cid: cidArray){
+			chatBean = chatDao.findById(StringUtil.changeObjectToInt(cid));
+			if(chatBean != null){
+				chatBean.setRead(true);
+				result = chatDao.update(chatBean);
+			}
+		}
+	
+		if(result){
+			message.put("isSuccess", result);
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.操作成功.value));
+		}else{
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.服务器处理异常.value));
+			message.put("responseCode", EnumUtil.ResponseCode.服务器处理异常.value);
+		}
+		return message;
+	}
+
+
+	@Override
+	public Map<String, Object> noReadList(JSONObject jo, UserBean user,
+			HttpServletRequest request) {
+		logger.info("ChatServiceImpl-->noReadList():jo="+jo.toString());
+		Map<String, Object> message = new HashMap<String, Object>();
+		message.put("isSuccess", false);
+		
+		List<Map<String, Object>> rs = new ArrayList<>();
+		StringBuffer sql = new StringBuffer();
+		sql.append("select c.id, c.is_read, c.create_user_id, c.to_user_id , date_format(c.create_time,'%Y-%c-%d %H:%i:%s') create_time, c.type, c.content");
+		sql.append(" from "+DataTableType.聊天.value+" c where c.to_user_id =? and c.is_read = ? and c.status=?");
+		rs = chatDao.executeSQL(sql.toString(), user.getId(), false, ConstantsUtil.STATUS_NORMAL);
+		
+		message.put("isSuccess", true);
+		message.put("message", rs);
+		
+		return message;
 	}
 }

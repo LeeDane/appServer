@@ -36,4 +36,22 @@ public interface ChatService <T extends Serializable> extends BaseService<ChatBe
 	 * @return
 	 */
 	public Map<String, Object> send(JSONObject jo, UserBean user, HttpServletRequest request);
+
+	/**
+	 * 更新聊天信息为已读状态
+	 * @param jo
+	 * @param user
+	 * @param request
+	 * @return
+	 */
+	public Map<String, Object> updateRead(JSONObject jo, UserBean user, HttpServletRequest request);
+
+	/**
+	 * 获取用户全部未读的信息
+	 * @param jo
+	 * @param user
+	 * @param request
+	 * @return
+	 */
+	public Map<String, Object> noReadList(JSONObject jo, UserBean user, HttpServletRequest request);
 }

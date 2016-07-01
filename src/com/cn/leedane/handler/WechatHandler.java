@@ -2,12 +2,17 @@ package com.cn.leedane.handler;
 
 import net.sf.json.JSONObject;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
+import com.cn.leedane.bean.UserBean;
+import com.cn.leedane.bean.ZanBean;
 import com.cn.leedane.redis.util.RedisUtil;
+import com.cn.leedane.service.UserService;
+import com.cn.leedane.service.ZanService;
 import com.cn.leedane.wechat.bean.WeixinCacheBean;
 import com.cn.leedane.wechat.util.WeixinUtil;
 
@@ -22,6 +27,13 @@ public class WechatHandler {
 	
 	
 	private RedisUtil redisUtil = RedisUtil.getInstance();
+	
+	@Autowired
+	private UserService<UserBean> userService;
+		
+	public void setUserService(UserService<UserBean> userService) {
+		this.userService = userService;
+	}
 	
 	/**
 	 * 添加该用户的缓存对象
@@ -47,6 +59,18 @@ public class WechatHandler {
 				System.out.println("WeixinCacheBean:"+value);
 				return stringToCacheBean(value);
 			}
+		}else{//查找数据库获取key
+			UserBean user = userService.findUserBeanByWeixinName(FromUserName);
+			if(user != null){
+				WeixinCacheBean bean = new WeixinCacheBean();
+				bean.setCurrentType(WeixinUtil.MODEL_MAIN_MENU);
+				bean.setBindLogin(true);
+				bean.setLastBlogId(0);
+				redisUtil.addString(fromUserKey, JSONObject.fromObject(bean).toString());
+				return bean;
+			}
+			//加个空的字符串表示下次不再查询
+			redisUtil.addString(fromUserKey, "");
 		}
 		return null;
 	}

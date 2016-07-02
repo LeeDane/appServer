@@ -851,7 +851,6 @@ public class UserServiceImpl extends BaseServiceImpl<UserBean> implements UserSe
 		
 		boolean result = userDao.update(user);
 		if(result){
-			saveRegisterScore(user);
 			message.put("isSuccess", result);
 			
 			//把Redis缓存的信息删除掉

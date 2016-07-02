@@ -2,6 +2,7 @@ package com.cn.leedane.service.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,11 +14,13 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cn.leedane.Dao.FriendDao;
 import com.cn.leedane.Utils.ConstantsUtil;
 import com.cn.leedane.Utils.EnumUtil;
 import com.cn.leedane.Utils.EnumUtil.DataTableType;
+import com.cn.leedane.Utils.EnumUtil.NotificationType;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
 import com.cn.leedane.bean.FriendBean;
@@ -25,6 +28,7 @@ import com.cn.leedane.bean.OperateLogBean;
 import com.cn.leedane.bean.ShowContactsBean;
 import com.cn.leedane.bean.UserBean;
 import com.cn.leedane.handler.FriendHandler;
+import com.cn.leedane.handler.NotificationHandler;
 import com.cn.leedane.handler.UserHandler;
 import com.cn.leedane.service.FriendService;
 import com.cn.leedane.service.OperateLogService;
@@ -73,6 +77,13 @@ public class FriendServiceImpl extends BaseServiceImpl<FriendBean> implements Fr
 		this.operateLogService = operateLogService;
 	}
 	
+	@Autowired
+	private NotificationHandler notificationHandler;
+	
+	public void setNotificationHandler(NotificationHandler notificationHandler) {
+		this.notificationHandler = notificationHandler;
+	}
+	
 	@Override
 	public List<Map<String, Object>> getFromToFriends(int uid) {
 		logger.info("FriendServiceImpl-->getFromToFriends():uid="+uid);
@@ -105,7 +116,7 @@ public class FriendServiceImpl extends BaseServiceImpl<FriendBean> implements Fr
 		}
 				
 		FriendBean friendBean = friendDao.findById(fid);
-		int toUserId = friendBean.getFromUserId();
+		int toUserId = friendBean.getToUserId();
 		int fromUserId = friendBean.getFromUserId();
 		boolean result = false;
 		if(friendBean != null){
@@ -114,7 +125,12 @@ public class FriendServiceImpl extends BaseServiceImpl<FriendBean> implements Fr
 		if(result){
 			//清空redis用户的缓存
 			friendHandler.delete(fromUserId, toUserId);
-			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.操作成功.value));
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.解除好友关系成功.value));
+			//发送通知给相应的用户
+			Set<Integer> ids = new HashSet<Integer>();
+			ids.add(user.getId() == fromUserId ? toUserId: fromUserId);
+			String content = "您的好友" +user.getAccount() +"已经解除了您们的好友关系";
+			notificationHandler.sendNotificationByIds(false, user, ids, content, NotificationType.通知, DataTableType.好友.value, fid, null);
 		}else{
 			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.数据库删除数据失败.value));
 			message.put("responseCode", EnumUtil.ResponseCode.数据库删除数据失败.value);
@@ -137,33 +153,36 @@ public class FriendServiceImpl extends BaseServiceImpl<FriendBean> implements Fr
 	public Map<String, Object> addFriend(JSONObject jo, UserBean user,
 			HttpServletRequest request) {
 		logger.info("FriendServiceImpl-->addFriend():jo="+jo.toString());
-		int to_user_id = JsonUtil.getIntValue(jo, "to_user_id");
+		int toUserId = JsonUtil.getIntValue(jo, "to_user_id");
 		Map<String, Object> message = new HashMap<String, Object>();
 		message.put("isSuccess", false);
-		if(to_user_id == 0) {
-			message.put("message", "to_user_id为空"); 
+		if(toUserId == 0) {
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.某些参数为空.value));
+			message.put("responseCode", EnumUtil.ResponseCode.某些参数为空.value);
 			return message;			
 		}
 		
-		if(isFriendRecord(user.getId(), to_user_id)){
+		if(isFriendRecord(user.getId(), toUserId)){
 			message.put("message", "等待对方确认..."); 
 			message.put("isSuccess", true);
 			return message;	
 		}
 		
-		UserBean toUser = userService.findById(to_user_id);
+		UserBean toUser = userService.findById(toUserId);
 		if(toUser == null){
-			message.put("message", "添加的好友账号不存在"); 
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.用户不存在或请求参数不对.value));
+			message.put("responseCode", EnumUtil.ResponseCode.用户不存在或请求参数不对.value);
 			return message;	
 		}
 		
-		if(to_user_id == user.getId()){
-			message.put("message", "不能添加自己为好友"); 
+		if(toUserId == user.getId()){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.不能添加自己为好友.value));
+			message.put("responseCode", EnumUtil.ResponseCode.不能添加自己为好友.value);
 			return message;	
 		}
 		FriendBean friendBean = new FriendBean();
 		friendBean.setFromUserId(user.getId());
-		friendBean.setToUserId(to_user_id);
+		friendBean.setToUserId(toUserId);
 		friendBean.setAddIntroduce(JsonUtil.getStringValue(jo, "add_introduce"));
 		friendBean.setStatus(ConstantsUtil.STATUS_DISABLE);
 		friendBean.setCreateUser(user);
@@ -177,9 +196,16 @@ public class FriendServiceImpl extends BaseServiceImpl<FriendBean> implements Fr
 		//因为from_user_remark字段不能为空，所以暂时给一个""值
 		friendBean.setFromUserRemark("");
 		if(!friendDao.save(friendBean)){
-			message.put("message", "添加好友失败"); 
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.添加好友失败.value));
+			message.put("responseCode", EnumUtil.ResponseCode.添加好友失败.value);
 			return message;	
 		}
+		//发送通知给相应的用户
+		Set<Integer> ids = new HashSet<Integer>();
+		ids.add(toUserId);
+		String content = user.getAccount() +"请求与您成为好友";
+		notificationHandler.sendNotificationByIds(false, user, ids, content, NotificationType.通知, DataTableType.好友.value, friendBean.getId(), null);
+	
 		message.put("message", "等待对方确认..."); 
 		message.put("isSuccess", true);
 		//保存操作日志
@@ -231,7 +257,9 @@ public class FriendServiceImpl extends BaseServiceImpl<FriendBean> implements Fr
 		friendBean.setFromUserRemark(fromUserRemark);
 		 
 		if(!friendDao.save(friendBean)){
-			message.put("message", "同意好友关系失败，请稍后重试"); 
+			//message.put("message", "同意好友关系失败，请稍后重试"); 
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.数据库保存失败.value));
+			message.put("responseCode", EnumUtil.ResponseCode.数据库保存失败.value);
 			return message;	
 		}
 		
@@ -239,6 +267,12 @@ public class FriendServiceImpl extends BaseServiceImpl<FriendBean> implements Fr
 		message.put("isSuccess", friendHandler.addFriends(friendBean.getToUserId(), friendBean.getFromUserId(), friendBean.getToUserRemark(), friendBean.getFromUserRemark()));
 		message.put("message", "恭喜，TA已经是好友"); 
 		
+		//发送通知给相应的用户
+		Set<Integer> ids = new HashSet<Integer>();
+		ids.add(friendBean.getFromUserId());
+		String content = user.getAccount() +"已经同意您的好友请求";
+		notificationHandler.sendNotificationByIds(false, user, ids, content, NotificationType.通知, DataTableType.好友.value, friendBean.getId(), null);
+	
 		//保存操作日志
 		operateLogService.saveOperateLog(user, request, null, user.getAccount()+"同意好友关系"+fid, "addAgree()", ConstantsUtil.STATUS_NORMAL, 0);
 		return message;

@@ -44,11 +44,13 @@ public class AttentionAction extends BaseActionContext{
 				message.put("responseCode", EnumUtil.ResponseCode.缺少请求参数.value);
 				return SUCCESS;
 			}
-			resIsSuccess = attentionService.addAttention(jo, user, request);
+			message.putAll(attentionService.addAttention(jo, user, request));
+			return SUCCESS;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		message.put("isSuccess", resIsSuccess);
+		message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.服务器处理异常.value));
+		message.put("responseCode", EnumUtil.ResponseCode.服务器处理异常.value);
         return SUCCESS;
 	}
 	

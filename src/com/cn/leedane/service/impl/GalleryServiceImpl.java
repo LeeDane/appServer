@@ -62,8 +62,8 @@ public class GalleryServiceImpl extends BaseServiceImpl<GalleryBean> implements 
 		}
 		
 		if(isExist(user, path)){
-			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.需要添加的记录已经存在.value));
-			message.put("responseCode", EnumUtil.ResponseCode.需要添加的记录已经存在.value);
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.添加的记录已经存在.value));
+			message.put("responseCode", EnumUtil.ResponseCode.添加的记录已经存在.value);
 			return message;
 		}
 		

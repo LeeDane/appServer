@@ -48,16 +48,22 @@ public class CommonHandler {
 	 * @return
 	 */
 	public String getContentByTableNameAndId(String tableName, int tableId, UserBean user){
+		List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
+		
+		//只支持心情和博客获取源
+		if(DataTableType.心情.value.equalsIgnoreCase(tableName)){
+			list = moodHandler.getMoodDetail(tableId, user, true);
+		}else if(DataTableType.博客.value.equalsIgnoreCase(tableName)){
+			list = blogHandler.getBlogDetail(tableId, user, true);
+		}else{
+			return "";
+		}
 		String content = ConstantsUtil.SOURCE_DELETE_TIP;
 		if(StringUtil.isNull(tableName) || tableId < 1){
 			return content;
 		}
-		List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
-		if(tableName.equalsIgnoreCase(DataTableType.心情.value)){
-			list = moodHandler.getMoodDetail(tableId, user, true);
-		}else if(tableName.equalsIgnoreCase(DataTableType.博客.value)){
-			list = blogHandler.getBlogDetail(tableId, user, true);
-		}
+		
+		
 		String account = null;
 		if(list != null && list.size() ==1){
 			content = getContent(list.get(0));

@@ -26,7 +26,7 @@ public interface AttentionService<T extends Serializable> extends BaseService<At
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean addAttention(JSONObject jo, UserBean user, HttpServletRequest request) ;
+	public Map<String, Object> addAttention(JSONObject jo, UserBean user, HttpServletRequest request) ;
 
 	
 

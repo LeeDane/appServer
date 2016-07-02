@@ -2,8 +2,10 @@ package com.cn.leedane.service.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -11,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cn.leedane.Dao.FanDao;
 import com.cn.leedane.Utils.ConstantsUtil;
@@ -18,11 +21,13 @@ import com.cn.leedane.Utils.EnumUtil;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
 import com.cn.leedane.Utils.EnumUtil.DataTableType;
+import com.cn.leedane.Utils.EnumUtil.NotificationType;
 import com.cn.leedane.bean.FanBean;
 import com.cn.leedane.bean.OperateLogBean;
 import com.cn.leedane.bean.UserBean;
 import com.cn.leedane.handler.CircleOfFriendsHandler;
 import com.cn.leedane.handler.FanHandler;
+import com.cn.leedane.handler.NotificationHandler;
 import com.cn.leedane.handler.UserHandler;
 import com.cn.leedane.service.FanService;
 import com.cn.leedane.service.OperateLogService;
@@ -78,6 +83,13 @@ public class FanServiceImpl extends BaseServiceImpl<FanBean> implements FanServi
 	public void setOperateLogService(
 			OperateLogService<OperateLogBean> operateLogService) {
 		this.operateLogService = operateLogService;
+	}
+	
+	@Autowired
+	private NotificationHandler notificationHandler;
+	
+	public void setNotificationHandler(NotificationHandler notificationHandler) {
+		this.notificationHandler = notificationHandler;
 	}
 	
 	@Override
@@ -409,8 +421,8 @@ public class FanServiceImpl extends BaseServiceImpl<FanBean> implements FanServi
 		
 		
 		if(cheakIsAddFan(user.getId(), toUserId)){
-			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.需要添加的记录已经存在.value));
-			message.put("responseCode", EnumUtil.ResponseCode.需要添加的记录已经存在.value);
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.添加的记录已经存在.value));
+			message.put("responseCode", EnumUtil.ResponseCode.添加的记录已经存在.value);
 			return message;	
 		}
 		FanBean fanBean = new FanBean();
@@ -424,6 +436,12 @@ public class FanServiceImpl extends BaseServiceImpl<FanBean> implements FanServi
 			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.数据库保存失败.value));
 			message.put("responseCode", EnumUtil.ResponseCode.数据库保存失败.value);
 			return message;	
+		}else{
+			//发送通知给相应的用户
+			Set<Integer> ids = new HashSet<Integer>();
+			ids.add(toUserId);
+			String content = user.getAccount() +"关注您";
+			notificationHandler.sendNotificationByIds(false, user, ids, content, NotificationType.通知, DataTableType.粉丝.value, fanBean.getId(), null);
 		}
 		
 		fanHandler.addAttention(user, toUser);

@@ -3,8 +3,10 @@ package com.cn.leedane.service.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -20,11 +22,13 @@ import com.cn.leedane.Utils.EnumUtil;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
 import com.cn.leedane.Utils.EnumUtil.DataTableType;
+import com.cn.leedane.Utils.EnumUtil.NotificationType;
 import com.cn.leedane.bean.AttentionBean;
 import com.cn.leedane.bean.OperateLogBean;
 import com.cn.leedane.bean.UserBean;
 import com.cn.leedane.handler.CommonHandler;
 import com.cn.leedane.handler.FriendHandler;
+import com.cn.leedane.handler.NotificationHandler;
 import com.cn.leedane.handler.UserHandler;
 import com.cn.leedane.service.AttentionService;
 import com.cn.leedane.service.OperateLogService;
@@ -73,19 +77,26 @@ public class AttentionServiceImpl extends BaseServiceImpl<AttentionBean> impleme
 	}
 
 	@Override
-	public boolean addAttention(JSONObject jo, UserBean user,
+	public Map<String, Object> addAttention(JSONObject jo, UserBean user,
 			HttpServletRequest request) {
 		//{\"table_name\":\""+DataTableType.心情.value+"\", \"table_id\":2334}
 		logger.info("AttentionServiceImpl-->addAttention():jsonObject=" +jo.toString() +", user=" +user.getAccount());
 		String tableName = JsonUtil.getStringValue(jo, "table_name");
 		int tableId = JsonUtil.getIntValue(jo, "table_id");
 		
+		Map<String, Object> message = new HashMap<String, Object>();
+		message.put("isSuccess", false);
+		
 		if(attentionDao.exists(tableName, tableId, user.getId())){
-			return false;
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.添加的记录已经存在.value));
+			message.put("responseCode", EnumUtil.ResponseCode.添加的记录已经存在.value);
+			return message;
 		}
 		
 		if(!recordExists(tableName, tableId)){
-			return false;
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.操作对象不存在.value));
+			message.put("responseCode", EnumUtil.ResponseCode.操作对象不存在.value);
+			return message;
 		}
 		AttentionBean bean = new AttentionBean();
 		bean.setCreateTime(new Date());
@@ -93,7 +104,19 @@ public class AttentionServiceImpl extends BaseServiceImpl<AttentionBean> impleme
 		bean.setStatus(ConstantsUtil.STATUS_NORMAL);
 		bean.setTableName(tableName);
 		bean.setTableId(tableId);
-		return attentionDao.save(bean);
+		boolean result = attentionDao.save(bean);
+		
+		//保存操作日志
+		operateLogService.saveOperateLog(user, request, null, StringUtil.getStringBufferStr(user.getAccount(),"添加关注，","关注ID为：", bean.getId(), "的数据", StringUtil.getSuccessOrNoStr(result)).toString(), "addAttention()", ConstantsUtil.STATUS_NORMAL, 0);
+		
+		if(result){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.关注成功.value));
+		}else{
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.数据库保存失败.value));
+			message.put("responseCode", EnumUtil.ResponseCode.数据库保存失败.value);
+		}
+		message.put("isSuccess", result);
+		return message;
 	}
 	
 	@Override

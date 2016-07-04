@@ -114,4 +114,13 @@ public interface BlogService <T extends Serializable> extends BaseService<BlogBe
 	 * @return
 	 */
 	public Map<String, Object> search(JSONObject jo, UserBean user, HttpServletRequest request);
+
+	/**
+	 * 添加标签
+	 * @param jo
+	 * @param user
+	 * @param request
+	 * @return
+	 */
+	public Map<String, Object> addTag(JSONObject jo, UserBean user, HttpServletRequest request);
 }

@@ -234,4 +234,70 @@ public class BlogServiceImpl extends BaseServiceImpl<BlogBean> implements BlogSe
 		message.put("message", rs);
 		return message;
 	}
+	
+	@Override
+	public Map<String, Object> addTag(JSONObject jo, UserBean user,
+			HttpServletRequest request) {
+		logger.info("BlogServiceImpl-->addTag():jo="+jo.toString());
+		int bid = JsonUtil.getIntValue(jo, "bid");
+		String tag = JsonUtil.getStringValue(jo, "tag");
+		Map<String, Object> message = new HashMap<String, Object>();
+		message.put("isSuccess", false);
+		
+		if(bid < 1 || StringUtil.isNull(tag)){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.某些参数为空.value));
+			message.put("responseCode", EnumUtil.ResponseCode.某些参数为空.value);
+			return message;
+		}
+		
+		if(tag.length() > 5){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.标签长度不能超过5位.value));
+			message.put("responseCode", EnumUtil.ResponseCode.标签长度不能超过5位.value);
+			return message;
+		}
+		
+		BlogBean blogBean = blogDao.findById(bid);
+		
+		if(blogBean == null){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.该博客不存在.value));
+			message.put("responseCode", EnumUtil.ResponseCode.该博客不存在.value);
+			return message;
+		}
+		boolean cut = false;
+		String oldTag = blogBean.getTag();
+		if(StringUtil.isNotNull(oldTag)){
+			String[] oldArray = oldTag.split(",");
+			StringBuffer b = new StringBuffer();
+			if(oldArray.length > 2){
+				cut = true;
+				for(int i = 1; i < 3; i++){
+					b.append(oldArray[i]);
+					b.append(",");
+				}
+				tag = b.toString() +tag;
+			}else{
+				tag = oldTag +"," +tag;
+			}
+		}
+		
+		blogBean.setTag(tag);
+		
+		boolean result = blogDao.update(blogBean);
+		
+		String subject = user.getAccount() + "为博客ID为"+bid + "添加标签" +tag + StringUtil.getSuccessOrNoStr(result);
+		this.operateLogService.saveOperateLog(user, request, new Date(), subject, "addTag()", ConstantsUtil.STATUS_NORMAL, 0);
+		
+		if(result){
+			if(cut){
+				message.put("message", "添加成功，标签数量超过3个，已自动删掉第一个");
+			}else
+				message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.标签添加成功.value));
+		}else{
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.数据库保存失败.value));
+			message.put("responseCode", EnumUtil.ResponseCode.数据库保存失败.value);
+		}
+		
+		message.put("isSuccess", result);
+		return message;
+	}
 }

@@ -138,6 +138,7 @@ public class LoginInterceptor extends AbstractInterceptor {
 			Object params = stack.findValue("params");
 			//String returnErrorMeg = "您没有权限操作该地址"+actionPath;
 			String returnErrorMeg = EnumUtil.getResponseValue(EnumUtil.ResponseCode.请先登录.value);
+			int returnErrorCode = EnumUtil.ResponseCode.请先登录.value;
 			if(params == null){
 				//校验用户信息
 				JSONObject jo = null;
@@ -186,21 +187,26 @@ public class LoginInterceptor extends AbstractInterceptor {
 							switch (status) {
 								case ConstantsUtil.STATUS_DISABLE:
 									returnErrorMeg = "账号"+user.getAccount()+"已经被禁用，有问题请联系管理员";
+									returnErrorCode = EnumUtil.ResponseCode.账号已被禁用.value;
 									break;
 								case ConstantsUtil.STATUS_NORMAL:
 									canDo = true;
 									break;
 								case 2:
 									returnErrorMeg = "请先激活账号"+ user.getAccount();
+									returnErrorCode = EnumUtil.ResponseCode.账号未被激活.value;
 									break;
 								case 3:
 									returnErrorMeg = "请先完善账号"+ user.getAccount() +"的信息";
+									returnErrorCode = EnumUtil.ResponseCode.请先完善账号信息.value;
 									break;
 								case 4:
 									returnErrorMeg = "账号"+ user.getAccount()+"已经被禁言，有问题请联系管理员";
+									returnErrorCode = EnumUtil.ResponseCode.账号已被禁言.value;
 									break;
 								case 5:
 									returnErrorMeg = "账号"+ user.getAccount()+"已经被注销，有问题请联系管理员";
+									returnErrorCode = EnumUtil.ResponseCode.账号已被注销.value;
 									break;
 								default:
 									break;
@@ -223,6 +229,7 @@ public class LoginInterceptor extends AbstractInterceptor {
 			
 			message.put("isSuccess", false);
 			message.put("message", returnErrorMeg);
+			message.put("responseCode", returnErrorCode);
 			message.put("isAccount", true);
 			actionContext.put("errorJson", JSONObject.fromObject(message));
 			return Action.ERROR;

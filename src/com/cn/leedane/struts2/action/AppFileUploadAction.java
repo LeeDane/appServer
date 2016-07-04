@@ -70,13 +70,17 @@ public class AppFileUploadAction extends BaseActionContext{
         		return SUCCESS;
         	}
             
+            request.setCharacterEncoding("UTF-8");
         	String fileName = request.getParameter("fileName"); //必须是带后缀的文件名，断点续传可以不用赋值
         	String tableName = request.getParameter("tableName"); //业务对应的物理表名,必须
         	int order = StringUtil.parseInt(request.getParameter("order"), 0); //多张图片时候的图片的位置，必须，为空默认是0
-        	System.out.println("用户ID为："+uid+",fileName:"+fileName+",tableName:"+tableName+",order:"+order);
-        	
+
             //String fileId = request.getParameter("fileId");  //文件ID
             String tableUuid = request.getParameter("uuid");  //客户端生成的唯一性uuid标识符
+            
+            //暂时解决乱码问题
+            tableUuid = new String (tableUuid.getBytes("iso-8859-1"), "UTF-8");
+            System.out.println("用户ID为："+uid+",fileName:"+fileName+",tableName:"+tableName+",order:"+order+",tableUuid:"+tableUuid);
             
             //编码，注意app要保证编号的正确性和顺序，到时合并的时候将按照大小进行合并
             int serialNumber = StringUtil.parseInt(request.getParameter("serialNumber"), 0);

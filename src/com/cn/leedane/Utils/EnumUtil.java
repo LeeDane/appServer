@@ -15,7 +15,7 @@ public class EnumUtil {
 	 * Version 1.0
 	 */
 	public enum WebCrawlType {
-		全部(""),网易新闻("网易新闻"), 散文网("散文网");
+		全部(""),网易新闻("网易新闻"), 散文网("散文网"), 散文网短篇小说("散文网短篇小说");
 	
 		private WebCrawlType(String value) {
 			this.value = value;

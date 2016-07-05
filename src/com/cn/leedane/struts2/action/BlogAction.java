@@ -237,7 +237,7 @@ public class BlogAction extends BaseActionContext{
 				sql.append("select b.id, b.img_url, b.title, b.has_img, b.tag, date_format(b.create_time,'%Y-%c-%d %H:%i:%s') create_time");
 				sql.append(" , b.digest, b.froms, b.create_user_id, u.account ");
 				sql.append(" from "+DataTableType.博客.value+" b inner join "+DataTableType.用户.value+" u on b.create_user_id = u.id ");
-				sql.append(" where b.status = ? and b.img_url != '' and b.id < ? order by b.id desc limit 0,?");
+				sql.append(" where b.status = ?  and b.id < ? order by b.id desc limit 0,?");
 				r = blogService.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, lastId, pageSize);
 				
 			//上刷新
@@ -245,7 +245,7 @@ public class BlogAction extends BaseActionContext{
 				sql.append("select b.id, b.img_url, b.title, b.has_img, b.tag, date_format(b.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
 				sql.append(" , b.digest, b.froms, b.create_user_id, u.account ");
 				sql.append(" from "+DataTableType.博客.value+" b inner join "+DataTableType.用户.value+" u on b.create_user_id = u.id ");
-				sql.append(" where b.status = ? and b.img_url != '' and b.id > ?  limit 0,?");
+				sql.append(" where b.status = ? and b.id > ?  limit 0,?");
 				r = blogService.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, firstId, pageSize);
 				
 			//第一次刷新
@@ -253,7 +253,7 @@ public class BlogAction extends BaseActionContext{
 				sql.append("select b.id, b.img_url, b.title, b.has_img, b.tag, date_format(b.create_time,'%Y-%c-%d %H:%i:%s') create_time ");
 				sql.append(" , b.digest, b.froms, b.create_user_id, u.account ");
 				sql.append(" from "+DataTableType.博客.value+" b inner join "+DataTableType.用户.value+" u on b.create_user_id = u.id ");
-				sql.append(" where b.status = ? and b.img_url != ''  order by b.id desc limit 0,?");
+				sql.append(" where b.status = ?  order by b.id desc limit 0,?");
 				r = blogService.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, pageSize);
 			}else{
 				message.put("isSuccess", resIsSuccess);

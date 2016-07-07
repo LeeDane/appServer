@@ -2,8 +2,13 @@ package com.cn.leedane.test;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.cn.leedane.Utils.DateUtil;
+import com.cn.leedane.Utils.StringUtil;
 
 /**
  * main方法相关的测试类
@@ -42,6 +47,23 @@ public class MainTest {
 		System.out.println(Base64Util.decode(ss.getBytes()));*/
 		
 		System.out.println(DateUtil.DateToString(new Date(), "HH:mm"));
+		
+		String content = "你好 哈哈";
+		if(content.charAt(2) == ' ')
+			System.out.println(true);
+		else
+			System.out.println(false);
+		
+		String str = "[14]你好 [78]jd[提供如 []89]]";
+		Set<Integer> imgIds = StringUtil.getImgIdList(str);
+		for(Integer id: imgIds)
+			System.out.println(id);
+		
+		String test1 = "123";
+		String test2 = new String("123");
+		System.out.println(test1 == test2);
 	}	
+	
+	
 
 }

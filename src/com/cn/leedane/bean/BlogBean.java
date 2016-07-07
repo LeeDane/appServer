@@ -347,7 +347,7 @@ public class BlogBean extends RecordTimeBean{
 		this.isSolrIndex = isSolrIndex;
 	}	
 	
-	@Column(name="can_comment", columnDefinition="bit(1) default 1")
+	@Column(name="can_comment", nullable=false, columnDefinition="bit(1) default 1")
 	public boolean isCanComment() {
 		return canComment;
 	}
@@ -355,7 +355,7 @@ public class BlogBean extends RecordTimeBean{
 		this.canComment = canComment;
 	}
 	
-	@Column(name="can_transmit", columnDefinition="bit(1) default 1")
+	@Column(name="can_transmit", nullable=false, columnDefinition="bit(1) default 1")
 	public boolean isCanTransmit() {
 		return canTransmit;
 	}

@@ -148,6 +148,8 @@ public class SanwenNetNovelBean {
 						blog.setFroms("爬虫抓取");
 						blog.setStatus(ConstantsUtil.STATUS_NORMAL);
 						blog.setDigest(JsoupUtil.getInstance().getDigest(content, 0, 120));
+						blog.setCanComment(true);
+						blog.setCanTransmit(true);
 						
 						//获取主图
 						String mainImgUrl = sanwenNet.getMainImg("#article .content img", 0);

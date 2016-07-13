@@ -184,10 +184,13 @@ public class NotificationServiceImpl extends BaseServiceImpl<NotificationBean> i
 			result = notificationDao.delete(notificationBean);
 			if(result){
 				message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.删除通知成功.value));
+			}else{
+				message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.删除通知失败.value));
+				message.put("responseCode", EnumUtil.ResponseCode.删除通知失败.value);
 			}
 		}else{
-			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.删除通知失败.value));
-			message.put("responseCode", EnumUtil.ResponseCode.删除通知失败.value);
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.删除的通知不存在.value));
+			message.put("responseCode", EnumUtil.ResponseCode.删除的通知不存在.value);
 			return message;
 		}
 		

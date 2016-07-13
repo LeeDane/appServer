@@ -1,14 +1,7 @@
 package com.cn.leedane.test;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import com.cn.leedane.Utils.DateUtil;
-import com.cn.leedane.Utils.StringUtil;
 
 /**
  * main方法相关的测试类
@@ -46,7 +39,7 @@ public class MainTest {
 		/*String ss = "U2FsdGVkX1+GwIYSkb6ewlmShIAAR+k1oKV87HFVoZlaCLjKUa3RsXxMIzs88xv2gvX9wXRao4SLaiOyB8113w=";
 		System.out.println(Base64Util.decode(ss.getBytes()));*/
 		
-		System.out.println(DateUtil.DateToString(new Date(), "HH:mm"));
+		/*System.out.println(DateUtil.DateToString(new Date(), "HH:mm"));
 		
 		String content = "你好 哈哈";
 		if(content.charAt(2) == ' ')
@@ -61,7 +54,12 @@ public class MainTest {
 		
 		String test1 = "123";
 		String test2 = new String("123");
-		System.out.println(test1 == test2);
+		System.out.println(test1 == test2);*/
+		
+		File f = new File("d://work");
+		System.out.println(f.getCanonicalPath());
+		System.out.println(f.getAbsolutePath());
+		System.out.println(f.getPath());
 	}	
 	
 	

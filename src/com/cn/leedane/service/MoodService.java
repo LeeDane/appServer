@@ -36,6 +36,17 @@ public interface MoodService <T extends Serializable> extends BaseService<MoodBe
 	 */
 	public Map<String, Object> sendWord(JSONObject jsonObject, UserBean user, HttpServletRequest request);
 	
+	
+	/**
+	 * 保存带图片链接的心情
+	 * @param jsonObject
+	 * @param user
+	 * @param request
+	 * @return
+	 */
+	public Map<String, Object> sendWordAndLink(JSONObject jsonObject, UserBean user, HttpServletRequest request);
+	
+	
 	/**
 	 * 更新心情状态
 	 * @param jsonObject

@@ -21,6 +21,7 @@ import com.cn.leedane.Utils.FilterUtil;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
 import com.cn.leedane.bean.ChatBean;
+import com.cn.leedane.bean.NotificationBean;
 import com.cn.leedane.bean.OperateLogBean;
 import com.cn.leedane.bean.UserBean;
 import com.cn.leedane.handler.NotificationHandler;
@@ -240,6 +241,42 @@ public class ChatServiceImpl extends BaseServiceImpl<ChatBean> implements ChatSe
 		message.put("isSuccess", true);
 		message.put("message", rs);
 		
+		return message;
+	}
+	
+	@Override
+	public Map<String, Object> deleteChat(JSONObject jo, UserBean user,
+			HttpServletRequest request) {
+		logger.info("ChatServiceImpl-->deleteChat():jsonObject=" +jo.toString() +", user=" +user.getAccount());
+		Map<String, Object> message = new HashMap<String, Object>();
+		message.put("isSuccess", false);
+		int cid = JsonUtil.getIntValue(jo, "cid");
+		if(cid < 1){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.缺少请求参数.value));
+			message.put("responseCode", EnumUtil.ResponseCode.缺少请求参数.value);
+			return message;
+		}
+		ChatBean chatBean = chatDao.findById(cid);
+		String content = "";
+		boolean result = false;
+		if(chatBean != null){
+			content = chatBean.getContent();
+			result = chatDao.delete(chatBean);
+			if(result){
+				message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.删除聊天记录成功.value));
+			}else{
+				message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.删除聊天记录失败.value));
+				message.put("responseCode", EnumUtil.ResponseCode.删除聊天记录失败.value);
+			}
+		}else{
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.删除的聊天记录不存在.value));
+			message.put("responseCode", EnumUtil.ResponseCode.删除的聊天记录不存在.value);
+			return message;
+		}
+		
+		//保存操作日志
+		operateLogService.saveOperateLog(user, request, null, StringUtil.getStringBufferStr(user.getAccount(),"刪除聊天记录Id为：", cid , ",内容为：", content, StringUtil.getSuccessOrNoStr(result)).toString(), "deleteChat()", ConstantsUtil.STATUS_NORMAL, 0);
+		message.put("isSuccess", result);
 		return message;
 	}
 }

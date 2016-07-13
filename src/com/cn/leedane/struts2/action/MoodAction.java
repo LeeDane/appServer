@@ -128,6 +128,33 @@ public class MoodAction extends BaseActionContext{
 		System.out.println("发表文字心情总计耗时：" +(end - start) +"毫秒");
         return SUCCESS;
 	}
+	
+	/**
+	 * 发表图片链接的心情
+	 * @return
+	 */
+	public String sendWordAndLink(){
+		long start = System.currentTimeMillis();	
+        message.put("isSuccess", resIsSuccess);
+		try {
+			JSONObject jo = HttpUtils.getJsonObjectFromInputStream(params,request);
+			if(jo == null || jo.isEmpty()) {	
+				message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.缺少请求参数.value));
+				message.put("responseCode", EnumUtil.ResponseCode.缺少请求参数.value);
+				return SUCCESS;
+			}
+			message.putAll(moodService.sendWordAndLink(jo, user, request));
+			return SUCCESS;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.服务器处理异常.value));
+		message.put("responseCode", EnumUtil.ResponseCode.服务器处理异常.value);
+		long end = System.currentTimeMillis();
+		System.out.println("发表文字心情总计耗时：" +(end - start) +"毫秒");
+        return SUCCESS;
+	}
+	
 	/**
 	 * 删除心情
 	 * @return

@@ -366,12 +366,12 @@ Ext.onReady(function() {
 	<table border="1" style="text-align: center;display: block;" >
 		<tr>
 			<td>
-				用户名：<input type="text" id="userName" name="userName" value="Lee"/>
+				用户名：<input type="text" id="userName" name="userName" value="leedane"/>
 			</td>		
 		</tr>
 		<tr>
 			<td>
-				密码：<input type="text" id="userPassword" name="userPassword" value="123"/>
+				密码：<input type="password" id="userPassword" name="userPassword" value="123"/>
 			</td>
 		</tr>
 		<tr>

@@ -235,7 +235,5 @@ public class LoginInterceptor extends AbstractInterceptor {
 			return Action.ERROR;
 		}
 	}
-	
-	
 
 }

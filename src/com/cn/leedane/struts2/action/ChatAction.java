@@ -48,6 +48,29 @@ public class ChatAction extends BaseActionContext{
 	}
 	
 	/**
+	 * 删除聊天记录
+	 * @return
+	 */
+	public String delete(){
+		message.put("isSuccess", resIsSuccess);
+		try {
+			JSONObject jo = HttpUtils.getJsonObjectFromInputStream(params,request);
+			if(jo == null || jo.isEmpty()) {	
+				message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.缺少请求参数.value));
+				message.put("responseCode", EnumUtil.ResponseCode.缺少请求参数.value);
+				return SUCCESS;
+			}
+			message.putAll(chatService.deleteChat(jo, user, request));
+			return SUCCESS;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.服务器处理异常.value));
+		message.put("responseCode", EnumUtil.ResponseCode.服务器处理异常.value);
+        return SUCCESS;
+	}
+	
+	/**
 	 * 分页获取聊天历史列表(两个人的聊天)
 	 * @return
 	 */

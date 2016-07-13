@@ -192,29 +192,32 @@ public class MoodHandler {
 			StringBuffer sql = new StringBuffer();
 			sql.append("select qiniu_path, pic_size, pic_order, width, height, lenght ");
 			sql.append(" from "+DataTableType.文件.value);
-			sql.append(" where status = ? and table_name=? and table_uuid = ? and is_upload_qiniu=? and pic_size =? order by pic_order,id limit 1");
+			sql.append(" where status = ? and table_name=? and table_uuid = ? and is_upload_qiniu=? and pic_size =? order by pic_order,id");
 			list = filePathDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, tableName, tableUuid, true, picSize);
 			
-			//找指定大小的图片
+			//找指定大小的图片,找原图
+			if(list == null || list.size() == 0 ){
+				list = filePathDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, tableName, tableUuid, true, "source");	
+			}
+			
 			if(list != null && list.size() > 0 ){
-				path = StringUtil.changeNotNull(list.get(0).get("qiniu_path"));
-				if(StringUtil.isNotNull(path) && (path.startsWith("http://") || path.startsWith("https://"))){
+				StringBuffer buffer = new StringBuffer();
+				String p = null;
+				for(int i = 0; i< list.size(); i++){
+					p = StringUtil.changeNotNull(list.get(i).get("qiniu_path"));
+					if(p.startsWith("http://") || p.startsWith("https://")){
+						buffer.append(p);
+						if(i != list.size() -1){
+							buffer.append(";");
+						}
+					}
+					
+				}
+				path = buffer.toString();
+				if(StringUtil.isNotNull(path)){
 					redisUtil.addString(moodImgKey, path);
 				}
-			//找原图
-			}else{
-				list = filePathDao.executeSQL(sql.toString(), ConstantsUtil.STATUS_NORMAL, tableName, tableUuid, true, "source");
-					if(list != null && list.size() > 0 ){
-						path = StringUtil.changeNotNull(list.get(0).get("qiniu_path"));
-						if(StringUtil.isNotNull(path) && (path.startsWith("http://") || path.startsWith("https://"))){
-							redisUtil.addString(moodImgKey, path);
-					}
-				}
 			}
-			//String path = filePathDao.getMoodImg(tableUuid, tableName, picSize);
-			//System.out.println("tableUuid:"+tableUuid+",tableName:"+tableName+",picSize:"+picSize+",path:"+path);
-			//if(StringUtil.isNotNull(path) && (path.startsWith("http://") || path.startsWith("https://"))){
-			//}
 			return path;
 		}else{
 			System.out.println("moodImgKey:"+moodImgKey);

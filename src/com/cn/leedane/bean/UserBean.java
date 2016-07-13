@@ -256,6 +256,8 @@ public class UserBean extends StatusBean{
 	public void setStr2(String str2) {
 		this.str2 = str2;
 	}
+	
+	@Column(columnDefinition="SMALLINT default 0", length=2, nullable=false)
 	public int getType() {
 		return type;
 	}
@@ -410,6 +412,8 @@ public class UserBean extends StatusBean{
 	public void setSex(String sex) {
 		this.sex = sex;
 	}
+	
+	@Column(columnDefinition="SMALLINT default 0", length=5, nullable=false)
 	public int getScore() {
 		return score;
 	}

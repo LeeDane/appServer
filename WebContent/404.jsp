@@ -34,7 +34,7 @@ function doUpdate(num){
 	
 <div id="ShowDiv"></div>         
 <script language="javascript">     
-Load("<%=basePath %>login.jsp"); //要跳转到的页面         
+Load("<%=basePath %>login-admin.jsp"); //要跳转到的页面         
 </script>     
 
 </body>

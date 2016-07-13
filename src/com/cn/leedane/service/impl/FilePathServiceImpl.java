@@ -123,7 +123,7 @@ public class FilePathServiceImpl extends BaseServiceImpl<FilePathBean> implement
 			filePathBean.setCreateUser(user);
 			filePathBean.setOrder(order);
 			filePathBean.setPath(sourcePath);
-			filePathBean.setSize("source");
+			filePathBean.setSize(ConstantsUtil.DEFAULT_PIC_SIZE);//source
 			f = new File(ConstantsUtil.DEFAULT_SAVE_FILE_FOLDER +"file" +File.separator+sourcePath);
 			int[] defaultWidthAndHeight = Base64ImageUtil.getImgWidthAndHeight(f);
 			filePathBean.setWidth(defaultWidthAndHeight[0]);

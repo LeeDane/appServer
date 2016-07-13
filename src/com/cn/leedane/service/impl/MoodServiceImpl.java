@@ -21,6 +21,7 @@ import com.cn.leedane.Utils.DateUtil;
 import com.cn.leedane.Utils.EnumUtil;
 import com.cn.leedane.Utils.EnumUtil.DataTableType;
 import com.cn.leedane.Utils.EnumUtil.NotificationType;
+import com.cn.leedane.Utils.FileUtil;
 import com.cn.leedane.Utils.FilterUtil;
 import com.cn.leedane.Utils.JsonUtil;
 import com.cn.leedane.Utils.StringUtil;
@@ -552,6 +553,7 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 				notificationHandler.sendNotificationByNames(false, user, usernames, content, NotificationType.艾特我, DataTableType.心情.value, moodBean.getId(), moodBean);
 			}
 			message.put("isSuccess", result);
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.发表心情成功.value));
 		}else{
 			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.服务器处理异常.value));
 			message.put("responseCode", EnumUtil.ResponseCode.服务器处理异常.value);
@@ -560,6 +562,124 @@ public class MoodServiceImpl extends BaseServiceImpl<MoodBean> implements MoodSe
 		// 保存发表心情日志信息
 		String subject = user.getAccount() + "发表了心情" + StringUtil.getSuccessOrNoStr(result);
 		this.operateLogService.saveOperateLog(user, request, new Date(), subject, "sendWord", ConstantsUtil.STATUS_NORMAL, 0);
+		
+		return message;
+	}
+	
+	@Override
+	public Map<String, Object> sendWordAndLink(JSONObject jsonObject, UserBean user, HttpServletRequest request) {
+		logger.info("MoodServiceImpl-->sendWordAndLink():jsonObject=" +jsonObject.toString());
+		String content = JsonUtil.getStringValue(jsonObject, "content");
+		String links = JsonUtil.getStringValue(jsonObject, "links"); //多张以“;”分开,必须
+				
+		Map<String, Object> message = new HashMap<String, Object>();
+		message.put("isSuccess", false);
+		
+		//进行敏感词过滤和emoji过滤
+		if(FilterUtil.filter(content, message))
+			return message;
+		
+		
+		//没有图片链接并且内容为空就报错返回
+		if(StringUtil.isNull(content) && StringUtil.isNull(links)){
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.某些参数为空.value));
+			message.put("responseCode", EnumUtil.ResponseCode.某些参数为空.value);
+			return message;
+		}
+		
+		boolean result = false;
+		
+		//生成统一的uuid
+		String uuid =  user.getAccount() + "links" + UUID.randomUUID().toString();
+		
+		//先保存图片记录
+		String[] linkArray = links.split(";");
+		FilePathBean filePathBean = null;
+		long[] widthAndHeight;
+		int width, height;
+		long length;
+		for(int i = 0; i< linkArray.length; i++){
+			//获取网络图片
+			widthAndHeight = FileUtil.getNetWorkImgAttr(linkArray[i]);
+			if(widthAndHeight.length == 3){
+				width = (int) widthAndHeight[0];
+				height = (int) widthAndHeight[1];
+				length = widthAndHeight[2];
+				if(width > 0 && height > 0){
+					filePathBean = new FilePathBean();
+					filePathBean.setCreateTime(new Date());
+					filePathBean.setCreateUser(user);
+					filePathBean.setOrder(i);
+					filePathBean.setPath(StringUtil.getFileName(linkArray[i]));
+					filePathBean.setQiniuPath(linkArray[i]);
+					filePathBean.setUploadQiniu(ConstantsUtil.STATUS_NORMAL);
+					filePathBean.setSize(ConstantsUtil.DEFAULT_PIC_SIZE); //source
+					filePathBean.setWidth(width);
+					filePathBean.setHeight(height);
+					filePathBean.setLenght(length);
+					filePathBean.setStatus(ConstantsUtil.STATUS_NORMAL);
+					filePathBean.setTableName(DataTableType.心情.value);
+					filePathBean.setTableUuid(uuid);
+					result = filePathDao.save(filePathBean);
+				}
+			}
+		}
+		
+		if(result){
+			MoodBean moodBean = new MoodBean();
+			moodBean.setContent(content);
+			String location = JsonUtil.getStringValue(jsonObject, "location");
+			if(StringUtil.isNotNull(location)){
+				double longitude = JsonUtil.getDoubleValue(jsonObject, "longitude");
+				double latitude = JsonUtil.getDoubleValue(jsonObject, "latitude");
+				moodBean.setLocation(location);
+				moodBean.setLongitude(longitude);
+				moodBean.setLatitude(latitude);
+			}
+			moodBean.setCreateTime(new Date());
+			moodBean.setFroms(JsonUtil.getStringValue(jsonObject, "froms"));
+			moodBean.setPublishNow(true);
+			moodBean.setStatus(ConstantsUtil.STATUS_NORMAL);
+			moodBean.setCreateUser(user);
+			moodBean.setCanComment(JsonUtil.getBooleanValue(jsonObject, "can_comment", true));
+			moodBean.setCanTransmit(JsonUtil.getBooleanValue(jsonObject, "can_transmit", true));
+			moodBean.setHasImg(true);
+			moodBean.setUuid(uuid);
+			
+			result = moodDao.save(moodBean);
+			if(result){
+				TimeLineBean timeLineBean = new TimeLineBean();
+				timeLineBean.setContent(moodBean.getContent());
+				timeLineBean.setCreateTime(DateUtil.DateToString(new Date()));
+				timeLineBean.setCreateUserId(moodBean.getCreateUser().getId());
+				timeLineBean.setFroms(moodBean.getFroms());
+				timeLineBean.setSource(null);
+				timeLineBean.setHasSource(false);
+				timeLineBean.setTableId(moodBean.getId());
+				timeLineBean.setTableName(EnumUtil.DataTableType.心情.value);
+				//更新用户的时间线
+				circleOfFriendsHandler.upDateMyAndFansTimeLine(timeLineBean);
+				
+				//有@人通知相关人员
+				Set<String> usernames = StringUtil.getAtUserName(content);
+				if(usernames.size() > 0){
+					//String str = "{from_user_remark}在发表的心情中@您,点击查看详情";
+					notificationHandler.sendNotificationByNames(false, user, usernames, content, NotificationType.艾特我, DataTableType.心情.value, moodBean.getId(), moodBean);
+				}
+				message.put("isSuccess", result);
+				message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.发表心情成功.value));
+			}else{
+				message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.服务器处理异常.value));
+				message.put("responseCode", EnumUtil.ResponseCode.服务器处理异常.value);
+			}
+		}else{
+			message.put("message", EnumUtil.getResponseValue(EnumUtil.ResponseCode.心情图片链接处理失败.value));
+			message.put("responseCode", EnumUtil.ResponseCode.心情图片链接处理失败.value);
+		}
+		
+		// 保存发表心情日志信息
+		String subject = user.getAccount() + "发表了心情" + StringUtil.getSuccessOrNoStr(result);
+		this.operateLogService.saveOperateLog(user, request, new Date(), subject, "sendWordAndLink", ConstantsUtil.STATUS_NORMAL, 0);
 		
 		return message;
 	}

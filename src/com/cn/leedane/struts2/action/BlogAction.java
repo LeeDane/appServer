@@ -39,7 +39,7 @@ import com.cn.leedane.service.UserService;
  */
 
 public class BlogAction extends BaseActionContext{	
-	protected final Log log = LogFactory.getLog(UserAction.class);
+	protected final Log log = LogFactory.getLog(BlogAction.class);
 	/**
 	 * 请求的参数信息
 	 */

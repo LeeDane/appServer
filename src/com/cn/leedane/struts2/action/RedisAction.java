@@ -19,9 +19,6 @@ public class RedisAction extends BaseActionContext{
 	protected final Log log = LogFactory.getLog(getClass());
 	private static final long serialVersionUID = 1L;
 	
-	
-	
-	
 	/**
 	 * 添加赞
 	 * @return

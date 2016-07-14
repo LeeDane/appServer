@@ -1,4 +1,5 @@
 #前言
+	提醒：自2016-7-14日起，将不维护spring+struts2+hibernate这个项目，只会进行常规bug修复和重构。继续开发spring+springmvc+mybatis版本，github地址：https://github.com/LeeDane/LeeDaneSpringMVC 
 	大家好，这个是本人日常学习的app对应的java服务器端源码。目前先把原形做出来，而且侧重点还是在app的开发，很多代码没有重构，阅读的时候难免有问题，希望看到兄弟能、多多指正，android app端地址，github地址： [https://github.com/LeeDane/app](https://github.com/LeeDane/app)
 ##功能描述
 	1.每天定时抓取网易新闻和散文网首页的文章(2016-04-28日前)
